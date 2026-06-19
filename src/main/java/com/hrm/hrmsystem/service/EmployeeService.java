@@ -100,8 +100,8 @@ public class EmployeeService {
 
     @Transactional(readOnly = true)
     public EmployeeDTO getEmployeeById(Long id) {
-        // Use findByIdWithDepartment to eagerly load department
-        Employee employee = employeeRepository.findByIdWithDepartment(id)
+        // Use findByIdentifierWithDepartment to eagerly load department
+        Employee employee = employeeRepository.findByIdentifierWithDepartment(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
         
         // Return null for terminated employees
@@ -161,7 +161,7 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeDTO updateEmployee(Long id, EmployeeDTO dto) {
-        Employee employee = employeeRepository.findById(id)
+        Employee employee = employeeRepository.findByIdentifier(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         // Validate email uniqueness
@@ -176,6 +176,7 @@ public class EmployeeService {
         employee.setLastName(dto.getLastName());
         employee.setPhone(dto.getPhone());
         employee.setEmail(dto.getEmail());
+        employee.setEmployeeCode(dto.getEmployeeId());
         employee.setDesignation(dto.getDesignation());
         employee.setJoiningDate(dto.getJoiningDate());
         employee.setSalary(dto.getSalary());
@@ -183,13 +184,19 @@ public class EmployeeService {
         employee.setGender(dto.getGender() != null ? Employee.Gender.valueOf(dto.getGender().toUpperCase()) : null);
         employee.setProbationPeriodMonths(dto.getProbationPeriodMonths());
         employee.setBasicSalary(dto.getBasicSalary());
-        employee.setDa(dto.getDa());
         employee.setHra(dto.getHra());
+        employee.setSpecialAllowance(dto.getSpecialAllowance());
+        employee.setBonus(dto.getBonus());
+        employee.setIncentive(dto.getIncentive());
         employee.setOtherAllowance(dto.getOtherAllowance());
         employee.setPf(dto.getPf());
-        employee.setTax(dto.getTax());
-        employee.setInsuranceName(dto.getInsuranceName());
-        employee.setInsurancePercentage(dto.getInsurancePercentage());
+        employee.setEsic(dto.getEsic());
+        employee.setProfessionalTax(dto.getProfessionalTax());
+        employee.setTds(dto.getTds());
+        employee.setTax(dto.getTds() != null ? dto.getTds() : dto.getTax());
+        employee.setLoanDeduction(dto.getLoanDeduction());
+        employee.setLwf(dto.getLwf());
+        employee.setUanNo(dto.getUanNo());
 
         if (dto.getDepartmentId() != null) {
             Department department = departmentRepository.findById(dto.getDepartmentId())
@@ -277,7 +284,7 @@ public class EmployeeService {
 
     @Transactional
     public void deleteEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
+        Employee employee = employeeRepository.findByIdentifier(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         Long employeeId = employee.getId();
@@ -391,6 +398,7 @@ public class EmployeeService {
     private EmployeeDTO convertToDTO(Employee employee) {
         return EmployeeDTO.builder()
                 .id(employee.getId())
+                .employeeId(employee.getEmployeeCode())
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
@@ -406,18 +414,25 @@ public class EmployeeService {
                 .shiftId(employee.getShift() != null ? employee.getShift().getId() : null)
                 .probationPeriodMonths(employee.getProbationPeriodMonths())
                 .basicSalary(employee.getBasicSalary())
-                .da(employee.getDa())
                 .hra(employee.getHra())
+                .specialAllowance(employee.getSpecialAllowance())
+                .bonus(employee.getBonus())
+                .incentive(employee.getIncentive())
                 .otherAllowance(employee.getOtherAllowance())
                 .pf(employee.getPf())
+                .esic(employee.getEsic())
+                .professionalTax(employee.getProfessionalTax())
+                .tds(employee.getTds())
                 .tax(employee.getTax())
-                .insuranceName(employee.getInsuranceName())
-                .insurancePercentage(employee.getInsurancePercentage())
+                .loanDeduction(employee.getLoanDeduction())
+                .lwf(employee.getLwf())
+                .uanNo(employee.getUanNo())
                 .build();
     }
 
     private Employee convertToEntity(EmployeeDTO dto) {
         Employee employee = Employee.builder()
+                .employeeCode(dto.getEmployeeId())
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
                 .email(dto.getEmail())
@@ -430,13 +445,19 @@ public class EmployeeService {
                 .gender(dto.getGender() != null ? Employee.Gender.valueOf(dto.getGender().toUpperCase()) : null)
                 .probationPeriodMonths(dto.getProbationPeriodMonths())
                 .basicSalary(dto.getBasicSalary())
-                .da(dto.getDa())
                 .hra(dto.getHra())
+                .specialAllowance(dto.getSpecialAllowance())
+                .bonus(dto.getBonus())
+                .incentive(dto.getIncentive())
                 .otherAllowance(dto.getOtherAllowance())
                 .pf(dto.getPf())
-                .tax(dto.getTax())
-                .insuranceName(dto.getInsuranceName())
-                .insurancePercentage(dto.getInsurancePercentage())
+                .esic(dto.getEsic())
+                .professionalTax(dto.getProfessionalTax())
+                .tds(dto.getTds())
+                .tax(dto.getTax() != null ? dto.getTax() : dto.getTds())
+                .loanDeduction(dto.getLoanDeduction())
+                .lwf(dto.getLwf())
+                .uanNo(dto.getUanNo())
                 .build();
 
         if (dto.getDepartmentId() != null) {

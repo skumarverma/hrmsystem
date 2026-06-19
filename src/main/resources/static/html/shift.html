@@ -5,7 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shift Management - HRM System</title>
     <link rel="stylesheet" href="../css/hrm-design-system.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .welcome-banner #banner-add-shift {
+            background: var(--accent) !important;
+            color: var(--primary-dark) !important;
+            border: 1.5px solid var(--accent) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            height: 40px;
+            box-shadow: none !important;
+            transform: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease !important;
+        }
+        .welcome-banner #banner-add-shift:hover {
+            background: var(--accent-light) !important;
+            border-color: var(--accent-light) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
+        }
+        
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+            .header .page-title, .header .btn-primary {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard">
@@ -29,6 +77,27 @@
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner" style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <div style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+                    
+                    <div style="z-index: 1;">
+                        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">Shift Management</h1>
+                        <p style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">Define and manage office timings and shifts</p>
+                    </div>
+                    
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions" style="z-index: 1; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <button id="banner-add-shift" class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+                            Add New Shift
+                        </button>
+                        
+                    
+                    </div>
+                </div>
                 <!-- Stats Row -->
                 <div class="stats-grid mb-6">
                     <div class="stat-card">
@@ -219,7 +288,13 @@
             document.getElementById('shift-id').value = '';
         }
 
-        document.getElementById('add-shift-btn').onclick = () => openModal();
+
+
+        // Add event listener for Add New Shift buttons
+        ['add-shift-btn', 'banner-add-shift'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.onclick = () => openModal();
+        });
 
         document.getElementById('shift-form').onsubmit = async (e) => {
             e.preventDefault();

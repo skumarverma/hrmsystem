@@ -75,6 +75,19 @@ public class DepartmentService {
     }
 
     private DepartmentDTO convertToDTO(Department department) {
+        int empCount = 0;
+        if (department.getEmployees() != null) {
+            String deptName = department.getName() != null ? department.getName().toLowerCase() : "";
+            boolean isSystemDept = deptName.contains("hr") || deptName.contains("director") || 
+                                   deptName.contains("leave") || deptName.contains("accountant");
+            
+            if (!isSystemDept) {
+                empCount = (int) department.getEmployees().stream()
+                        .filter(emp -> emp.getStatus() == com.hrm.hrmsystem.model.Employee.EmployeeStatus.ACTIVE)
+                        .count();
+            }
+        }
+
         return DepartmentDTO.builder()
                 .id(department.getId())
                 .name(department.getName())
@@ -82,7 +95,7 @@ public class DepartmentService {
                 .description(department.getDescription())
                 .headOfDepartment(department.getHeadOfDepartment())
                 .createdDate(department.getCreatedDate())
-                .employeeCount(department.getEmployees() != null ? department.getEmployees().size() : 0)
+                .employeeCount(empCount)
                 .build();
     }
 

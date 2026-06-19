@@ -12,6 +12,8 @@ public class AttendanceSummary {
     public double absent = 0;          // Unauthorized absence only
     public double unmarked = 0;         // No attendance record
     public double payableDays = 0;      // workedDays + paidLeave
+    public double paidAbsent = 0;       // Manual absences covered by paid balance
+    public double unpaidAbsent = 0;     // Manual absences not covered by paid balance
     
     // ✅ COMPATIBILITY FIELDS
     public int year = 0;               // For wrapper methods

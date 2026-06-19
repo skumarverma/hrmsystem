@@ -159,6 +159,13 @@ public class PayrollController {
         }
     }
 
+    // Unlock payroll
+    @PostMapping("/unlock/{payrollId}")
+    public ResponseEntity<PayrollDTO> unlockPayroll(@PathVariable Long payrollId) {
+        PayrollDTO payroll = payrollService.unlockPayroll(payrollId);
+        return ResponseEntity.ok(payroll);
+    }
+
     // Delete all payroll records
     @DeleteMapping("/clear-all")
     public ResponseEntity<String> clearAllPayrolls() {

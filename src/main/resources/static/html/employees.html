@@ -1,12 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employees - HRM System</title>
     <link rel="stylesheet" href="../css/hrm-design-system.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Aesthetic styling for elements when moved inside the welcome banner */
+        .welcome-banner .notification-container {
+            margin-right: 0.5rem;
+            position: static !important;
+            /* Forces dropdown to position relative to welcome-banner instead of container */
+        }
+
+        .welcome-banner .notification-container #notif-bell-btn {
+            color: rgba(255, 255, 255, 0.9) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+            width: 40px !important;
+            height: 40px !important;
+        }
+
+        .welcome-banner .notification-container #notif-bell-btn:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #f0d878 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .welcome-banner .notification-container #notif-badge {
+            background: #dc2626 !important;
+            border: 2px solid #1a365d !important;
+            /* matches banner primary-dark background */
+            top: -2px !important;
+            right: -2px !important;
+        }
+
+        .welcome-banner .notification-container #notif-dropdown {
+            position: absolute !important;
+            top: 1rem !important;
+            bottom: 1rem !important;
+            right: 1rem !important;
+            width: 350px !important;
+            height: calc(100% - 2rem) !important;
+            margin: 0 !important;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl) !important;
+            z-index: 1001;
+            background: white !important;
+            overflow: hidden !important;
+        }
+
+        .welcome-banner .notification-container #notif-list {
+            height: calc(100% - 48px) !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+        }
+
+        .welcome-banner #dashboard-logout-btn {
+            background: rgba(239, 68, 68, 0.15) !important;
+            color: #fee2e2 !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            transition: all 0.2s ease !important;
+            backdrop-filter: blur(8px) !important;
+            box-shadow: none !important;
+            transform: none !important;
+            height: 40px;
+        }
+
+        .welcome-banner #dashboard-logout-btn:hover {
+            background: #ef4444 !important;
+            color: white !important;
+            border-color: #ef4444 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .welcome-banner #banner-add-employee {
+            background: var(--accent) !important;
+            color: var(--primary-dark) !important;
+            border: 1.5px solid var(--accent) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            height: 40px;
+            box-shadow: none !important;
+            transform: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner #banner-add-employee:hover {
+            background: var(--accent-light) !important;
+            border-color: var(--accent-light) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
+        }
+
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .header #welcome-message,
+            .header .btn-primary {
+                display: none !important;
+            }
+        }
+
+        /* Search Box Focus Glow */
+        #search-input:focus {
+            background: white !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.15) !important;
+        }
+
+        #search-input:focus+#search-icon {
+            stroke: var(--primary) !important;
+        }
+    </style>
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -17,18 +158,70 @@
             <!-- Header -->
             <header class="header flex justify-between items-center mb-6">
                 <div class="page-title">
-                    <h1>Employee Management</h1>
-                    <p>Manage your workforce and their details</p>
+                    <h1 id="welcome-message"
+                        style="margin: 0; font-size: 2rem; font-weight: 800; color: var(--primary-dark); letter-spacing: -0.5px;">
+                        Employee Management</h1>
                 </div>
-                <div class="flex gap-2 items-center">
+                <!-- Hidden action container where sidebar.js will first mount the notification container -->
+                <div class="flex gap-2 items-center" id="header-actions-container" style="display: none !important;">
                     <a href="employee-form.html" class="btn-primary flex items-center gap-2">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" x2="12" y1="5" y2="19"></line>
+                            <line x1="5" x2="19" y1="12" y2="12"></line>
+                        </svg>
                         Add Employee
                     </a>
                 </div>
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner"
+                    style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
+                    <div style="z-index: 1;">
+                        <!-- Bold white Employees title on the banner -->
+                        <h1
+                            style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                            Employees</h1>
+                        <p
+                            style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                            Manage your workforce and their profiles</p>
+                    </div>
+
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <a href="employee-form.html" id="banner-add-employee">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" x2="12" y1="5" y2="19"></line>
+                                <line x1="5" x2="19" y1="12" y2="12"></line>
+                            </svg>
+                            Add Employee
+                        </a>
+
+
+
+                        <button class="flex items-center gap-2" id="dashboard-logout-btn" onclick="auth.logout()"
+                            title="Logout">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Logout
+                        </button>
+                    </div>
+                </div>
                 <!-- Stats Row -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="card p-4 border-l-4 border-primary-500">
@@ -49,8 +242,18 @@
                     <div class="card-header border-b flex justify-between items-center">
                         <h3 class="card-title">Employee List</h3>
                         <div class="flex gap-2 items-center">
-                            <div class="search-container">
-                                <input type="text" id="search-input" placeholder="Search employees..." class="form-control" style="min-width: 250px;">
+                            <div class="search-container"
+                                style="position: relative; width: 280px; display: inline-block;">
+                                <input type="text" id="search-input" placeholder="Search employees..."
+                                    class="form-control"
+                                    style="width: 100%; padding: 0.55rem 1rem 0.55rem 2.3rem; font-size: 0.85rem; border-radius: 9999px; border: 1.5px solid var(--gray-200); background: var(--gray-50); color: var(--text-primary); outline: none; transition: all 0.2s ease; box-shadow: none !important;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)"
+                                    stroke-width="2.5"
+                                    style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); pointer-events: none; transition: stroke 0.2s ease;"
+                                    id="search-icon">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
                             </div>
                         </div>
                     </div>
@@ -68,7 +271,9 @@
                                 </tr>
                             </thead>
                             <tbody id="employees-table">
-                                <tr><td colspan="7" class="text-center p-8 text-muted">Loading employees...</td></tr>
+                                <tr>
+                                    <td colspan="7" class="text-center p-8 text-muted">Loading employees...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -82,21 +287,21 @@
     <script>
         // Allow Leaves role (read-only) in addition to normal management roles
         if (!auth.requireManagement() && !auth.hasRole('ROLE_LEAVES')) throw new Error('Management access required');
-        
+
         // Load employees
         async function loadEmployees() {
             try {
                 const res = await auth.apiCall('/api/employees');
                 if (!res || !res.ok) throw new Error('Failed to load');
                 let employees = await res.json();
-        const isReadOnly = auth.hasRole('ROLE_DIRECTOR') || auth.hasRole('ROLE_LEAVES') || auth.hasRole('ROLE_ACCOUNTANT');
+                const isReadOnly = auth.hasRole('ROLE_DIRECTOR') || auth.hasRole('ROLE_LEAVES') || auth.hasRole('ROLE_ACCOUNTANT');
                 const isHR = auth.hasRole('ROLE_HR') || auth.hasRole('ROLE_ADMIN');
 
                 if (isReadOnly) {
-                    // Hide Add Employee button
-                    const addBtn = document.querySelector('.header .btn-primary');
+                    // Hide Add Employee button on banner
+                    const addBtn = document.getElementById('banner-add-employee');
                     if (addBtn) addBtn.style.display = 'none';
-                    
+
                     // Hide Actions column header
                     const headers = document.querySelectorAll('table.data-table th');
                     if (headers.length > 0) {
@@ -104,8 +309,8 @@
                     }
                 }
 
-                // Filter out Users (HR, Accountant, Director, Leaves, Admin) to only show regular Employees
-                const userDepts = ['HR', 'Accountant', 'Director', 'Leaves', 'Admin'];
+                // Filter out Users (HR, Accountant, Director, Leaves) to only show regular Employees
+                const userDepts = ['HR', 'Accountant', 'Director', 'Leaves'];
                 employees = employees.filter(emp => {
                     const dept = emp.departmentName || (emp.department && emp.department.name) || '';
                     return !userDepts.some(d => dept.toLowerCase().includes(d.toLowerCase()));
@@ -170,10 +375,11 @@
                 document.getElementById('employees-table').innerHTML = `<tr><td colspan="${isReadOnly ? 6 : 7}" style="text-align: center; color: red; padding: 2rem;">Error loading employees</td></tr>`;
             }
         }
-        
+
         // Delete employee (HR only)
         async function deleteEmployee(id, name) {
-            if (!confirm(`⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete:\n"${name}"\n\nThis will remove ALL their data including attendance, payslips, and leave records. This action CANNOT be undone!`)) return;
+            if (!confirm(`⚠️ PERMANENT DELETE WARNING\n\nAre you sure you want to permanently delete: "${name}"?\n\nThis will remove ALL their data from the database, including attendance records, leaves, payroll calculations, and documents.`)) return;
+            if (!confirm(`🚨 FINAL CONFIRMATION REQUIRED\n\nThis action is permanent and CANNOT be undone. Are you absolutely sure you want to proceed and erase "${name}" from all pages and records?`)) return;
             try {
                 const res = await auth.apiCall(`/api/employees/${id}`, { method: 'DELETE' });
                 if (res && res.ok) {
@@ -188,8 +394,26 @@
             }
         }
 
-        // No need for logout function - handled by sidebar.js
-        
+        // Initialize dynamic welcome banner on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = auth.getCurrentUser();
+
+
+
+            // Relocate notification bell
+            function relocateNotifications() {
+                const notifContainer = document.querySelector('.notification-container');
+                const bannerActions = document.getElementById('banner-actions');
+                if (notifContainer && bannerActions) {
+                    // Insert right after the gold Add Employee button (or as the first element)
+                    bannerActions.insertBefore(notifContainer, bannerActions.firstChild);
+                }
+            }
+            relocateNotifications();
+            setTimeout(relocateNotifications, 50);
+            setTimeout(relocateNotifications, 200);
+        });
+
         // Search functionality
         document.getElementById('search-input')?.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
@@ -198,8 +422,9 @@
                 row.style.display = text.includes(term) ? '' : 'none';
             });
         });
-        
+
         loadEmployees();
     </script>
 </body>
+
 </html>

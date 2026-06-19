@@ -1,4 +1,6 @@
 
+package com.hrm.hrmsystem;
+
 import com.hrm.hrmsystem.model.Employee;
 import com.hrm.hrmsystem.repository.EmployeeRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -16,7 +18,7 @@ public class EmpDataExporter implements CommandLineRunner {
                 if (e.getFirstName().contains("Anubhav") || e.getId() == 16 || e.getId() == 51) {
                     try {
                         writer.write(String.format("ID: %d | Name: %s %s | Joining: %s | Probation: %s | Status: %s\n",
-                            e.getId(), e.getFirstName(), e.getLastName(), e.getJoiningDate(), 
+                            e.getId(), e.getFirstName(), e.getLastName(), e.getJoiningDate(),
                             e.getProbationPeriodMonths(), e.getProbationStatus()));
                     } catch (Exception ex) {}
                 }

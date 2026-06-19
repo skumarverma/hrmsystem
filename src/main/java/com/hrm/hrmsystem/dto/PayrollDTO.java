@@ -21,13 +21,20 @@ public class PayrollDTO {
 
     private BigDecimal basicSalary;
     private BigDecimal hra;
-    private BigDecimal da;
+
     private BigDecimal ta;
+    private BigDecimal specialAllowance;
+    private BigDecimal bonus;
+    private BigDecimal incentive;
     private BigDecimal otherAllowances;
 
     private BigDecimal providentFund;
+    private BigDecimal esic;
+    private BigDecimal professionalTax;
+    private BigDecimal tds;
+    private BigDecimal loanDeduction;
+    private BigDecimal lwf;
     private BigDecimal tax;
-    private String insuranceName;
     private BigDecimal insurance;
     private BigDecimal otherDeductions;
 

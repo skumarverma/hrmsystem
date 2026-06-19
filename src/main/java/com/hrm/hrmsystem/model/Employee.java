@@ -29,6 +29,9 @@ public class Employee {
 
     private String phone;
 
+    @Column(name = "employee_code")
+    private String employeeCode;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
     private Department department;
@@ -41,13 +44,20 @@ public class Employee {
 
     // Salary components for payslip calculation
     private BigDecimal basicSalary;
-    private BigDecimal da;
     private BigDecimal hra;
+    private BigDecimal specialAllowance;
+    private BigDecimal bonus;
+    private BigDecimal incentive;
     private BigDecimal otherAllowance;
     
     // Deductions
     private BigDecimal pf;
+    private BigDecimal esic;
+    private BigDecimal professionalTax;
+    private BigDecimal tds;
     private BigDecimal tax;
+    private BigDecimal loanDeduction;
+    private BigDecimal lwf;
     
     // Gender
     @Enumerated(EnumType.STRING)
@@ -74,11 +84,10 @@ public class Employee {
     @Column(name = "annual_tax")
     private Double annualTax = 0.0;
     
-    @Column(name = "insurance_percentage")
-    private Double insurancePercentage;
+    // Removed insuranceName
 
-    @Column(name = "insurance_name")
-    private String insuranceName;
+    @Column(name = "uan_no")
+    private String uanNo;
 
     public enum ProbationStatus {
         PROBATION,
@@ -147,7 +156,7 @@ public class Employee {
     // All Args Constructor
     public Employee(Long id, String firstName, String lastName, String email, String phone,
                     Department department, String designation, LocalDate joiningDate, BigDecimal salary,
-                    BigDecimal basicSalary, BigDecimal da, BigDecimal hra, BigDecimal otherAllowance,
+                    BigDecimal basicSalary, BigDecimal hra, BigDecimal otherAllowance,
                     BigDecimal pf, BigDecimal tax, Gender gender, Integer probationPeriodMonths, Shift shift, EmployeeStatus status, 
                     String address, List<Leave> leaves, List<Attendance> attendances,
                     List<Payroll> payrolls, List<Payslip> payslips) {
@@ -161,7 +170,6 @@ public class Employee {
         this.joiningDate = joiningDate;
         this.salary = salary;
         this.basicSalary = basicSalary;
-        this.da = da;
         this.hra = hra;
         this.otherAllowance = otherAllowance;
         this.pf = pf;
@@ -183,18 +191,25 @@ public class Employee {
     public String getLastName() { return lastName; }
     public String getEmail() { return email; }
     public String getPhone() { return phone; }
+    public String getEmployeeCode() { return employeeCode; }
     public Department getDepartment() { return department; }
     public String getDesignation() { return designation; }
     public LocalDate getJoiningDate() { return joiningDate; }
     public BigDecimal getSalary() { return salary; }
     public BigDecimal getBasicSalary() { return basicSalary; }
-    public BigDecimal getDa() { return da; }
     public BigDecimal getHra() { return hra; }
+    public BigDecimal getSpecialAllowance() { return specialAllowance; }
+    public BigDecimal getBonus() { return bonus; }
+    public BigDecimal getIncentive() { return incentive; }
     public BigDecimal getOtherAllowance() { return otherAllowance; }
     public BigDecimal getPf() { return pf; }
+    public BigDecimal getEsic() { return esic; }
+    public BigDecimal getProfessionalTax() { return professionalTax; }
+    public BigDecimal getTds() { return tds; }
     public BigDecimal getTax() { return tax; }
-    public String getInsuranceName() { return insuranceName; }
-    public Double getInsurancePercentage() { return insurancePercentage; }
+    public BigDecimal getLoanDeduction() { return loanDeduction; }
+    public BigDecimal getLwf() { return lwf; }
+    public String getUanNo() { return uanNo; }
     public Gender getGender() { return gender; }
     public Integer getProbationPeriodMonths() { return probationPeriodMonths; }
     public Shift getShift() { return shift; }
@@ -220,19 +235,37 @@ public class Employee {
      * Fallback to 'salary' field if components are zero.
      */
     public BigDecimal getTotalGrossSalary() {
-        // ALWAYS use the main 'salary' field if it's set, as it represents the Gross Salary.
-        // This ensures deductions (absent/unpaid) are always calculated from the full Gross.
-        if (salary != null && salary.compareTo(BigDecimal.ZERO) > 0) {
-            return salary;
-        }
-
         BigDecimal sum = BigDecimal.ZERO;
         if (basicSalary != null) sum = sum.add(basicSalary);
         if (hra != null) sum = sum.add(hra);
-        if (da != null) sum = sum.add(da);
+        if (specialAllowance != null) sum = sum.add(specialAllowance);
+        if (bonus != null) sum = sum.add(bonus);
+        if (incentive != null) sum = sum.add(incentive);
         if (otherAllowance != null) sum = sum.add(otherAllowance);
         
-        return sum;
+        if (sum.compareTo(BigDecimal.ZERO) > 0) {
+            return sum;
+        }
+        
+        return salary != null ? salary : BigDecimal.ZERO;
+    }
+
+    /**
+     * ✅ NEW: Unified Net Salary calculation
+     * Returns the gross salary minus all deduction components.
+     */
+    public BigDecimal getTotalNetSalary() {
+        BigDecimal gross = getTotalGrossSalary();
+        BigDecimal deductions = BigDecimal.ZERO;
+        if (pf != null) deductions = deductions.add(pf);
+        if (esic != null) deductions = deductions.add(esic);
+        if (professionalTax != null) deductions = deductions.add(professionalTax);
+        if (tds != null) deductions = deductions.add(tds);
+        if (tax != null) deductions = deductions.add(tax);
+        if (loanDeduction != null) deductions = deductions.add(loanDeduction);
+        if (lwf != null) deductions = deductions.add(lwf);
+        BigDecimal net = gross.subtract(deductions);
+        return net.compareTo(BigDecimal.ZERO) > 0 ? net : BigDecimal.ZERO;
     }
 
     // Setters
@@ -241,18 +274,25 @@ public class Employee {
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setEmail(String email) { this.email = email; }
     public void setPhone(String phone) { this.phone = phone; }
+    public void setEmployeeCode(String employeeCode) { this.employeeCode = employeeCode; }
     public void setDepartment(Department department) { this.department = department; }
     public void setDesignation(String designation) { this.designation = designation; }
     public void setJoiningDate(LocalDate joiningDate) { this.joiningDate = joiningDate; }
     public void setSalary(BigDecimal salary) { this.salary = salary; }
     public void setBasicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; }
-    public void setDa(BigDecimal da) { this.da = da; }
     public void setHra(BigDecimal hra) { this.hra = hra; }
+    public void setSpecialAllowance(BigDecimal specialAllowance) { this.specialAllowance = specialAllowance; }
+    public void setBonus(BigDecimal bonus) { this.bonus = bonus; }
+    public void setIncentive(BigDecimal incentive) { this.incentive = incentive; }
     public void setOtherAllowance(BigDecimal otherAllowance) { this.otherAllowance = otherAllowance; }
     public void setPf(BigDecimal pf) { this.pf = pf; }
+    public void setEsic(BigDecimal esic) { this.esic = esic; }
+    public void setProfessionalTax(BigDecimal professionalTax) { this.professionalTax = professionalTax; }
+    public void setTds(BigDecimal tds) { this.tds = tds; }
     public void setTax(BigDecimal tax) { this.tax = tax; }
-    public void setInsuranceName(String insuranceName) { this.insuranceName = insuranceName; }
-    public void setInsurancePercentage(Double insurancePercentage) { this.insurancePercentage = insurancePercentage; }
+    public void setLoanDeduction(BigDecimal loanDeduction) { this.loanDeduction = loanDeduction; }
+    public void setLwf(BigDecimal lwf) { this.lwf = lwf; }
+    public void setUanNo(String uanNo) { this.uanNo = uanNo; }
     public void setGender(Gender gender) { this.gender = gender; }
     public void setProbationPeriodMonths(Integer probationPeriodMonths) { this.probationPeriodMonths = probationPeriodMonths; }
     public void setShift(Shift shift) { this.shift = shift; }
@@ -279,6 +319,7 @@ public class Employee {
 
     public static class Builder {
         private Long id;
+        private String employeeCode;
         private String firstName;
         private String lastName;
         private String email;
@@ -288,13 +329,19 @@ public class Employee {
         private LocalDate joiningDate;
         private BigDecimal salary;
         private BigDecimal basicSalary;
-        private BigDecimal da;
         private BigDecimal hra;
+        private BigDecimal specialAllowance;
+        private BigDecimal bonus;
+        private BigDecimal incentive;
         private BigDecimal otherAllowance;
         private BigDecimal pf;
+        private BigDecimal esic;
+        private BigDecimal professionalTax;
+        private BigDecimal tds;
         private BigDecimal tax;
-        private String insuranceName;
-        private Double insurancePercentage;
+        private BigDecimal loanDeduction;
+        private BigDecimal lwf;
+        private String uanNo;
         private Gender gender;
         private Integer probationPeriodMonths;
         private Shift shift;
@@ -305,10 +352,10 @@ public class Employee {
         private List<Leave> leaves = new ArrayList<>();
         private List<Attendance> attendances = new ArrayList<>();
         private List<Payroll> payrolls = new ArrayList<>();
-
         private List<Payslip> payslips = new ArrayList<>();
 
         public Builder id(Long id) { this.id = id; return this; }
+        public Builder employeeCode(String employeeCode) { this.employeeCode = employeeCode; return this; }
         public Builder firstName(String firstName) { this.firstName = firstName; return this; }
         public Builder lastName(String lastName) { this.lastName = lastName; return this; }
         public Builder email(String email) { this.email = email; return this; }
@@ -318,13 +365,20 @@ public class Employee {
         public Builder joiningDate(LocalDate joiningDate) { this.joiningDate = joiningDate; return this; }
         public Builder salary(BigDecimal salary) { this.salary = salary; return this; }
         public Builder basicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; return this; }
-        public Builder da(BigDecimal da) { this.da = da; return this; }
+
         public Builder hra(BigDecimal hra) { this.hra = hra; return this; }
+        public Builder specialAllowance(BigDecimal specialAllowance) { this.specialAllowance = specialAllowance; return this; }
+        public Builder bonus(BigDecimal bonus) { this.bonus = bonus; return this; }
+        public Builder incentive(BigDecimal incentive) { this.incentive = incentive; return this; }
         public Builder otherAllowance(BigDecimal otherAllowance) { this.otherAllowance = otherAllowance; return this; }
         public Builder pf(BigDecimal pf) { this.pf = pf; return this; }
+        public Builder esic(BigDecimal esic) { this.esic = esic; return this; }
+        public Builder professionalTax(BigDecimal professionalTax) { this.professionalTax = professionalTax; return this; }
+        public Builder tds(BigDecimal tds) { this.tds = tds; return this; }
         public Builder tax(BigDecimal tax) { this.tax = tax; return this; }
-        public Builder insuranceName(String insuranceName) { this.insuranceName = insuranceName; return this; }
-        public Builder insurancePercentage(Double insurancePercentage) { this.insurancePercentage = insurancePercentage; return this; }
+        public Builder loanDeduction(BigDecimal loanDeduction) { this.loanDeduction = loanDeduction; return this; }
+        public Builder lwf(BigDecimal lwf) { this.lwf = lwf; return this; }
+        public Builder uanNo(String uanNo) { this.uanNo = uanNo; return this; }
         public Builder gender(Gender gender) { this.gender = gender; return this; }
         public Builder probationPeriodMonths(Integer probationPeriodMonths) { this.probationPeriodMonths = probationPeriodMonths; return this; }
         public Builder shift(Shift shift) { this.shift = shift; return this; }
@@ -333,15 +387,43 @@ public class Employee {
         public Builder leaves(List<Leave> leaves) { this.leaves = leaves; return this; }
         public Builder attendances(List<Attendance> attendances) { this.attendances = attendances; return this; }
         public Builder payrolls(List<Payroll> payrolls) { this.payrolls = payrolls; return this; }
-
         public Builder payslips(List<Payslip> payslips) { this.payslips = payslips; return this; }
 
         public Employee build() {
-            Employee employee = new Employee(id, firstName, lastName, email, phone, department, designation,
-                    joiningDate, salary, basicSalary, da, hra, otherAllowance, pf, tax, gender, probationPeriodMonths, shift, status, address,
-                    leaves, attendances, payrolls, payslips);
-            employee.setInsuranceName(insuranceName);
-            employee.setInsurancePercentage(insurancePercentage);
+            Employee employee = new Employee();
+            employee.setId(id);
+            employee.setEmployeeCode(employeeCode);
+            employee.setFirstName(firstName);
+            employee.setLastName(lastName);
+            employee.setEmail(email);
+            employee.setPhone(phone);
+            employee.setDepartment(department);
+            employee.setDesignation(designation);
+            employee.setJoiningDate(joiningDate);
+            employee.setSalary(salary);
+            employee.setBasicSalary(basicSalary);
+            employee.setHra(hra);
+            employee.setSpecialAllowance(specialAllowance);
+            employee.setBonus(bonus);
+            employee.setIncentive(incentive);
+            employee.setOtherAllowance(otherAllowance);
+            employee.setPf(pf);
+            employee.setEsic(esic);
+            employee.setProfessionalTax(professionalTax);
+            employee.setTds(tds);
+            employee.setTax(tax);
+            employee.setLoanDeduction(loanDeduction);
+            employee.setLwf(lwf);
+            employee.setUanNo(uanNo);
+            employee.setGender(gender);
+            employee.setProbationPeriodMonths(probationPeriodMonths);
+            employee.setShift(shift);
+            employee.setStatus(status);
+            employee.setAddress(address);
+            employee.setLeaves(leaves);
+            employee.setAttendances(attendances);
+            employee.setPayrolls(payrolls);
+            employee.setPayslips(payslips);
             return employee;
         }
     }

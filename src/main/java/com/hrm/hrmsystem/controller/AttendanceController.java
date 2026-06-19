@@ -14,6 +14,8 @@ import com.hrm.hrmsystem.model.Leave;
 import com.hrm.hrmsystem.service.AttendanceService;
 import com.hrm.hrmsystem.service.EmployeeService;
 import com.hrm.hrmsystem.service.UnifiedCalculationService;
+import com.hrm.hrmsystem.service.PayrollService;
+import com.hrm.hrmsystem.service.PayslipService;
 import com.hrm.hrmsystem.engine.AttendanceEngine;
 import com.hrm.hrmsystem.engine.AttendanceEngine.LeaveDayResult;
 import com.hrm.hrmsystem.engine.AttendanceSummary;
@@ -22,6 +24,7 @@ import com.hrm.hrmsystem.repository.AttendanceRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -38,16 +41,23 @@ public class AttendanceController {
     private final LeaveRepository leaveRepository;
     private final AttendanceRepository attendanceRepository;
     private final UnifiedCalculationService unifiedCalculationService;
+    private final PayrollService payrollService;
+    private final PayslipService payslipService;
+    
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AttendanceController.class);
     
     public AttendanceController(AttendanceService attendanceService, EmployeeService employeeService, 
                                LeaveRepository leaveRepository, AttendanceRepository attendanceRepository,
-                               UnifiedCalculationService unifiedCalculationService, AttendanceEngine attendanceEngine) {
+                               UnifiedCalculationService unifiedCalculationService, AttendanceEngine attendanceEngine,
+                               PayrollService payrollService, PayslipService payslipService) {
         this.attendanceService = attendanceService;
         this.employeeService = employeeService;
         this.leaveRepository = leaveRepository;
         this.attendanceRepository = attendanceRepository;
         this.unifiedCalculationService = unifiedCalculationService;
         this.attendanceEngine = attendanceEngine;
+        this.payrollService = payrollService;
+        this.payslipService = payslipService;
     }
 
     @PostMapping("/check-in/{employeeId}")
@@ -96,6 +106,20 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceService.getAllAttendanceByDateRange(startDate, endDate));
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_HR','ROLE_ADMIN')")
+    @PostMapping("/mark-unmarked/{employeeId}")
+    public ResponseEntity<?> markUnmarked(
+            @PathVariable Long employeeId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        try {
+            attendanceService.markUnmarked(employeeId, date);
+            return ResponseEntity.ok(java.util.Map.of("message", "Cleared attendance (marked as unmarked)"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_HR','ROLE_ADMIN')")
     @PostMapping("/mark-absent/{employeeId}")
     public ResponseEntity<?> markAbsent(
             @PathVariable Long employeeId,
@@ -108,6 +132,7 @@ public class AttendanceController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_HR','ROLE_ADMIN')")
     @PostMapping("/mark-present/{employeeId}")
     public ResponseEntity<?> markPresent(
             @PathVariable Long employeeId,
@@ -214,6 +239,8 @@ public class AttendanceController {
             if (day.get("checkInTime") != null) dto.setCheckInTime((LocalTime) day.get("checkInTime"));
             if (day.get("checkOutTime") != null) dto.setCheckOutTime((LocalTime) day.get("checkOutTime"));
             if (day.get("remarks") != null) dto.setRemarks(day.get("remarks").toString());
+            if (day.get("paidAbsent") != null) dto.setPaidAbsent((Double) day.get("paidAbsent"));
+            if (day.get("unpaidAbsent") != null) dto.setUnpaidAbsent((Double) day.get("unpaidAbsent"));
             
             result.add(dto);
         }
@@ -222,12 +249,36 @@ public class AttendanceController {
     }
 
     @DeleteMapping("/clear-all")
-    public ResponseEntity<String> clearAllAttendance() {
+    public ResponseEntity<?> clearAllAttendance() {
         try {
-            attendanceService.deleteAllAttendance();
-            return ResponseEntity.ok("All attendance records deleted successfully");
+            log.info("Request to clear all attendance received.");
+            java.util.Set<String> affected = attendanceService.deleteAllAttendance();
+            
+            log.info("Affected employee-months after clearing attendance: {}", affected);
+            for (String key : affected) {
+                try {
+                    String[] parts = key.split("_");
+                    Long employeeId = Long.parseLong(parts[0]);
+                    int year = Integer.parseInt(parts[1]);
+                    int month = Integer.parseInt(parts[2]);
+                    
+                    log.info("Recalculating payroll/payslip after clearing attendance: employee={}, month={}, year={}", employeeId, month, year);
+                    payrollService.generatePayroll(employeeId, month, year);
+                    
+                    String monthYear = year + "-" + String.format("%02d", month);
+                    payslipService.generatePayslip(employeeId, monthYear);
+                } catch (Exception ex) {
+                    log.error("Error recalculating payroll/payslip for key {}: {}", key, ex.getMessage());
+                }
+            }
+            return ResponseEntity.ok(java.util.Map.of("message", "All attendance records deleted successfully"));
+        } catch (RuntimeException e) {
+            log.error("Error clearing attendance: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting attendance records: " + e.getMessage());
+            log.error("Error clearing attendance", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting attendance records: " + e.getMessage());
         }
     }
 }

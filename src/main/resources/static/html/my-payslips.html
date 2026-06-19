@@ -9,6 +9,7 @@
     <meta http-equiv="Expires" content="0">
     <title>My Payslips - HRM System</title>
     <link rel="stylesheet" href="../css/hrm-design-system.css">
+    <link rel="stylesheet" href="../css/employee-theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -19,25 +20,36 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="header flex justify-between items-center mb-6">
-                <div class="page-title">
-                    <h1>My Payslips</h1>
-                    <p>View and download your salary statements</p>
+            <!-- Welcome Banner -->
+            <div class="welcome-banner"
+                style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                <!-- Ambient glows for aesthetic excellence -->
+                <div
+                    style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
                 </div>
-                <div class="flex gap-2 items-center">
-                    <select id="monthFilter" class="form-control" onchange="filterByMonth()" style="width: auto;">
-                        <option value="">All Months</option>
+                <div
+                    style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                </div>
+
+                <div style="z-index: 1;">
+                    <h1
+                        style="margin: 0; font-size: 2.25rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                        My Payslips</h1>
+                    <p
+                        style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                        View and download your salary statements</p>
+                </div>
+
+                <!-- Integrated Action Area on the Banner (Refresh Button Removed) -->
+                <div class="flex gap-2 items-center" style="z-index: 1;">
+                    <select id="monthFilter" class="form-control" onchange="filterByMonth()" style="width: auto; background: rgba(255, 255, 255, 0.15) !important; color: white !important; border: 1px solid rgba(255, 255, 255, 0.25) !important; border-radius: 0.375rem; padding: 0.5rem 2.5rem 0.5rem 1rem; cursor: pointer; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;) !important; background-repeat: no-repeat !important; background-position: right 0.75rem center !important; appearance: none; -webkit-appearance: none;">
+                        <option value="" style="color: black; background: white;">All Months</option>
                     </select>
-                    <button onclick="loadCurrentMonthPayslip()" class="btn-primary">Current Month</button>
-                    <button onclick="loadMyPayslips()" class="btn-icon" title="Refresh">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
+                    <button onclick="loadCurrentMonthPayslip()" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%); color: var(--primary-dark) !important; border: none; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); font-weight: 700;">
+                        Current Month
                     </button>
                 </div>
-            </header>
+            </div>
 
             <div class="page-content">
                 <div id="payslips-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -60,8 +72,6 @@
             </div>
         </div>
     </div>
-    </main>
-    </div>
 
     <script src="../js/auth.js?v=5"></script>
     <script src="../js/sidebar.js?v=5"></script>
@@ -74,26 +84,39 @@
         const user = auth.getCurrentUser();
 
         let allPayslips = []; // Store all payslips for filtering
+        let isFirstLoad = true;
 
         function getCurrentMonthYear() {
             const now = new Date();
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            return `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
         }
 
         function populateMonthFilter(payslips) {
             const monthFilter = document.getElementById('monthFilter');
             const months = [...new Set(payslips.map(p => p.monthYear).filter(m => m))].sort().reverse();
+            const currentMonth = getCurrentMonthYear();
 
-            monthFilter.innerHTML = '<option value="">All Months</option>';
+            if (!months.includes(currentMonth)) {
+                months.push(currentMonth);
+                months.sort().reverse();
+            }
+
+            monthFilter.innerHTML = '<option value="" style="color: black; background: white;">All Months</option>';
             months.forEach(month => {
-                monthFilter.innerHTML += `<option value="${month}">${month}</option>`;
+                monthFilter.innerHTML += `<option value="${month}" style="color: black; background: white;">${month}</option>`;
             });
 
-            // Select current month by default
-            const currentMonth = getCurrentMonthYear();
-            if (months.includes(currentMonth)) {
+            const currentSelection = monthFilter.value;
+
+            if (isFirstLoad) {
                 monthFilter.value = currentMonth;
+                isFirstLoad = false;
+            } else if (currentSelection && months.includes(currentSelection)) {
+                monthFilter.value = currentSelection;
+            } else {
+                monthFilter.value = currentSelection || "";
             }
         }
 
@@ -125,62 +148,59 @@
             if (visiblePayslips.length === 0) {
                 const message = filterMonth
                     ? `No payslip available for ${filterMonth}. Select a different month or check back later.`
-                    : 'No payslips available yet. Payslips will appear here after approval.';
+                    : 'No payslips available yet. Payslips will appear here Remaining.';
                 grid.innerHTML = `<div style="text-align: center; padding: 4rem; color: var(--gray-500);">${message}</div>`;
                 return;
             }
 
-            // Show only the first payslip (single month view)
-            const p = visiblePayslips[0];
-            const status = (p.status || '').toUpperCase();
-            const statusClass = status.toLowerCase() || 'pending';
-            const statusLabel = status === 'SENT' ? '✓ Sent' : (status === 'PAID' ? '✓ Paid' : (status === 'APPROVED' ? 'Approved' : p.status));
+            // Show all payslips in the grid
+            grid.innerHTML = visiblePayslips.map(p => {
+                const status = (p.status || '').toUpperCase();
+                const statusClass = status.toLowerCase() || 'pending';
+                const statusLabel = status === 'SENT' ? '✓ Sent' : (status === 'PAID' ? '✓ Paid' : (status === 'APPROVED' ? 'Approved' : p.status));
 
-            grid.innerHTML = `
-                <div class="card p-0 overflow-hidden">
-                    <div class="p-4 border-b bg-gray-50 flex items-center gap-3">
-                        <div class="avatar avatar-md bg-primary text-white">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-lg mb-0">${p.monthYear || 'N/A'}</h4>
-                            <div class="text-xs text-muted">${p.employeeName || ''}</div>
-                        </div>
-                        <span class="status-badge ${statusClass}">${statusLabel}</span>
-                    </div>
-                    <div class="p-5 space-y-4">
-                        <div class="flex justify-between items-center pb-3 border-b">
-                            <span class="text-sm text-muted">Net Salary</span>
-                            <span class="font-bold text-2xl text-success">${auth.formatCurrency(p.netSalary || 0)}</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <div class="text-[10px] text-muted uppercase font-bold mb-1">Basic Salary</div>
-                                <div class="text-sm font-semibold">${auth.formatCurrency(p.basicSalary || 0)}</div>
+                return `
+                    <div class="card p-0 overflow-hidden">
+                        <div class="p-4 border-b bg-gray-50 flex items-center gap-3">
+                            <div class="avatar avatar-md bg-primary text-white">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <div class="text-[10px] text-muted uppercase font-bold mb-1">Allowances</div>
-                                <div class="text-sm font-semibold">${auth.formatCurrency((p.da || 0) + (p.hra || 0) + (p.otherAllowance || 0))}</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg mb-0">${p.monthYear || 'N/A'}</h4>
+                                <div class="text-xs text-muted">${p.employeeName || ''}</div>
                             </div>
+                            <span class="status-badge ${statusClass}">${statusLabel}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-xs text-muted">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            Leave Balance: <span class="font-bold text-success ml-1">${p.leaveBalance && typeof p.leaveBalance.availableLeaves === 'number' ? p.leaveBalance.availableLeaves.toFixed(1) : '0.0'}</span>
+                        <div class="p-5 space-y-4">
+                            <div class="flex justify-between items-center pb-3 border-b">
+                                <span class="text-sm text-muted">Net Salary</span>
+                                <span class="font-bold text-2xl text-success">${auth.formatCurrency(p.netSalary || 0)}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-[10px] text-muted uppercase font-bold mb-1">Basic Salary</div>
+                                    <div class="text-sm font-semibold">${auth.formatCurrency(p.basicSalary || 0)}</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-[10px] text-muted uppercase font-bold mb-1">Allowances</div>
+                                    <div class="text-sm font-semibold">${auth.formatCurrency((p.hra || 0) + (p.otherAllowance || 0))}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-muted">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Leave Balance: <span class="font-bold text-success ml-1">${p.leaveBalance && typeof p.leaveBalance.availableLeaves === 'number' ? p.leaveBalance.availableLeaves.toFixed(1) : '0.0'}</span>
+                            </div>
+                            ${p.remarks ? `<div class="p-3 bg-blue-50 border-l-4 border-blue-500 text-xs text-blue-700 italic">${p.remarks}</div>` : ''}
                         </div>
-                        ${p.remarks ? `<div class="p-3 bg-blue-50 border-l-4 border-blue-500 text-xs text-blue-700 italic">${p.remarks}</div>` : ''}
+                        <div class="p-4 bg-gray-50 border-t flex gap-3">
+                            <button onclick="downloadPayslip(${p.id})" class="btn-primary flex-1 flex items-center justify-center gap-2">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                Download PDF
+                            </button>
+                        </div>
                     </div>
-                    <div class="p-4 bg-gray-50 border-t flex gap-3">
-                        <button onclick="downloadPayslip(${p.id})" class="btn-primary flex-1 flex items-center justify-center gap-2">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                            Download PDF
-                        </button>
-                        <button onclick="viewPayslipDetails(${p.id})" class="btn-secondary flex-1 flex items-center justify-center gap-2">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            View Details
-                        </button>
-                    </div>
-                </div>
-            `;
+                `;
+            }).join('');
         }
 
         async function loadMyPayslips() {
@@ -246,7 +266,7 @@
                                     <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.employeeName || 'Unknown'}</p>
                                 </div>
                                 <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Employee ID</p>
+                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Employee Code</p>
                                     <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.employeeId || '-'}</p>
                                 </div>
                                 <div>
@@ -305,7 +325,6 @@
                             <div style="background: #f0fdf4; padding: 0.75rem; border-radius: 8px;">
                                 <div class="payslip-row"><span>Basic Salary</span><span>${auth.formatCurrency(p.basicSalary || 0)}</span></div>
                                 <div class="payslip-row"><span>HRA</span><span>${auth.formatCurrency(p.hra || 0)}</span></div>
-                                <div class="payslip-row"><span>DA</span><span>${auth.formatCurrency(p.da || 0)}</span></div>
                                 <div class="payslip-row"><span>Other Allowance</span><span>${auth.formatCurrency(p.otherAllowance || 0)}</span></div>
                                 <div class="payslip-row" style="border-top: 1px solid #86efac; margin-top: 0.5rem; padding-top: 0.5rem;">
                                     <span><strong>Gross Salary</strong></span>
@@ -317,30 +336,30 @@
                             <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #374151;">Deductions</h4>
                             <div style="background: #fef2f2; padding: 0.75rem; border-radius: 8px;">
                                 <div class="payslip-row"><span>Provident Fund (PF)</span><span style="color: #dc2626;">-${auth.formatCurrency(p.providentFund || p.pf || 0)}</span></div>
-                                <div class="payslip-row"><span>Income Tax</span><span style="color: #dc2626;">-${auth.formatCurrency(p.tax || p.incomeTax || 0)}</span></div>
-                                <div class="payslip-row"><span>Insurance</span><span style="color: #dc2626;">-${auth.formatCurrency(p.insurance || 0)}</span></div>
+                                <div class="payslip-row"><span>ESIC</span><span style="color: #dc2626;">-${auth.formatCurrency(p.esic || 0)}</span></div>
+                                <div class="payslip-row"><span>Prof Tax</span><span style="color: #dc2626;">-${auth.formatCurrency(p.professionalTax || 0)}</span></div>
+                                <div class="payslip-row"><span>TDS</span><span style="color: #dc2626;">-${auth.formatCurrency(p.tds || p.tax || p.incomeTax || 0)}</span></div>
+                                <div class="payslip-row"><span>Loan/Other Deduction</span><span style="color: #dc2626;">-${auth.formatCurrency(p.loanDeduction || 0)}</span></div>
+                                <div class="payslip-row"><span>Insurance</span><span style="color: #dc2626;">-${auth.formatCurrency(p.insurance || p.otherDeduction || 0)}</span></div>
+                                <div class="payslip-row"><span>LWF</span><span style="color: #dc2626;">-${auth.formatCurrency(p.lwf || 0)}</span></div>
                                 ${(() => {
-                                    // ✅ Compute attendance deductions on-the-fly
-                                    const gross = p.grossSalary || 0;
-                                    const dailyRate = gross > 0 ? gross / 26 : 0;
-                                    const unpaidDed = (dailyRate * (p.unpaidLeaveDays || 0));
-                                    const absentDed = (dailyRate * (p.absentDays || 0));
-                                    const totalAttDed = unpaidDed + absentDed;
-                                    if (totalAttDed <= 0) return '';
-                                    let html = '';
-                                    if ((p.unpaidLeaveDays || 0) > 0)
-                                        html += `<div class="payslip-row"><span>Unpaid Leave (${p.unpaidLeaveDays} days)</span><span style="color:#dc2626;">-${auth.formatCurrency(unpaidDed)}</span></div>`;
-                                    if ((p.absentDays || 0) > 0)
-                                        html += `<div class="payslip-row"><span>Absent Penalty (${p.absentDays} days)</span><span style="color:#dc2626;">-${auth.formatCurrency(absentDed)}</span></div>`;
-                                    return html;
-                                })()}
+                        const unpaidDed = p.unpaidLeaveDeduction || 0;
+                        const absentDed = p.absentLeaveDeduction || p.absentPenaltyDeduction || p.absentDeduction || 0;
+                        const totalAttDed = unpaidDed;
+                        if (totalAttDed <= 0) return '';
+                        let html = '';
+                        if ((p.unpaidLeaveDays || 0) > 0)
+                            html += `<div class="payslip-row"><span>Unpaid Leave (${p.unpaidLeaveDays} days)</span><span style="color:#dc2626;">-${auth.formatCurrency(unpaidDed)}</span></div>`;
+                        if ((p.absentDays || 0) > 0)
+                            html += `<div class="payslip-row"><span>Absent Penalty (${p.absentDays} days)</span><span style="color:#dc2626;">-${auth.formatCurrency(absentDed)}</span></div>`;
+                        return html;
+                    })()}
                                 <div class="payslip-row" style="border-top: 1px solid #fca5a5; margin-top: 0.5rem; padding-top: 0.5rem;">
                                     <span><strong>Total Deductions</strong></span>
-                                    <strong style="color: #dc2626;">-${auth.formatCurrency(p.totalDeduction || 0)}</strong>
+                                    <strong style="color: #dc2626;">-${auth.formatCurrency(p.totalDeductions ?? p.totalDeduction ?? 0)}</strong>
                                 </div>
                             </div>
                         </div>
-           </div >
                         
                         <div class="net-section" style="background: #eff6ff; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
                             <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">Net Salary</p>
@@ -358,39 +377,37 @@
                     <button onclick="closeModal()" class="btn btn-secondary">Close</button>
                 </div>
                 `;
-                
+
                 modal.style.display = 'flex';
             }).catch(e => {
                 console.error('Error loading payslip details:', e);
                 auth.showNotification('Failed to load payslip details: ' + e.message, 'error');
             });
         }
-        
+
         function closeModal() {
             document.getElementById('payslip-modal').style.display = 'none';
         }
-        
+
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('payslip-modal');
             if (event.target === modal) {
                 closeModal();
             }
         }
-        
+
         loadMyPayslips();
-        
+
         function downloadPayslip(id) {
             const token = auth.getAuth().token;
             window.open(`/api/payslips/${id}/download-pdf?token=${token}`, '_blank');
         }
-        
+
         // Replaced by viewPayslipDetails for detailed modal view
-        
+
         loadMyPayslips();
     </script>
 </body>
 
 </html>
-
-

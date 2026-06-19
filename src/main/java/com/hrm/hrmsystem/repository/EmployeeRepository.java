@@ -31,4 +31,29 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByIdWithDepartment(Long id);
 
     boolean existsByShiftId(Long shiftId);
+
+    List<Employee> findByPhone(String phone);
+
+    boolean existsByPhone(String phone);
+
+    Optional<Employee> findByEmployeeCode(String employeeCode);
+
+    default Optional<Employee> findByIdentifier(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+        Optional<Employee> emp = findByEmployeeCode(String.valueOf(id));
+        return emp.isPresent() ? emp : findById(id);
+    }
+
+    default Optional<Employee> findByIdentifierWithDepartment(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+        Optional<Employee> emp = findByEmployeeCode(String.valueOf(id));
+        if (emp.isPresent()) {
+            return findByIdWithDepartment(emp.get().getId());
+        }
+        return findByIdWithDepartment(id);
+    }
 }

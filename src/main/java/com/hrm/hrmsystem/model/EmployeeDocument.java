@@ -21,20 +21,31 @@ public class EmployeeDocument {
     @Column(nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String filePath;
+
+    /** Cloudinary public_id — used for delete and signed download URLs */
+    @Column(name = "cloudinary_public_id")
+    private String cloudinaryPublicId;
+
+    /** Cloudinary resource_type: image, raw, video, or auto */
+    @Column(name = "resource_type")
+    private String resourceType;
 
     @Column(nullable = false)
     private LocalDateTime uploadedAt;
 
     public EmployeeDocument() {}
 
-    public EmployeeDocument(Long id, Employee employee, String documentType, String fileName, String filePath, LocalDateTime uploadedAt) {
+    public EmployeeDocument(Long id, Employee employee, String documentType, String fileName, String filePath,
+                            String cloudinaryPublicId, String resourceType, LocalDateTime uploadedAt) {
         this.id = id;
         this.employee = employee;
         this.documentType = documentType;
         this.fileName = fileName;
         this.filePath = filePath;
+        this.cloudinaryPublicId = cloudinaryPublicId;
+        this.resourceType = resourceType;
         this.uploadedAt = uploadedAt;
     }
 
@@ -53,6 +64,12 @@ public class EmployeeDocument {
     public String getFilePath() { return filePath; }
     public void setFilePath(String filePath) { this.filePath = filePath; }
 
+    public String getCloudinaryPublicId() { return cloudinaryPublicId; }
+    public void setCloudinaryPublicId(String cloudinaryPublicId) { this.cloudinaryPublicId = cloudinaryPublicId; }
+
+    public String getResourceType() { return resourceType; }
+    public void setResourceType(String resourceType) { this.resourceType = resourceType; }
+
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
 
@@ -66,6 +83,8 @@ public class EmployeeDocument {
         private String documentType;
         private String fileName;
         private String filePath;
+        private String cloudinaryPublicId;
+        private String resourceType;
         private LocalDateTime uploadedAt;
 
         public Builder id(Long id) { this.id = id; return this; }
@@ -73,10 +92,13 @@ public class EmployeeDocument {
         public Builder documentType(String documentType) { this.documentType = documentType; return this; }
         public Builder fileName(String fileName) { this.fileName = fileName; return this; }
         public Builder filePath(String filePath) { this.filePath = filePath; return this; }
+        public Builder cloudinaryPublicId(String cloudinaryPublicId) { this.cloudinaryPublicId = cloudinaryPublicId; return this; }
+        public Builder resourceType(String resourceType) { this.resourceType = resourceType; return this; }
         public Builder uploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; return this; }
 
         public EmployeeDocument build() {
-            return new EmployeeDocument(id, employee, documentType, fileName, filePath, uploadedAt);
+            return new EmployeeDocument(id, employee, documentType, fileName, filePath,
+                    cloudinaryPublicId, resourceType, uploadedAt);
         }
     }
 }

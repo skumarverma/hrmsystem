@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProbationService {
@@ -79,10 +80,13 @@ public class ProbationService {
     @Scheduled(cron = "0 0 0 * * ?") // Run daily at midnight
     @Transactional
     public void autoCheckProbationStatus() {
-        List<Employee> allActive = employeeRepo.findByStatus(Employee.EmployeeStatus.ACTIVE);
+        List<Employee> employeesToCheck = employeeRepo.findAll().stream()
+            .filter(emp -> emp.getProbationStatus() == Employee.ProbationStatus.PROBATION || 
+                           emp.getProbationStatus() == Employee.ProbationStatus.EXTENDED)
+            .collect(Collectors.toList());
         LocalDate today = LocalDate.now();
         
-        for (Employee employee : allActive) {
+        for (Employee employee : employeesToCheck) {
             if (employee.getProbationStatus() == Employee.ProbationStatus.PROBATION || 
                 employee.getProbationStatus() == Employee.ProbationStatus.EXTENDED) {
                 
@@ -99,6 +103,6 @@ public class ProbationService {
             }
         }
         
-        employeeRepo.saveAll(allActive);
+        employeeRepo.saveAll(employeesToCheck);
     }
 }

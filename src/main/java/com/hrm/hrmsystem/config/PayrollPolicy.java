@@ -36,11 +36,24 @@ public class PayrollPolicy {
         return WORKING_DAYS_PER_MONTH;
     }
     
+    // PAYROLL CALCULATION
+    public static final int DEDUCTION_DAYS_PER_MONTH = 30; // Deductions are based on standard 30 calendar days per month
+    
     /**
      * Get absent penalty multiplier (Can be overridden per company policy)
      */
     public static double getAbsentPenaltyMultiplier() {
         return ABSENT_PENALTY_MULTIPLIER;
+    }
+    
+    /**
+     * Get days in month for salary deduction calculations
+     * Some companies use exact month length, others use standard 30 days.
+     */
+    public static int getDaysInMonthForDeduction(java.time.YearMonth month) {
+        // As per standard professional HR practice requested, using fixed 30 days for deductions
+        // OR can be changed to month.lengthOfMonth() if exact days are needed.
+        return DEDUCTION_DAYS_PER_MONTH;
     }
     
     /**

@@ -1,4 +1,6 @@
 
+package com.hrm.hrmsystem;
+
 import com.hrm.hrmsystem.model.Employee;
 import com.hrm.hrmsystem.repository.EmployeeRepository;
 import org.springframework.boot.CommandLineRunner;

@@ -1,12 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - HRM System</title>
     <link rel="stylesheet" href="../css/hrm-design-system.css">
+    <link rel="stylesheet" href="../css/employee-theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .welcome-banner .banner-btn-secondary {
+            background: white !important;
+            color: var(--gray-700) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-btn-secondary:hover {
+            background: var(--gray-50) !important;
+            border-color: var(--gray-300) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .header .page-title,
+            .header .flex {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -20,28 +73,53 @@
                     <h1>My Profile</h1>
                     <p>Manage your personal information and preferences</p>
                 </div>
-                <div class="flex gap-2 items-center">
-                    <button class="btn-secondary flex items-center gap-2" onclick="history.back()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                        Back
-                    </button>
-                    <button class="btn-danger flex items-center gap-2" onclick="auth.logout()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        Logout
-                    </button>
-                </div>
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner"
+                    style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
+                    <div style="z-index: 1;">
+                        <h1
+                            style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                            My Profile</h1>
+                        <p
+                            style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                            Manage your personal information and preferences</p>
+                    </div>
+
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="history.back()" class="banner-btn-secondary" title="Go back">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Back
+                        </button>
+
+
+                    </div>
+                </div>
                 <div class="card p-0 overflow-hidden" style="max-width: 800px; margin: 0 auto;">
                     <div class="p-8 border-b bg-gray-50 flex items-center gap-6">
-                        <div class="w-24 h-24 rounded-full bg-primary-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg" id="profile-avatar">?</div>
+                        <div class="w-24 h-24 rounded-full bg-primary-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg"
+                            id="profile-avatar">?</div>
                         <div>
                             <h2 class="text-2xl font-bold text-gray-800" id="profile-name">Loading...</h2>
                             <p class="text-gray-500 font-medium" id="profile-role">Employee</p>
                         </div>
                     </div>
-                    
+
                     <div class="p-8 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
@@ -83,10 +161,10 @@
     <script src="../js/sidebar.js"></script>
     <script>
         if (!auth.requireAuth()) throw new Error('Auth required');
-        
+
         // Render sidebar explicitly
         renderSidebar();
-        
+
         async function loadProfile() {
             try {
                 const res = await auth.apiCall('/api/users/profile');
@@ -95,7 +173,7 @@
                     document.getElementById('profile-avatar').textContent = (data.username || 'U')[0].toUpperCase();
                     document.getElementById('profile-name').textContent = data.username || 'User';
                     document.getElementById('profile-role').textContent = (data.role || 'Employee').replace('ROLE_', '').replace('_', ' ');
-                    
+
                     document.getElementById('firstName').value = data.firstName || '';
                     document.getElementById('lastName').value = data.lastName || '';
                     document.getElementById('email').value = data.email || '';
@@ -108,7 +186,7 @@
                     if (currentUser && currentUser.role !== data.role) {
                         currentUser.role = data.role;
                         auth.setAuth(auth.getAuth().token, currentUser);
-                        
+
                         // Re-render the sidebar with the new role
                         if (window.sidebar && window.sidebar.renderSidebar) {
                             window.sidebar.renderSidebar();
@@ -119,14 +197,16 @@
                         }
                     }
                 }
-            } catch (e) { 
+            } catch (e) {
                 console.error('Failed to load profile:', e);
                 auth.showNotification('Failed to load profile', 'error');
             }
         }
-        
+
+
+
         loadProfile();
     </script>
 </body>
-</html>
+
 </html>

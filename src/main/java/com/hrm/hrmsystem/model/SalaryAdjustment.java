@@ -29,8 +29,9 @@ public class SalaryAdjustment {
     @Column(nullable = false, length = 200)
     private String reason;
 
-    @Column(nullable = false)
-    private String adjustmentType; // BONUS, DEDUCTION, CORRECTION, OVERTIME, OTHER
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AdjustmentType adjustmentType;
 
     @Column(nullable = false)
     private LocalDate adjustmentDate;
@@ -55,7 +56,7 @@ public class SalaryAdjustment {
     }
 
     public SalaryAdjustment(Employee employee, Integer month, Integer year, BigDecimal amount, 
-                           String reason, String adjustmentType, String createdBy, String remarks) {
+                           String reason, AdjustmentType adjustmentType, String createdBy, String remarks) {
         this();
         this.employee = employee;
         this.month = month;
@@ -65,6 +66,10 @@ public class SalaryAdjustment {
         this.adjustmentType = adjustmentType;
         this.createdBy = createdBy;
         this.remarks = remarks;
+    }
+
+    public enum AdjustmentType {
+        BONUS, DEDUCTION, CORRECTION, OVERTIME, OTHER
     }
 
     // Getters and Setters
@@ -116,11 +121,11 @@ public class SalaryAdjustment {
         this.reason = reason;
     }
 
-    public String getAdjustmentType() {
+    public AdjustmentType getAdjustmentType() {
         return adjustmentType;
     }
 
-    public void setAdjustmentType(String adjustmentType) {
+    public void setAdjustmentType(AdjustmentType adjustmentType) {
         this.adjustmentType = adjustmentType;
     }
 

@@ -29,8 +29,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         String roleName = user.getRole().name();
-        if (user.getRole() == User.Role.ROLE_HR) {
-            roleName = "ROLE_ADMIN";
+        if (user.getRole() == User.Role.ROLE_ADMIN || user.getRole() == User.Role.ROLE_HR) {
+            roleName = "ROLE_HR";
         }
         
         if (user.getRole() != User.Role.ROLE_ADMIN && user.getRole() != User.Role.ROLE_HR) {
@@ -44,7 +44,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 } else if (deptName.contains("leave") || deptName.equals("leaves")) {
                     roleName = "ROLE_LEAVES";
                 } else if (deptName.contains("hr") || deptName.equals("human resources")) {
-                    roleName = "ROLE_ADMIN";
+                    roleName = "ROLE_HR";
                 } else {
                     roleName = "ROLE_EMPLOYEE";
                 }
@@ -53,8 +53,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(roleName));
-        if (roleName.equals("ROLE_ADMIN")) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_HR"));
+        if (roleName.equals("ROLE_HR")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
 
         return new org.springframework.security.core.userdetails.User(

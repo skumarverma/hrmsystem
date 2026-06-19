@@ -647,7 +647,7 @@ body {
 /* ========================================
    BUTTONS
    ======================================== */
-button {
+button, .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-success, .btn-warning {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -660,13 +660,17 @@ button {
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  text-decoration: none;
+  transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 150ms ease, border-color 200ms ease;
   box-shadow: var(--shadow-sm);
 }
 
-button:hover {
+button:hover, .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-danger:hover, .btn-success:hover, .btn-warning:hover {
+  background: linear-gradient(135deg, var(--primary-dark, #1e3a5f) 0%, var(--primary) 100%);
+  color: white;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+  text-decoration: none;
 }
 
 button:active {
@@ -679,31 +683,81 @@ button:disabled {
   transform: none;
 }
 
+/* Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white !important;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark, #1e3a5f) 0%, var(--primary) 100%);
+  color: white !important;
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary Button */
 .btn-secondary {
   background: var(--gray-100);
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
   border: 1px solid var(--gray-300);
 }
 
 .btn-secondary:hover {
   background: var(--gray-200);
+  color: var(--text-primary) !important;
+  border-color: var(--gray-400);
 }
 
+/* Danger Button */
 .btn-danger {
   background: var(--danger);
+  color: white !important;
 }
 
 .btn-danger:hover {
   background: #b91c1c;
+  color: white !important;
 }
 
+/* Success Button */
 .btn-success {
   background: var(--success);
+  color: white !important;
 }
 
 .btn-success:hover {
   background: #047857;
+  color: white !important;
 }
+
+/* Warning Button */
+.btn-warning {
+  background: var(--warning);
+  color: white !important;
+}
+
+.btn-warning:hover {
+  background: #b45309;
+  color: white !important;
+}
+
+/* Small Button (used in tables) */
+.btn-small {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 150ms ease;
+}
+
+/* Ensure any btn-small with light backgrounds keep dark text on hover */
+.btn-small:hover {
+  filter: brightness(0.92);
+  color: inherit;
+  transform: translateY(-1px);
+}
+
 
 /* ========================================
    TABLES - Employee, Department, Attendance, etc.
@@ -1123,33 +1177,9 @@ button:disabled {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 1024px) {
-  .sidebar {
-    width: 240px;
-  }
-  
-  .main-content {
-    margin-left: 240px;
-    padding: var(--space-6);
-  }
-}
+/* Mobile layout: handled by hrm-responsive.css (off-canvas sidebar, full-width content) */
 
 @media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    position: relative;
-    height: auto;
-  }
-  
-  .main-content {
-    margin-left: 0;
-    padding: var(--space-4);
-  }
-  
-  .dashboard {
-    flex-direction: column;
-  }
-  
   .form-row {
     grid-template-columns: 1fr;
   }
@@ -1359,6 +1389,10 @@ button:disabled {
 .block { display: block; }
 .hidden { display: none; }
 
+@media (min-width: 640px) {
+  .sm\:block { display: block !important; }
+}
+
 .w-10 { width: 2.5rem; }
 .h-10 { height: 2.5rem; }
 .w-12 { width: 3rem; }
@@ -1393,29 +1427,86 @@ button:disabled {
 }
 
 .btn-mini {
-    padding: 2px 6px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    border-radius: 3px;
-    border: none;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
     background: transparent;
-    color: #9ca3af;
+    color: var(--gray-500);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
 }
 
 .btn-mini:hover {
-    background: #e5e7eb;
+    background: var(--gray-100);
+    color: var(--gray-900);
+}
+
+/* Colorful Action Buttons in Tables */
+.btn-mini.btn-secondary {
+    background: var(--gray-100);
+    color: var(--gray-700) !important;
+    border: 1px solid var(--gray-300);
+}
+
+.btn-mini.btn-secondary:hover {
+    background: var(--gray-200);
+    color: var(--gray-900) !important;
+    border-color: var(--gray-400);
+}
+
+.btn-mini.btn-success {
+    background: var(--success-light);
+    color: var(--success) !important;
+    border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+.btn-mini.btn-success:hover {
+    background: var(--success);
+    color: white !important;
+    border-color: var(--success);
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+}
+
+.btn-mini.btn-danger {
+    background: var(--danger-light);
+    color: var(--danger) !important;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.btn-mini.btn-danger:hover {
+    background: var(--danger);
+    color: white !important;
+    border-color: var(--danger);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.btn-mini.btn-warning {
+    background: var(--warning-light);
+    color: var(--warning) !important;
+    border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.btn-mini.btn-warning:hover {
+    background: var(--warning);
+    color: white !important;
+    border-color: var(--warning);
+    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
 }
 
 .btn-mini.active-p {
     background: #22c55e;
-    color: white;
+    color: white !important;
 }
 
 .btn-mini.active-a {
     background: #ef4444;
-    color: white;
+    color: white !important;
 }
 
 .btn-toggle {
@@ -1781,6 +1872,209 @@ button:disabled {
 .group:hover .group-hover\:bg-purple-100  { background-color: #ede9fe; }
 .group:hover .group-hover\:bg-blue-100    { background-color: #dbeafe; }
 .group:hover .group-hover\:bg-gray-200    { background-color: var(--gray-200); }
+
+/* ========================================
+   NOTIFICATION BELL & DROPDOWN SYSTEM
+   ======================================== */
+.notification-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+#notif-bell-btn {
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  position: relative;
+  padding: 8px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease !important;
+  color: var(--gray-600) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#notif-bell-btn:hover {
+  background: var(--gray-100) !important;
+  color: var(--primary) !important;
+  transform: scale(1.05) !important;
+}
+
+#notif-badge {
+  position: absolute;
+  top: 2px !important;
+  right: 2px !important;
+  background: var(--danger) !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px !important;
+  border-radius: 9px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-primary) !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3) !important;
+  animation: notif-pulse 2s infinite;
+}
+
+@keyframes notif-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+#notif-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 340px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--gray-200);
+  z-index: 1000;
+  margin-top: 12px;
+  overflow: hidden;
+  animation: notif-fade-in 0.2s ease-out;
+}
+
+@keyframes notif-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.notif-header {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--gray-50);
+}
+
+.notif-header h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+#notif-read-all {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+#notif-read-all:hover {
+  color: var(--primary-light);
+}
+
+.notif-item {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  gap: var(--space-3);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  position: relative;
+}
+
+.notif-item:hover {
+  background: var(--gray-50);
+}
+
+.notif-item.unread {
+  background: var(--primary-lighter);
+  border-left: 3px solid var(--primary-light);
+}
+
+.notif-item.unread:hover {
+  background: #e0f2fe;
+}
+
+.notif-icon-wrapper {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-1);
+}
+
+.notif-title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notif-date {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: var(--space-2);
+}
+
+.notif-message {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.notif-time {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  align-self: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
 
 /* ========================================
    RESPONSIVE STYLESHEET (Auto-included)

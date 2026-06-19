@@ -81,6 +81,10 @@
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div class="form-group">
+                                    <label class="form-label">Employee Code <span class="text-danger">*</span></label>
+                                    <input type="text" name="employeeId" id="employeeId" class="form-control" required placeholder="e.g., EMP101">
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label">Department <span class="text-danger">*</span></label>
                                     <select name="departmentId" id="departmentId" class="form-control" required>
                                         <option value="">Select Department</option>
@@ -88,7 +92,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Designation <span class="text-danger">*</span></label>
-                                    <input type="text" name="designation" id="designation" class="form-control" required placeholder="e.g., Developer, Manager">
+                                    <input type="text" name="designation" id="designation" class="form-control" required placeholder="e.g., Admin Executive, Developer, Manager">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Shift</label>
@@ -118,47 +122,84 @@
                                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 Salary Details
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                            <!-- Earnings Subsection -->
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">💰 Earnings Details</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                                 <div class="form-group">
                                     <label class="form-label">Basic Salary <span class="text-danger">*</span></label>
-                                    <input type="number" name="basicSalary" id="basicSalary" class="form-control" required step="0.01" min="0" onchange="calculateTotal()">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">DA (Dearness Allowance)</label>
-                                    <input type="number" name="da" id="da" class="form-control" step="0.01" min="0" value="0" onchange="calculateTotal()">
+                                    <input type="number" name="basicSalary" id="basicSalary" class="form-control" required step="0.01" min="0" value="0" oninput="calculateTotal()">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">HRA</label>
-                                    <input type="number" name="hra" id="hra" class="form-control" step="0.01" min="0" value="0" onchange="calculateTotal()">
+                                    <input type="number" name="hra" id="hra" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Special Allowance</label>
+                                    <input type="number" name="specialAllowance" id="specialAllowance" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Bonus</label>
+                                    <input type="number" name="bonus" id="bonus" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Incentive</label>
+                                    <input type="number" name="incentive" id="incentive" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Other Allowance</label>
-                                    <input type="number" name="otherAllowance" id="otherAllowance" class="form-control" step="0.01" min="0" value="0" onchange="calculateTotal()">
+                                    <input type="number" name="otherAllowance" id="otherAllowance" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
                                 </div>
+                            </div>
+
+                            <!-- Deductions Subsection -->
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3 border-t pt-4 flex items-center gap-2">🛑 Deductions Details</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                                 <div class="form-group">
                                     <label class="form-label">PF (Provident Fund)</label>
-                                    <input type="number" name="pf" id="pf" class="form-control" step="0.01" min="0" value="0" onchange="calculateTotal()">
+                                    <input type="number" name="pf" id="pf" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Tax</label>
-                                    <input type="number" name="tax" id="tax" class="form-control" step="0.01" min="0" value="0" onchange="calculateTotal()">
+                                    <label class="form-label">UAN No.</label>
+                                    <input type="text" name="uanNo" id="uanNo" class="form-control" placeholder="e.g. 100123456789">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Insurance Name</label>
-                                    <input type="text" name="insuranceName" id="insuranceName" class="form-control" placeholder="e.g., Health Insurance">
+                                    <label class="form-label">ESIC</label>
+                                    <input type="number" name="esic" id="esic" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Insurance (%)</label>
-                                    <input type="number" name="insurancePercentage" id="insurancePercentage" class="form-control" step="0.01" min="0" max="100" value="0">
+                                    <label class="form-label">Professional Tax</label>
+                                    <input type="number" name="professionalTax" id="professionalTax" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
                                 </div>
-                                <div class="form-group col-span-full">
-                                    <div class="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
-                                        <span class="text-sm font-bold text-gray-600 uppercase">Gross Salary (Automated)</span>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs text-muted">Total:</span>
-                                            <input type="number" name="salary" id="salary" class="bg-transparent border-none text-2xl font-bold text-primary text-right" readonly style="width: 150px;">
-                                        </div>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">TDS</label>
+                                    <input type="number" name="tds" id="tds" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Loan Deduction/Other Deduction</label>
+                                    <input type="number" name="loanDeduction" id="loanDeduction" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">LWF</label>
+                                    <input type="number" name="lwf" id="lwf" class="form-control" step="0.01" min="0" value="0" oninput="calculateTotal()">
+                                </div>
+                            </div>
+
+
+                            <!-- Calculated Footers -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <span class="text-xs font-bold text-gray-500 uppercase block">Gross Salary (Automated)</span>
+                                    <input type="number" name="salary" id="salary" class="bg-transparent border-none text-xl font-bold text-primary w-full mt-1" readonly value="0.00">
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <span class="text-xs font-bold text-gray-500 uppercase block">Total Deductions (Automated)</span>
+                                    <input type="number" name="totalDeductions" id="totalDeductions" class="bg-transparent border-none text-xl font-bold text-danger w-full mt-1" readonly value="0.00">
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg" style="background-color: #f0fdf4;">
+                                    <span class="text-xs font-bold text-gray-500 uppercase block" style="color: #16a34a;">Net Pay (Automated)</span>
+                                    <input type="number" name="netPay" id="netPay" class="bg-transparent border-none text-xl font-bold w-full mt-1" readonly style="color: #15803d;" value="0.00">
                                 </div>
                             </div>
                         </div>
@@ -178,230 +219,8 @@
             </div>
         </main>
     </div>
-
     <script src="../js/auth.js"></script>
     <script src="../js/sidebar.js"></script>
-    <script>
-        if (!auth.requireAuth()) throw new Error('Auth required');
-        
-        // Prevent read-only roles from accessing employee add/edit form
-        const userRole = auth.getUserRole();
-        if (userRole === 'ROLE_ACCOUNTANT' || userRole === 'ROLE_DIRECTOR' || userRole === 'ROLE_LEAVES') {
-            auth.showNotification('Access denied: You do not have permission to add or edit employees', 'error');
-            window.location.href = 'employees.html';
-            throw new Error('Access denied');
-        }
-        
-        // Load dropdowns
-        async function loadDropdowns() {
-            try {
-                const [deptRes, shiftRes] = await Promise.all([
-                    auth.apiCall('/api/departments'),
-                    auth.apiCall('/api/shifts')
-                ]);
-                
-                if (deptRes && deptRes.ok) {
-                    const depts = await deptRes.json();
-                    const deptSelect = document.getElementById('departmentId');
-                    depts.forEach(d => {
-                        deptSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
-                    });
-                }
-                
-                if (shiftRes && shiftRes.ok) {
-                    const shifts = await shiftRes.json();
-                    const shiftSelect = document.getElementById('shiftId');
-                    shifts.forEach(s => {
-                        shiftSelect.innerHTML += `<option value="${s.id}">${s.name} (${s.startTime}-${s.endTime})</option>`;
-                    });
-                }
-                
-                // Mark dropdowns as loaded
-                dropdownsLoaded = true;
-                console.log('Dropdowns loaded');
-                
-                // If employee data was already loaded, set form values now
-                if (employeeData) {
-                    console.log('Setting employee values after dropdowns loaded');
-                    setEmployeeFormValues(employeeData);
-                }
-            } catch (e) { console.error('Error loading dropdowns:', e); }
-        }
-        
-        // Calculate total salary (GROSS only - basic + da + hra + other)
-        function calculateTotal() {
-            const basic = parseFloat(document.getElementById('basicSalary').value) || 0;
-            const da = parseFloat(document.getElementById('da').value) || 0;
-            const hra = parseFloat(document.getElementById('hra').value) || 0;
-            const other = parseFloat(document.getElementById('otherAllowance').value) || 0;
-
-            // Calculate GROSS salary only (NO deductions: PF, Tax, Insurance)
-            const gross = basic + da + hra + other;
-            document.getElementById('salary').value = gross.toFixed(2);
-        }
-        
-        // Check if editing
-        const urlParams = new URLSearchParams(window.location.search);
-        const editId = urlParams.get('edit');
-        
-        // Store employee data globally to set after dropdowns load
-        let employeeData = null;
-        let dropdownsLoaded = false;
-        
-        if (editId) {
-            document.getElementById('page-title').textContent = 'Edit Employee';
-            document.getElementById('submit-btn').textContent = '💾 Update Employee';
-            // Show delete button for HR/Admin only
-            const isHR = auth.hasRole('ROLE_HR') || auth.hasRole('ROLE_ADMIN');
-            if (isHR) {
-                const deleteBtn = document.getElementById('delete-btn');
-                deleteBtn.style.display = 'inline-flex';
-            }
-            loadEmployee(editId);
-        }
-        
-        async function loadEmployee(id) {
-            try {
-                const res = await auth.apiCall(`/api/employees/${id}`);
-                if (res && res.ok) {
-                    employeeData = await res.json();
-                    console.log('Loaded employee:', employeeData);
-                    
-                    // If dropdowns already loaded, set values now
-                    if (dropdownsLoaded) {
-                        setEmployeeFormValues(employeeData);
-                    }
-                    // Otherwise, wait for dropdowns to load (see loadDropdowns)
-                }
-            } catch (e) { console.error('Error loading employee:', e); }
-        }
-        
-        function setEmployeeFormValues(emp) {
-            if (!emp) return;
-            console.log('Setting form values, departmentId:', emp.departmentId);
-            console.log('Full employee object:', emp);
-            console.log('Insurance fields:', { 
-                insuranceName: emp.insuranceName, 
-                insurance_percentage: emp.insurance_percentage,
-                insurancePercentage: emp.insurancePercentage 
-            });
-            
-            document.getElementById('firstName').value = emp.firstName || '';
-            document.getElementById('lastName').value = emp.lastName || '';
-            document.getElementById('email').value = emp.email || '';
-            document.getElementById('phone').value = emp.phone || '';
-            // Gender comes as uppercase enum (MALE/FEMALE/OTHER), convert to Title Case for select
-            const genderValue = emp.gender ? emp.gender.charAt(0) + emp.gender.slice(1).toLowerCase() : '';
-            document.getElementById('gender').value = genderValue;
-            document.getElementById('joiningDate').value = emp.joiningDate || '';
-            document.getElementById('address').value = emp.address || '';
-            document.getElementById('designation').value = emp.designation || '';
-            document.getElementById('status').value = emp.status || 'ACTIVE';
-            document.getElementById('probationPeriodMonths').value = emp.probationPeriodMonths || 3;
-            document.getElementById('basicSalary').value = emp.basicSalary || 0;
-            document.getElementById('da').value = emp.da || 0;
-            document.getElementById('hra').value = emp.hra || 0;
-            document.getElementById('otherAllowance').value = emp.otherAllowance || 0;
-            document.getElementById('pf').value = emp.pf || 0;
-            document.getElementById('tax').value = emp.tax || 0;
-            document.getElementById('insuranceName').value = emp.insuranceName || '';
-            document.getElementById('insurancePercentage').value = emp.insurancePercentage || 0;
-            
-            // Set dropdown values - these need options to exist first
-            if (emp.departmentId) {
-                const deptSelect = document.getElementById('departmentId');
-                // Check if option exists
-                if (deptSelect.querySelector(`option[value="${emp.departmentId}"]`)) {
-                    deptSelect.value = emp.departmentId;
-                } else {
-                    console.warn('Department option not found for id:', emp.departmentId);
-                }
-            }
-            
-            if (emp.shiftId) {
-                const shiftSelect = document.getElementById('shiftId');
-                if (shiftSelect.querySelector(`option[value="${emp.shiftId}"]`)) {
-                    shiftSelect.value = emp.shiftId;
-                }
-            }
-            
-            calculateTotal();
-        }
-        
-        // Form submit
-        document.getElementById('employee-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                gender: document.getElementById('gender').value,
-                joiningDate: document.getElementById('joiningDate').value,
-                address: document.getElementById('address').value,
-                departmentId: parseInt(document.getElementById('departmentId').value),
-                designation: document.getElementById('designation').value,
-                shiftId: document.getElementById('shiftId').value ? parseInt(document.getElementById('shiftId').value) : null,
-                status: document.getElementById('status').value,
-                probationPeriodMonths: parseInt(document.getElementById('probationPeriodMonths').value) || 0,
-                basicSalary: parseFloat(document.getElementById('basicSalary').value) || 0,
-                da: parseFloat(document.getElementById('da').value) || 0,
-                hra: parseFloat(document.getElementById('hra').value) || 0,
-                otherAllowance: parseFloat(document.getElementById('otherAllowance').value) || 0,
-                pf: parseFloat(document.getElementById('pf').value) || 0,
-                tax: parseFloat(document.getElementById('tax').value) || 0,
-                insuranceName: document.getElementById('insuranceName').value || '',
-                insurancePercentage: parseFloat(document.getElementById('insurancePercentage').value) || 0,
-                salary: parseFloat(document.getElementById('salary').value) || 0
-            };
-            
-            try {
-                const url = editId ? `/api/employees/${editId}` : '/api/employees';
-                const method = editId ? 'PUT' : 'POST';
-                const res = await auth.apiCall(url, {
-                    method: method,
-                    body: JSON.stringify(data)
-                });
-                
-                if (res && res.ok) {
-                    auth.showNotification(editId ? 'Employee updated!' : 'Employee added!', 'success');
-                    window.location.href = 'employees.html';
-                } else {
-                    const err = await res.text();
-                    auth.showNotification('Error: ' + err, 'error');
-                }
-            } catch (e) {
-                auth.showNotification('Error: ' + e.message, 'error');
-            }
-        });
-        
-        function resetForm() {
-            document.getElementById('employee-form').reset();
-            calculateTotal();
-        }
-
-        async function deleteEmployee() {
-            if (!editId) return;
-            const name = (document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value).trim();
-            if (!confirm(`⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete:\n"${name}"\n\nThis will remove ALL their data including attendance, payslips, and leave records. This action CANNOT be undone!`)) return;
-            try {
-                const res = await auth.apiCall(`/api/employees/${editId}`, { method: 'DELETE' });
-                if (res && res.ok) {
-                    auth.showNotification(`Employee "${name}" deleted permanently.`, 'success');
-                    setTimeout(() => { window.location.href = 'employees.html'; }, 1200);
-                } else {
-                    const err = await res.text();
-                    auth.showNotification('Delete failed: ' + err, 'error');
-                }
-            } catch (e) {
-                auth.showNotification('Error: ' + e.message, 'error');
-            }
-        }
-
-        function logout() { auth.logout(); }
-        
-        loadDropdowns();
-    </script>
+    <script src="../js/employee-form.js"></script>
 </body>
 </html>

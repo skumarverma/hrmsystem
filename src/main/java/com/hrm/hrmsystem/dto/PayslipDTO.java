@@ -17,15 +17,22 @@ public class PayslipDTO {
     
     // Earnings
     private BigDecimal basicSalary;
-    private BigDecimal da;
     private BigDecimal hra;
+    private BigDecimal specialAllowance;
+    private BigDecimal bonus;
+    private BigDecimal incentive;
     private BigDecimal otherAllowance;
     private BigDecimal grossSalary;
     
     // Deductions
     private BigDecimal pf;
     private BigDecimal esi;
+    private BigDecimal esic;
+    private BigDecimal professionalTax;
+    private BigDecimal tds;
     private BigDecimal incomeTax;
+    private BigDecimal loanDeduction;
+    private BigDecimal lwf;
     private BigDecimal otherDeduction;
     private BigDecimal insurance;
     private BigDecimal totalDeduction;
@@ -77,13 +84,20 @@ public class PayslipDTO {
     public LocalDate getJoinDate() { return joinDate; }
     public String getMonthYear() { return monthYear; }
     public BigDecimal getBasicSalary() { return basicSalary; }
-    public BigDecimal getDa() { return da; }
     public BigDecimal getHra() { return hra; }
+    public BigDecimal getSpecialAllowance() { return specialAllowance; }
+    public BigDecimal getBonus() { return bonus; }
+    public BigDecimal getIncentive() { return incentive; }
     public BigDecimal getOtherAllowance() { return otherAllowance; }
     public BigDecimal getGrossSalary() { return grossSalary; }
     public BigDecimal getPf() { return pf; }
     public BigDecimal getEsi() { return esi; }
+    public BigDecimal getEsic() { return esic; }
+    public BigDecimal getProfessionalTax() { return professionalTax; }
+    public BigDecimal getTds() { return tds; }
     public BigDecimal getIncomeTax() { return incomeTax; }
+    public BigDecimal getLoanDeduction() { return loanDeduction; }
+    public BigDecimal getLwf() { return lwf; }
     public BigDecimal getOtherDeduction() { return otherDeduction; }
     public BigDecimal getInsurance() { return insurance; }
     public BigDecimal getTotalDeduction() { return totalDeduction; }
@@ -121,13 +135,20 @@ public class PayslipDTO {
     public void setJoinDate(LocalDate joinDate) { this.joinDate = joinDate; }
     public void setMonthYear(String monthYear) { this.monthYear = monthYear; }
     public void setBasicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; }
-    public void setDa(BigDecimal da) { this.da = da; }
     public void setHra(BigDecimal hra) { this.hra = hra; }
+    public void setSpecialAllowance(BigDecimal specialAllowance) { this.specialAllowance = specialAllowance; }
+    public void setBonus(BigDecimal bonus) { this.bonus = bonus; }
+    public void setIncentive(BigDecimal incentive) { this.incentive = incentive; }
     public void setOtherAllowance(BigDecimal otherAllowance) { this.otherAllowance = otherAllowance; }
     public void setGrossSalary(BigDecimal grossSalary) { this.grossSalary = grossSalary; }
     public void setPf(BigDecimal pf) { this.pf = pf; }
     public void setEsi(BigDecimal esi) { this.esi = esi; }
+    public void setEsic(BigDecimal esic) { this.esic = esic; }
+    public void setProfessionalTax(BigDecimal professionalTax) { this.professionalTax = professionalTax; }
+    public void setTds(BigDecimal tds) { this.tds = tds; }
     public void setIncomeTax(BigDecimal incomeTax) { this.incomeTax = incomeTax; }
+    public void setLoanDeduction(BigDecimal loanDeduction) { this.loanDeduction = loanDeduction; }
+    public void setLwf(BigDecimal lwf) { this.lwf = lwf; }
     public void setOtherDeduction(BigDecimal otherDeduction) { this.otherDeduction = otherDeduction; }
     public void setInsurance(BigDecimal insurance) { this.insurance = insurance; }
     public void setTotalDeduction(BigDecimal totalDeduction) { this.totalDeduction = totalDeduction; }
@@ -148,6 +169,7 @@ public class PayslipDTO {
     public void setPayrollStatus(String payrollStatus) { this.payrollStatus = payrollStatus; }
     public void setInProbation(Boolean inProbation) { this.inProbation = inProbation; }
     public void setProbationStatus(String probationStatus) { this.probationStatus = probationStatus; }
+    public Integer getProbationMonths() { return probationMonths; }
     public void setProbationMonths(Integer probationMonths) { this.probationMonths = probationMonths; }
     public LocalDate getProbationCompletionDate() { return probationCompletionDate; }
     public void setProbationCompletionDate(LocalDate probationCompletionDate) { this.probationCompletionDate = probationCompletionDate; }
@@ -169,13 +191,20 @@ public class PayslipDTO {
         private String employeeName;
         private String monthYear;
         private BigDecimal basicSalary;
-        private BigDecimal da;
         private BigDecimal hra;
+        private BigDecimal specialAllowance;
+        private BigDecimal bonus;
+        private BigDecimal incentive;
         private BigDecimal otherAllowance;
         private BigDecimal grossSalary;
         private BigDecimal pf;
         private BigDecimal esi;
+        private BigDecimal esic;
+        private BigDecimal professionalTax;
+        private BigDecimal tds;
         private BigDecimal incomeTax;
+        private BigDecimal loanDeduction;
+        private BigDecimal lwf;
         private BigDecimal otherDeduction;
         private BigDecimal insurance;
         private BigDecimal totalDeduction;
@@ -210,13 +239,21 @@ public class PayslipDTO {
         public Builder employeeName(String employeeName) { this.employeeName = employeeName; return this; }
         public Builder monthYear(String monthYear) { this.monthYear = monthYear; return this; }
         public Builder basicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; return this; }
-        public Builder da(BigDecimal da) { this.da = da; return this; }
+
         public Builder hra(BigDecimal hra) { this.hra = hra; return this; }
+        public Builder specialAllowance(BigDecimal specialAllowance) { this.specialAllowance = specialAllowance; return this; }
+        public Builder bonus(BigDecimal bonus) { this.bonus = bonus; return this; }
+        public Builder incentive(BigDecimal incentive) { this.incentive = incentive; return this; }
         public Builder otherAllowance(BigDecimal otherAllowance) { this.otherAllowance = otherAllowance; return this; }
         public Builder grossSalary(BigDecimal grossSalary) { this.grossSalary = grossSalary; return this; }
         public Builder pf(BigDecimal pf) { this.pf = pf; return this; }
         public Builder esi(BigDecimal esi) { this.esi = esi; return this; }
+        public Builder esic(BigDecimal esic) { this.esic = esic; return this; }
+        public Builder professionalTax(BigDecimal professionalTax) { this.professionalTax = professionalTax; return this; }
+        public Builder tds(BigDecimal tds) { this.tds = tds; return this; }
         public Builder incomeTax(BigDecimal incomeTax) { this.incomeTax = incomeTax; return this; }
+        public Builder loanDeduction(BigDecimal loanDeduction) { this.loanDeduction = loanDeduction; return this; }
+        public Builder lwf(BigDecimal lwf) { this.lwf = lwf; return this; }
         public Builder otherDeduction(BigDecimal otherDeduction) { this.otherDeduction = otherDeduction; return this; }
         public Builder insurance(BigDecimal insurance) { this.insurance = insurance; return this; }
         public Builder totalDeduction(BigDecimal totalDeduction) { this.totalDeduction = totalDeduction; return this; }
@@ -253,13 +290,20 @@ public class PayslipDTO {
             dto.employeeName = this.employeeName;
             dto.monthYear = this.monthYear;
             dto.basicSalary = this.basicSalary;
-            dto.da = this.da;
             dto.hra = this.hra;
+            dto.specialAllowance = this.specialAllowance;
+            dto.bonus = this.bonus;
+            dto.incentive = this.incentive;
             dto.otherAllowance = this.otherAllowance;
             dto.grossSalary = this.grossSalary;
             dto.pf = this.pf;
             dto.esi = this.esi;
+            dto.esic = this.esic;
+            dto.professionalTax = this.professionalTax;
+            dto.tds = this.tds;
             dto.incomeTax = this.incomeTax;
+            dto.loanDeduction = this.loanDeduction;
+            dto.lwf = this.lwf;
             dto.otherDeduction = this.otherDeduction;
             dto.insurance = this.insurance;
             dto.totalDeduction = this.totalDeduction;

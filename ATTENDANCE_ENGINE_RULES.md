@@ -139,7 +139,7 @@ Absent         = salary deduction applies
 3. **15th Rule**: 12 May 2026 > 15th May 2026 ✅ Eligible
 4. **Eligible Months**: 1 (May only)
 5. **Earned Leaves**: 1 × 1.5 = 1.5
-6. **Used Leaves**: 8.0 (from attendance)
+6. **Total Used Leaves**: 8.0 (from attendance)
 7. **Available**: 1.5 - 8.0 = 0.0 (capped at 0)
 
 ## 🔥 READY FOR PRODUCTION

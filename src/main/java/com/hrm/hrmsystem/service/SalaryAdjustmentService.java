@@ -42,25 +42,34 @@ public class SalaryAdjustmentService {
             throw new RuntimeException("Amount cannot be zero");
         }
         
-        // Check if payroll is locked for this month/year
-        if (!payrollLockService.isPayrollLocked(month, year)) {
-            throw new RuntimeException("Payroll is not locked for " + year + "-" + month + 
+        // ✅ CRITICAL BUG 1: Fix employee NULL - fetch employee from repository
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found with ID/Code: " + employeeId));
+
+        // Check if payroll is locked for this employee and month/year
+        if (!payrollLockService.isPayrollLockedForEmployee(employee.getId(), month, year)) {
+            throw new RuntimeException("Payroll is not locked for this employee for " + year + "-" + month + 
                     ". Use normal attendance updates instead of adjustments.");
         }
 
         String createdBy = getCurrentUser();
         
-        // ✅ CRITICAL BUG 1: Fix employee NULL - fetch employee from repository
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + employeeId));
-        
+        // Convert String to Enum safely
+        SalaryAdjustment.AdjustmentType type;
+        try {
+            type = SalaryAdjustment.AdjustmentType.valueOf(adjustmentType.trim().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new RuntimeException("Invalid adjustment type: '" + adjustmentType + 
+                     "'. Valid types are: BONUS, DEDUCTION, CORRECTION, OVERTIME, OTHER");
+        }
+
         SalaryAdjustment adjustment = new SalaryAdjustment(
                 employee, // ✅ FIXED: Set employee before saving
                 month,
                 year,
                 amount,
                 reason,
-                adjustmentType,
+                type,
                 createdBy,
                 remarks
         );
@@ -72,7 +81,11 @@ public class SalaryAdjustmentService {
      * Get all adjustments for an employee in a specific month/year
      */
     public List<SalaryAdjustment> getAdjustmentsForEmployee(Long employeeId, Integer month, Integer year) {
-        return salaryAdjustmentRepository.findByEmployeeIdAndMonthAndYear(employeeId, month, year);
+        Employee employee = employeeRepository.findByIdentifier(employeeId).orElse(null);
+        if (employee == null) {
+            return new java.util.ArrayList<>();
+        }
+        return salaryAdjustmentRepository.findByEmployeeIdAndMonthAndYear(employee.getId(), month, year);
     }
 
     /**
@@ -126,8 +139,8 @@ public class SalaryAdjustmentService {
         }
         
         // ✅ CRITICAL BUG 3: Add payroll lock check to deleteAdjustment()
-        if (!payrollLockService.isPayrollLocked(adjustment.getMonth(), adjustment.getYear())) {
-            throw new RuntimeException("Cannot delete adjustment when payroll is not locked for " + 
+        if (!payrollLockService.isPayrollLockedForEmployee(adjustment.getEmployee().getId(), adjustment.getMonth(), adjustment.getYear())) {
+            throw new RuntimeException("Cannot delete adjustment when payroll is not locked for this employee for " + 
                     adjustment.getYear() + "-" + adjustment.getMonth());
         }
 

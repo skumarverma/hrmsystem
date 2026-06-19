@@ -1,4 +1,12 @@
 target/
-node_modules/
-*.exe
-logs/
+*.zip
+*.class
+*.log
+
+data/
+*_debug.txt
+test_out*.txt
+anubhav_debug.txt
+
+QueryDatabase.java
+QueryDatabase.class

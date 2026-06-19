@@ -206,8 +206,8 @@ public class UserController {
         
         // Determine displayed role dynamically based on department
         String finalRole = user.getRole().name();
-        if (user.getRole() == User.Role.ROLE_HR) {
-            finalRole = "ROLE_ADMIN";
+        if (user.getRole() == User.Role.ROLE_ADMIN || user.getRole() == User.Role.ROLE_HR) {
+            finalRole = "ROLE_HR";
         }
         if (user.getRole() != User.Role.ROLE_ADMIN && user.getRole() != User.Role.ROLE_HR) {
             if (emp.getDepartment() != null) {
@@ -215,7 +215,7 @@ public class UserController {
                 if (deptName.contains("accountant")) finalRole = "ROLE_ACCOUNTANT";
                 else if (deptName.contains("director")) finalRole = "ROLE_DIRECTOR";
                 else if (deptName.contains("leave") || deptName.equals("leaves")) finalRole = "ROLE_LEAVES";
-                else if (deptName.contains("hr") || deptName.equals("human resources")) finalRole = "ROLE_ADMIN";
+                else if (deptName.contains("hr") || deptName.equals("human resources")) finalRole = "ROLE_HR";
                 else finalRole = "ROLE_EMPLOYEE";
             }
         }
@@ -224,7 +224,12 @@ public class UserController {
         res.put("lastName", emp.getLastName() != null ? emp.getLastName() : "Not Set");
         res.put("phone", emp.getPhone() != null ? emp.getPhone() : "Not Set");
         res.put("designation", emp.getDesignation() != null ? emp.getDesignation() : "Not Set");
-        res.put("department", emp.getDepartment() != null ? emp.getDepartment().getName() : "General");
+        if (user.getRole() == User.Role.ROLE_ADMIN || user.getRole() == User.Role.ROLE_HR) {
+            res.put("department", "HR");
+        } else {
+            res.put("department", emp.getDepartment() != null ? emp.getDepartment().getName() : "General");
+        }
+        res.put("employeeId", emp.getId());
 
         System.out.println("Profile data prepared successfully for " + user.getEmail());
         return ResponseEntity.ok(res);

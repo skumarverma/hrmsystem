@@ -68,8 +68,9 @@ function redirectIfAuth() {
 // Format currency
 function formatCurrency(amount) {
     const formatted = new Intl.NumberFormat('en-IN', {
-        maximumFractionDigits: 0
-    }).format(amount);
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount || 0);
     return `Rs. ${formatted}`;
 }
 

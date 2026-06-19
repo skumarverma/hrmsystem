@@ -41,8 +41,10 @@ public class UnifiedCalculationService {
         if (employeeId == null || year <= 0 || month <= 0 || month > 12) {
             throw new IllegalArgumentException("Invalid input: employeeId cannot be null, year must be positive, month must be 1-12");
         }
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+            .orElseThrow(() -> new RuntimeException("Employee not found"));
         YearMonth yearMonth = YearMonth.of(year, month);
-        return attendanceEngine.calculate(employeeId, yearMonth);
+        return attendanceEngine.calculate(employee.getId(), yearMonth);
     }
 
     /**
@@ -52,13 +54,13 @@ public class UnifiedCalculationService {
     @Transactional(readOnly = true)
     @Cacheable(value = "leaveStatsCache", key = "#employeeId + '_' + #year + '_' + #month")
     public LeaveStatistics calculateLeaveStatistics(Long employeeId, int month, int year) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
             .orElseThrow(() -> new RuntimeException("Employee not found: " + employeeId));
 
-        AttendanceEngine.LeaveBalanceSummary summary = attendanceEngine.calculateLeaveBalance(employeeId, year, month);
+        AttendanceEngine.LeaveBalanceSummary summary = attendanceEngine.calculateLeaveBalance(employee.getId(), year, month);
         
         LeaveStatistics stats = new LeaveStatistics();
-        stats.setEmployeeId(employeeId);
+        stats.setEmployeeId(employee.getId());
         stats.setEmployeeName(employee.getFirstName() + " " + employee.getLastName());
         stats.setMonth(month);
         stats.setYear(year);
@@ -67,11 +69,11 @@ public class UnifiedCalculationService {
         stats.setCurrentMonthUnpaidLeaves(summary.currentMonthUnpaid);
         stats.setCurrentMonthUsedLeaves(summary.currentMonthUsed);
         
-        stats.setTotalEarnedLeaves(summary.earnedLeaves);
+        stats.setTotalEarnedLeaves(applyRule3Adjustment(employee, YearMonth.of(year, month), summary.earnedLeaves));
         stats.setTotalUsedPaidLeaves(summary.usedLeaves);
         stats.setTotalUsedUnpaidLeaves(summary.unpaidLeaves);  // ✅ FIX: was missing
-        stats.setRemainingPaidLeaves(summary.getAvailableLeaves());
-        stats.setAvailableLeaveBalance(summary.getAvailableLeaves());
+        stats.setRemainingPaidLeaves(Math.max(0, stats.getTotalEarnedLeaves() - summary.usedLeaves));
+        stats.setAvailableLeaveBalance(stats.getRemainingPaidLeaves());
         stats.setTotalApprovedLeaves(summary.usedLeaves);
 
         return stats;
@@ -83,12 +85,23 @@ public class UnifiedCalculationService {
      */
     @Transactional(readOnly = true)
     public LeaveBalanceResult getLeaveSummary(Long empId, YearMonth month) {
-        AttendanceEngine.LeaveBalanceSummary summary = attendanceEngine.calculateLeaveBalance(empId, month);
+        return getLeaveSummary(empId, month, null);
+    }
+
+    @Transactional(readOnly = true)
+    public LeaveBalanceResult getLeaveSummary(Long empId, YearMonth month, LocalDate excludeLeavesFromDate) {
+        Employee employee = employeeRepository.findByIdentifier(empId)
+            .orElseThrow(() -> new RuntimeException("Employee not found"));
+            
+        AttendanceEngine.LeaveBalanceSummary summary = attendanceEngine.calculateLeaveBalance(employee.getId(), month, excludeLeavesFromDate);
         LeaveBalanceResult result = new LeaveBalanceResult();
-        result.earned = summary.earnedLeaves;
+        
+        double earned = applyRule3Adjustment(employee, month, summary.earnedLeaves);
+        
+        result.earned = earned;
         result.used = summary.usedLeaves;
         result.unpaidLeaves = summary.unpaidLeaves;
-        result.remaining = summary.remaining;
+        result.remaining = Math.max(0, earned - summary.usedLeaves);
         result.usedThisMonth = summary.currentMonthUsed;
         result.unpaidThisMonth = summary.currentMonthUnpaid;
         result.totalUsed = summary.totalUsedLeaves; // ✅ Paid + Unpaid
@@ -129,8 +142,27 @@ public class UnifiedCalculationService {
             throw new IllegalArgumentException("Invalid input: employee and attendanceSummary cannot be null");
         }
         
-        boolean isInProbation = !attendanceEngine.isProbationCompleted(employee);
-        return attendanceEngine.calculateSalary(employee, attendanceSummary, isInProbation);
+        boolean isInProbation = !attendanceEngine.isProbationCompleted(employee, month.atEndOfMonth());
+        AttendanceEngine.LeaveBalanceSummary leaveSummary = attendanceEngine.calculateLeaveBalance(employee.getId(), month);
+        return attendanceEngine.calculateSalary(employee, attendanceSummary, isInProbation, leaveSummary);
+    }
+
+    /**
+     * Internal helper to apply Rule 3 (15th Date Eligibility)
+     */
+    private double applyRule3Adjustment(Employee employee, YearMonth month, double currentEarned) {
+        // If engine already calculated credit, or probation isn't done, return as is
+        if (currentEarned > 0 || !attendanceEngine.isProbationCompleted(employee, month.atEndOfMonth())) {
+            return currentEarned;
+        }
+
+        LocalDate probationEnd = employee.getJoiningDate().plusMonths(
+            employee.getProbationPeriodMonths() != null ? employee.getProbationPeriodMonths() : 3);
+        
+        if (probationEnd.getDayOfMonth() <= 15 && !month.isBefore(YearMonth.from(probationEnd))) {
+            return 1.5;
+        }
+        return currentEarned;
     }
 
     // --- DTOs migrated from deleted services ---

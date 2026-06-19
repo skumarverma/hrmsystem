@@ -69,7 +69,6 @@ public class DataInitializer {
                     .joiningDate(LocalDate.of(2024, 1, 15))
                     .salary(new BigDecimal("75000.00"))
                     .basicSalary(new BigDecimal("50000.00"))
-                    .da(new BigDecimal("10000.00"))
                     .hra(new BigDecimal("15000.00"))
                     .otherAllowance(new BigDecimal("5000.00"))
                     .status(Employee.EmployeeStatus.ACTIVE)
@@ -83,7 +82,6 @@ public class DataInitializer {
                     .joiningDate(LocalDate.of(2023, 6, 20))
                     .salary(new BigDecimal("85000.00"))
                     .basicSalary(new BigDecimal("60000.00"))
-                    .da(new BigDecimal("12000.00"))
                     .hra(new BigDecimal("18000.00"))
                     .otherAllowance(new BigDecimal("6000.00"))
                     .status(Employee.EmployeeStatus.ACTIVE)
@@ -97,7 +95,6 @@ public class DataInitializer {
                     .joiningDate(LocalDate.of(2024, 3, 10))
                     .salary(new BigDecimal("65000.00"))
                     .basicSalary(new BigDecimal("45000.00"))
-                    .da(new BigDecimal("9000.00"))
                     .hra(new BigDecimal("13500.00"))
                     .otherAllowance(new BigDecimal("4500.00"))
                     .status(Employee.EmployeeStatus.ACTIVE)
@@ -111,7 +108,6 @@ public class DataInitializer {
                     .joiningDate(LocalDate.of(2024, 2, 5))
                     .salary(new BigDecimal("70000.00"))
                     .basicSalary(new BigDecimal("48000.00"))
-                    .da(new BigDecimal("9600.00"))
                     .hra(new BigDecimal("14400.00"))
                     .otherAllowance(new BigDecimal("4800.00"))
                     .status(Employee.EmployeeStatus.ACTIVE)
@@ -125,7 +121,6 @@ public class DataInitializer {
                     .joiningDate(LocalDate.of(2023, 11, 12))
                     .salary(new BigDecimal("80000.00"))
                     .basicSalary(new BigDecimal("55000.00"))
-                    .da(new BigDecimal("11000.00"))
                     .hra(new BigDecimal("16500.00"))
                     .otherAllowance(new BigDecimal("5500.00"))
                     .status(Employee.EmployeeStatus.ACTIVE)
@@ -149,9 +144,8 @@ public class DataInitializer {
                     if (emp.getBasicSalary() == null && emp.getSalary() != null) {
                         double salary = emp.getSalary().doubleValue();
                         emp.setBasicSalary(new BigDecimal(salary * 0.60)); // 60% of total
-                        emp.setDa(new BigDecimal(salary * 0.15)); // 15% of total
                         emp.setHra(new BigDecimal(salary * 0.20)); // 20% of total
-                        emp.setOtherAllowance(new BigDecimal(salary * 0.05)); // 5% of total
+                        emp.setOtherAllowance(new BigDecimal(salary * 0.20)); // 20% of total
                         needsUpdate = true;
                     }
                     

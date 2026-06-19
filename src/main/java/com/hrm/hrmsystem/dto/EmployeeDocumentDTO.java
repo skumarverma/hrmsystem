@@ -8,16 +8,19 @@ public class EmployeeDocumentDTO {
     private String employeeName;
     private String documentType;
     private String fileName;
+    private String fileUrl;
     private LocalDateTime uploadedAt;
 
     public EmployeeDocumentDTO() {}
 
-    public EmployeeDocumentDTO(Long id, Long employeeId, String employeeName, String documentType, String fileName, LocalDateTime uploadedAt) {
+    public EmployeeDocumentDTO(Long id, Long employeeId, String employeeName, String documentType,
+                               String fileName, String fileUrl, LocalDateTime uploadedAt) {
         this.id = id;
         this.employeeId = employeeId;
         this.employeeName = employeeName;
         this.documentType = documentType;
         this.fileName = fileName;
+        this.fileUrl = fileUrl;
         this.uploadedAt = uploadedAt;
     }
 
@@ -35,6 +38,9 @@ public class EmployeeDocumentDTO {
 
     public String getFileName() { return fileName; }
     public void setFileName(String fileName) { this.fileName = fileName; }
+
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
 
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }

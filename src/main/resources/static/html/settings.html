@@ -6,6 +6,52 @@
     <title>Settings - HRM System</title>
     <link rel="stylesheet" href="../css/employee-theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .welcome-banner .banner-btn-secondary {
+            background: white !important;
+            color: var(--gray-700) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+        .welcome-banner .banner-btn-secondary:hover {
+            background: var(--gray-50) !important;
+            border-color: var(--gray-300) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+            .header .page-title, .header .header-actions {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app-layout">
@@ -20,113 +66,35 @@
                     <h1>System Settings</h1>
                     <p>Manage application preferences and configurations</p>
                 </div>
-                <div class="header-actions">
-                    <button class="icon-btn" onclick="history.back()" title="Go Back">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="auth.logout()" title="Logout">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                    </button>
-                </div>
             </header>
 
             <div class="page-content">
-                <div class="settings-layout">
-                    <!-- Left: Navigation Sidebar -->
-                    <div class="settings-sidebar">
-                        <button class="settings-tab-btn active" data-target="security-panel">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                            Security & Account
-                        </button>
-                        <button class="settings-tab-btn" data-target="notifications-panel">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
-                            Notification Preferences
-                        </button>
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner" style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <div style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+                    
+                    <div style="z-index: 1;">
+                        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">System Settings</h1>
+                        <p style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">Manage application preferences and configurations</p>
                     </div>
-
-                    <!-- Right: Content Wrapper -->
+                    
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions" style="z-index: 1; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="history.back()" class="banner-btn-secondary" title="Go back">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                            Back
+                        </button>
+                        
+                    
+                    </div>
+                </div>
+                <div class="settings-layout">
+                    <!-- Content Wrapper -->
                     <div class="settings-content-wrapper">
-                        <!-- Panel 1: Security & Account -->
-                        <div id="security-panel" class="settings-panel active">
-                            <h3 class="panel-section-title">
-                                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--primary);">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                </svg>
-                                Security & Account Credentials
-                            </h3>
-                            <p class="panel-section-desc">Manage your account password, email address, and core login credentials.</p>
-                            
-                            <h4 style="margin: 1.5rem 0 1rem 0; font-size: 0.95rem; font-weight: 600; color: var(--gray-800);">Change Account Password</h4>
-                            <form id="password-form">
-                                <div class="form-group">
-                                    <label class="form-label form-label-required">Current Password</label>
-                                    <div class="input-with-icon">
-                                        <svg class="input-icon-left" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                        </svg>
-                                        <input type="password" name="currentPassword" class="form-control" required placeholder="Enter current password">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label form-label-required">New Password</label>
-                                    <div class="input-with-icon">
-                                        <svg class="input-icon-left" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m-5-3a5 5 0 015 5m-9 9h10a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                        </svg>
-                                        <input type="password" name="newPassword" class="form-control" required minlength="6" placeholder="Minimum 6 characters">
-                                    </div>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 1.5rem;">
-                                    <label class="form-label form-label-required">Confirm New Password</label>
-                                    <div class="input-with-icon">
-                                        <svg class="input-icon-left" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                        </svg>
-                                        <input type="password" name="confirmPassword" class="form-control" required placeholder="Verify new password">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Update Password</button>
-                            </form>
-
-                            <div id="email-update-section">
-                                <hr class="form-section-divider">
-
-                                <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; font-weight: 600; color: var(--gray-800);">Update Email / Username</h4>
-                                
-                                <div class="info-note">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <div>
-                                        <strong>Important Security Notice:</strong> Your registered email acts as your unique system username. Changing your email address will automatically sign you out, and you will need to log back in using your new email address.
-                                    </div>
-                                </div>
-                                
-                                <form id="email-form">
-                                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                                        <label class="form-label form-label-required">New Email Address</label>
-                                        <div class="input-with-icon">
-                                            <svg class="input-icon-left" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                            </svg>
-                                            <input type="email" id="user-email-input" name="newEmail" class="form-control" required placeholder="Enter new official email address">
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-secondary">Update Email Address</button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Panel 2: Notification Preferences -->
-                        <div id="notifications-panel" class="settings-panel">
+                        <!-- Panel: Notification Preferences -->
+                        <div id="notifications-panel" class="settings-panel active">
                             <h3 class="panel-section-title">
                                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--primary);">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -184,24 +152,6 @@
         // Render sidebar explicitly
         renderSidebar();
         
-        // Hide update email section for standard employees
-        if (auth.isEmployee()) {
-            const emailUpdateSec = document.getElementById('email-update-section');
-            if (emailUpdateSec) {
-                emailUpdateSec.style.display = 'none';
-            }
-        }
-        
-        async function loadProfile() {
-            try {
-                const res = await auth.apiCall('/api/users/profile');
-                if (res && res.ok) {
-                    const profile = await res.json();
-                    document.getElementById('user-email-input').value = profile.email || '';
-                }
-            } catch (e) { console.error('Error loading profile:', e); }
-        }
-        
         async function loadPreferences() {
             try {
                 const res = await auth.apiCall('/api/notification-preferences');
@@ -214,59 +164,7 @@
             } catch (e) { console.error('Error loading preferences:', e); }
         }
         
-        loadProfile();
         loadPreferences();
-        
-
-        
-        document.getElementById('email-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newEmail = e.target.newEmail.value;
-            
-            if (!confirm(`Are you sure you want to change your email to ${newEmail}? You will be logged out and need to sign in again with this new email.`)) {
-                return;
-            }
-
-            try {
-                const res = await auth.apiCall('/api/users/update-email', {
-                    method: 'PUT',
-                    body: JSON.stringify({ newEmail: newEmail })
-                });
-                
-                if (res && res.ok) {
-                    auth.showNotification('Email updated successfully! Logging out...', 'success');
-                    setTimeout(() => auth.logout(), 2000);
-                } else {
-                    const data = await res.json();
-                    auth.showNotification(data.error || 'Failed to update email', 'error');
-                }
-            } catch (e) { auth.showNotification(e.message, 'error'); }
-        });
-        
-        document.getElementById('password-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            if (form.newPassword.value !== form.confirmPassword.value) {
-                return auth.showNotification('Passwords do not match', 'error');
-            }
-            try {
-                const res = await auth.apiCall('/api/auth/change-password', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        currentPassword: form.currentPassword.value,
-                        newPassword: form.newPassword.value,
-                        confirmPassword: form.confirmPassword.value
-                    })
-                });
-                if (res && res.ok) {
-                    auth.showNotification('Password changed successfully', 'success');
-                    form.reset();
-                } else {
-                    const data = await res.json();
-                    auth.showNotification(data.error || 'Failed to change password', 'error');
-                }
-            } catch (e) { auth.showNotification(e.message, 'error'); }
-        });
         
         // Save preferences on change
         document.querySelectorAll('.toggle-switch input').forEach(input => {
@@ -275,7 +173,6 @@
                     emailNotifications: document.getElementById('email-notif').checked,
                     pushNotifications: document.getElementById('push-notif').checked,
                     monthlyReports: document.getElementById('monthly-report').checked,
-                    // Keep other updates enabled by default for now
                     leaveUpdates: true,
                     payrollUpdates: true,
                     attendanceUpdates: true
@@ -292,26 +189,9 @@
                 } catch (e) { auth.showNotification(e.message, 'error'); }
             });
         });
-
-        // Tab switching logic
-        const tabs = document.querySelectorAll('.settings-tab-btn');
-        const panels = document.querySelectorAll('.settings-panel');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs
-                tabs.forEach(t => t.classList.remove('active'));
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Hide all panels
-                panels.forEach(p => p.classList.remove('active'));
-                // Show target panel
-                const targetId = tab.getAttribute('data-target');
-                document.getElementById(targetId).classList.add('active');
-            });
-        });
         
+
+
         function logout() { auth.logout(); }
     </script>
     <style>
@@ -339,12 +219,8 @@
         }
 
         .settings-layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-            max-width: 1000px;
+            max-width: 600px;
             margin: 0 auto;
-            align-items: start;
             animation: fadeIn 0.4s ease-out;
         }
 

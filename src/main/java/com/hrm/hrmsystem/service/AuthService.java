@@ -4,11 +4,15 @@ import com.hrm.hrmsystem.config.JwtUtil;
 import com.hrm.hrmsystem.dto.*;
 import com.hrm.hrmsystem.model.Employee;
 import com.hrm.hrmsystem.model.PasswordResetOTP;
+import com.hrm.hrmsystem.model.OtpVerification;
 import com.hrm.hrmsystem.model.User;
 import com.hrm.hrmsystem.repository.EmployeeRepository;
 import com.hrm.hrmsystem.repository.PasswordResetOTPRepository;
+import com.hrm.hrmsystem.repository.OtpVerificationRepository;
 import com.hrm.hrmsystem.repository.UserRepository;
 import com.hrm.hrmsystem.util.EmailUtil;
+import com.hrm.hrmsystem.util.SmsUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,16 +33,30 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordResetOTPRepository otpRepository;
     private final EmailUtil emailUtil;
+    private final OtpVerificationRepository otpVerificationRepository;
+    private final SmsUtil smsUtil;
+
+    @Value("${fast2sms.otp-expiry-minutes}")
+    private int otpExpiryMinutes;
+
+    @Value("${fast2sms.cooldown-ms}")
+    private long cooldownMs;
+
+    @Value("${fast2sms.max-attempts}")
+    private int maxAttempts;
 
     public AuthService(UserRepository userRepository, EmployeeRepository employeeRepository,
                        PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
-                       PasswordResetOTPRepository otpRepository, EmailUtil emailUtil) {
+                       PasswordResetOTPRepository otpRepository, EmailUtil emailUtil,
+                       OtpVerificationRepository otpVerificationRepository, SmsUtil smsUtil) {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.otpRepository = otpRepository;
         this.emailUtil = emailUtil;
+        this.otpVerificationRepository = otpVerificationRepository;
+        this.smsUtil = smsUtil;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -60,7 +78,7 @@ public class AuthService {
                 .build();
 
         if (request.getEmployeeId() != null) {
-            Employee employee = employeeRepository.findById(request.getEmployeeId())
+            Employee employee = employeeRepository.findByIdentifier(request.getEmployeeId())
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
             user.setEmployee(employee);
         }
@@ -83,31 +101,56 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
-        if (user == null) {
-            user = userRepository.findByEmailIgnoreCase(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+        throw new UnsupportedOperationException("Email/Password login has been disabled. Please login using Mobile Number + OTP.");
+    }
+
+    @Transactional
+    public AuthResponse verifyOtpAndLogin(VerifySMSOTPRequest request) {
+        String cleanPhone = request.getMobileNumber().replaceAll("[^0-9]", "");
+        if (cleanPhone.length() > 10) {
+            cleanPhone = cleanPhone.substring(cleanPhone.length() - 10);
         }
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+        OtpVerification otpVerification = otpVerificationRepository
+                .findFirstByMobileNumberAndUsedFalseOrderByCreatedAtDesc(cleanPhone)
+                .orElseThrow(() -> new RuntimeException("No active OTP request found for this mobile number"));
+
+        // Validate OTP value
+        if (!otpVerification.getOtp().equals(request.getOtp())) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        // Validate expiration
+        if (otpVerification.isExpired()) {
+            throw new RuntimeException("OTP has expired. Please request a new OTP.");
+        }
+
+        List<Employee> employees = employeeRepository.findByPhone(cleanPhone);
+        User user = null;
+        for (Employee emp : employees) {
+            user = userRepository.findByEmployeeId(emp.getId()).orElse(null);
+            if (user != null) break;
+        }
+
+        if (user == null) {
+            user = userRepository.findByUsername(cleanPhone)
+                    .orElseThrow(() -> new RuntimeException("No user account found linked to this mobile number"));
         }
 
         if (!user.getIsActive()) {
-            throw new RuntimeException("Account is deactivated");
+            throw new RuntimeException("User account is deactivated");
         }
 
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
+        otpVerification.setUsed(true);
+        otpVerificationRepository.save(otpVerification);
 
-        String effectiveRole = getEffectiveRole(user);
-        String token = jwtUtil.generateToken(user.getUsername(), effectiveRole);
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
         return AuthResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(effectiveRole)
+                .role(user.getRole().name())
                 .employeeId(user.getEmployee() != null ? user.getEmployee().getId() : null)
                 .employeeName(user.getEmployee() != null ? 
                         user.getEmployee().getFirstName() + " " + user.getEmployee().getLastName() : null)
@@ -115,6 +158,75 @@ public class AuthService {
                 .message("Login successful")
                 .build();
     }
+
+    @Transactional
+    public String sendOtpForLogin(SendSMSOTPRequest request) {
+        String phone = request.getMobileNumber();
+        if (phone == null || phone.trim().isEmpty()) {
+            throw new RuntimeException("Mobile number is required");
+        }
+        
+        String cleanPhone = phone.replaceAll("[^0-9]", "");
+        if (cleanPhone.length() > 10) {
+            cleanPhone = cleanPhone.substring(cleanPhone.length() - 10);
+        }
+
+        // Check if an active employee exists with this phone number
+        List<Employee> employees = employeeRepository.findByPhone(cleanPhone);
+        if (employees.isEmpty()) {
+            throw new RuntimeException("Mobile number '" + phone + "' is not registered in the system. Please check the number or contact your HR administrator.");
+        }
+
+        // Find the first active employee
+        Employee employee = employees.stream()
+                .filter(e -> e.getStatus() != Employee.EmployeeStatus.TERMINATED && e.getStatus() != Employee.EmployeeStatus.INACTIVE)
+                .findFirst()
+                .orElse(null);
+
+        if (employee == null) {
+            throw new RuntimeException("The account associated with mobile number '" + phone + "' is inactive or terminated. Please contact HR.");
+        }
+
+        // Check if user account is linked to this employee
+        java.util.Optional<User> userOpt = userRepository.findByEmployeeId(employee.getId());
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("No active system user account is linked to the employee profile for '" + phone + "'. Please contact HR.");
+        }
+
+        User user = userOpt.get();
+        if (!user.getIsActive()) {
+            throw new RuntimeException("The user account associated with mobile number '" + phone + "' is deactivated. Please contact HR.");
+        }
+
+        // Check for cooldown restriction
+        otpVerificationRepository.findFirstByMobileNumberAndUsedFalseOrderByCreatedAtDesc(cleanPhone)
+                .ifPresent(existingOtp -> {
+                    if (existingOtp.getCreatedAt().plusSeconds(cooldownMs / 1000).isAfter(LocalDateTime.now())) {
+                        throw new RuntimeException("Please wait before requesting a new OTP");
+                    }
+                });
+
+        // Delete old OTPs for this number
+        otpVerificationRepository.deleteByMobileNumber(cleanPhone);
+
+        // Generate 6-digit OTP
+        String otp = generateOTP();
+
+        // Save new OTP Verification session
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(otpExpiryMinutes);
+        OtpVerification otpVerification = new OtpVerification(cleanPhone, otp, expiryTime);
+        otpVerificationRepository.save(otpVerification);
+
+        // Dispatch OTP SMS via Fast2SMS
+        boolean sent = smsUtil.sendOtpSms(cleanPhone, otp);
+        if (!sent) {
+            throw new RuntimeException("Failed to send OTP SMS. Please try again later or contact support.");
+        }
+
+        return otp;
+    }
+
+
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
@@ -399,8 +511,8 @@ public class AuthService {
 
     private String getEffectiveRole(User user) {
         String roleName = user.getRole().name();
-        if (user.getRole() == User.Role.ROLE_HR) {
-            roleName = "ROLE_ADMIN";
+        if (user.getRole() == User.Role.ROLE_ADMIN || user.getRole() == User.Role.ROLE_HR) {
+            roleName = "ROLE_HR";
         }
         
         if (user.getRole() != User.Role.ROLE_ADMIN && user.getRole() != User.Role.ROLE_HR) {
@@ -414,7 +526,7 @@ public class AuthService {
                 } else if (deptName.contains("leave") || deptName.equals("leaves")) {
                     roleName = "ROLE_LEAVES";
                 } else if (deptName.contains("hr") || deptName.equals("human resources")) {
-                    roleName = "ROLE_ADMIN";
+                    roleName = "ROLE_HR";
                 } else {
                     roleName = "ROLE_EMPLOYEE";
                 }

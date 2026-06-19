@@ -17,6 +17,11 @@ public class AttendanceDTO {
     private String fullStatus;
     private String halfType;
     private String remarks;
+    private Double paidAbsent;
+    private Double unpaidAbsent;
+    private Double worked;
+    private Double paidLeave;
+    private Double unpaidLeave;
 
     public AttendanceDTO() {}
 
@@ -33,6 +38,11 @@ public class AttendanceDTO {
     public String getFullStatus() { return fullStatus; }
     public String getHalfType() { return halfType; }
     public String getRemarks() { return remarks; }
+    public Double getPaidAbsent() { return paidAbsent; }
+    public Double getUnpaidAbsent() { return unpaidAbsent; }
+    public Double getWorked() { return worked; }
+    public Double getPaidLeave() { return paidLeave; }
+    public Double getUnpaidLeave() { return unpaidLeave; }
 
     // Setters
     public void setId(Long id) { this.id = id; }
@@ -47,6 +57,11 @@ public class AttendanceDTO {
     public void setFullStatus(String fullStatus) { this.fullStatus = fullStatus; }
     public void setHalfType(String halfType) { this.halfType = halfType; }
     public void setRemarks(String remarks) { this.remarks = remarks; }
+    public void setPaidAbsent(Double paidAbsent) { this.paidAbsent = paidAbsent; }
+    public void setUnpaidAbsent(Double unpaidAbsent) { this.unpaidAbsent = unpaidAbsent; }
+    public void setWorked(Double worked) { this.worked = worked; }
+    public void setPaidLeave(Double paidLeave) { this.paidLeave = paidLeave; }
+    public void setUnpaidLeave(Double unpaidLeave) { this.unpaidLeave = unpaidLeave; }
 
     public static Builder builder() {
         return new Builder();
@@ -65,6 +80,11 @@ public class AttendanceDTO {
         private String fullStatus;
         private String halfType;
         private String remarks;
+        private Double paidAbsent;
+        private Double unpaidAbsent;
+        private Double worked;
+        private Double paidLeave;
+        private Double unpaidLeave;
 
         public Builder id(Long id) { this.id = id; return this; }
         public Builder employeeId(Long employeeId) { this.employeeId = employeeId; return this; }
@@ -78,6 +98,11 @@ public class AttendanceDTO {
         public Builder fullStatus(String fullStatus) { this.fullStatus = fullStatus; return this; }
         public Builder halfType(String halfType) { this.halfType = halfType; return this; }
         public Builder remarks(String remarks) { this.remarks = remarks; return this; }
+        public Builder paidAbsent(Double paidAbsent) { this.paidAbsent = paidAbsent; return this; }
+        public Builder unpaidAbsent(Double unpaidAbsent) { this.unpaidAbsent = unpaidAbsent; return this; }
+        public Builder worked(Double worked) { this.worked = worked; return this; }
+        public Builder paidLeave(Double paidLeave) { this.paidLeave = paidLeave; return this; }
+        public Builder unpaidLeave(Double unpaidLeave) { this.unpaidLeave = unpaidLeave; return this; }
 
         public AttendanceDTO build() {
             AttendanceDTO dto = new AttendanceDTO();
@@ -93,6 +118,11 @@ public class AttendanceDTO {
             dto.fullStatus = this.fullStatus;
             dto.halfType = this.halfType;
             dto.remarks = this.remarks;
+            dto.paidAbsent = this.paidAbsent;
+            dto.unpaidAbsent = this.unpaidAbsent;
+            dto.worked = this.worked;
+            dto.paidLeave = this.paidLeave;
+            dto.unpaidLeave = this.unpaidLeave;
             return dto;
         }
     }

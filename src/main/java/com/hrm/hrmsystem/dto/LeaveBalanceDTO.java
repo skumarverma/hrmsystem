@@ -92,6 +92,7 @@ public class LeaveBalanceDTO {
     public void setProbationStatus(String probationStatus) { this.probationStatus = probationStatus; }
     public void setJoiningDate(String joiningDate) { this.joiningDate = joiningDate; }
     public void setProbationEndDate(String probationEndDate) { this.probationEndDate = probationEndDate; }
+    public Integer getProbationMonths() { return probationMonths; }
     public void setProbationMonths(Integer probationMonths) { this.probationMonths = probationMonths; }
     public void setCycleExpiryWarning(Boolean cycleExpiryWarning) { this.cycleExpiryWarning = cycleExpiryWarning; }
     public void setCycleExpiryMessage(String cycleExpiryMessage) { this.cycleExpiryMessage = cycleExpiryMessage; }
@@ -131,6 +132,7 @@ public class LeaveBalanceDTO {
         private Integer daysUntilCycleEnd;
         private Integer workingDaysForNextLeave;
         private String nextLeaveProgress;
+        private Integer probationMonths;
 
         public Builder id(Long id) { this.id = id; return this; }
         public Builder employeeId(Long employeeId) { this.employeeId = employeeId; return this; }
@@ -159,6 +161,7 @@ public class LeaveBalanceDTO {
         public Builder daysUntilCycleEnd(Integer daysUntilCycleEnd) { this.daysUntilCycleEnd = daysUntilCycleEnd; return this; }
         public Builder workingDaysForNextLeave(Integer workingDaysForNextLeave) { this.workingDaysForNextLeave = workingDaysForNextLeave; return this; }
         public Builder nextLeaveProgress(String nextLeaveProgress) { this.nextLeaveProgress = nextLeaveProgress; return this; }
+        public Builder probationMonths(Integer probationMonths) { this.probationMonths = probationMonths; return this; }
 
         public LeaveBalanceDTO build() {
             LeaveBalanceDTO dto = new LeaveBalanceDTO();
@@ -189,6 +192,7 @@ public class LeaveBalanceDTO {
             dto.daysUntilCycleEnd = this.daysUntilCycleEnd;
             dto.workingDaysForNextLeave = this.workingDaysForNextLeave;
             dto.nextLeaveProgress = this.nextLeaveProgress;
+            dto.probationMonths = this.probationMonths;
             return dto;
         }
     }

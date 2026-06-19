@@ -111,7 +111,7 @@ All use SAME field names:
 ### **✅ ENGINE ONLY CALCULATIONS:**
 - ✅ Attendance summary
 - ✅ Paid/unpaid leave split
-- ✅ Total Used Leaves leaves
+- ✅ Total Total Used Leaves leaves
 - ✅ Payable days
 - ✅ Absent days
 - ✅ Salary deductions

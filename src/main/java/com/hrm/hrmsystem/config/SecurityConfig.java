@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -51,6 +52,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configure(http))
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -58,8 +60,12 @@ public class SecurityConfig {
                 // Public pages
                 .requestMatchers("/", "/index.html", "/login", "/register").permitAll()
                 .requestMatchers("/html/login.html", "/html/register.html", "/html/home.html").permitAll()
-                .requestMatchers("/static/**", "/assets/**", "/css/**", "/js/**", "/html/modules/**", "/vite.svg", "/favicon.ico").permitAll()
+                .requestMatchers("/static/**", "/images/**", "/assets/**", "/css/**", "/js/**", "/html/modules/**", "/vite.svg", "/favicon.ico").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/files/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/documents/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/documents/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/documents/**").hasAnyRole("HR", "ADMIN")
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 
@@ -94,6 +100,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/leaves/recalculate-paid-days").hasAnyRole("HR", "LEAVES", "ACCOUNTANT", "ADMIN") // Data fix endpoint
                 
                 // Payroll management - HR/Accountant/Admin
+                .requestMatchers(HttpMethod.POST, "/api/payroll/unlock/**").hasAnyRole("HR", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/payroll/**").hasAnyRole("HR", "ACCOUNTANT", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/payroll/**").hasAnyRole("HR", "ACCOUNTANT", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/payroll/**").hasAnyRole("HR", "ADMIN")

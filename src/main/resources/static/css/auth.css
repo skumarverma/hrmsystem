@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+  background: #ffffff;
   padding: var(--space-6);
   position: relative;
   overflow: hidden;
@@ -33,7 +33,7 @@
 
 /* Login Card */
 .login-card {
-  background: rgba(255, 255, 255, 0.98);
+  background: #FFFFFF;
   backdrop-filter: blur(20px);
   border-radius: var(--radius-2xl);
   padding: var(--space-10);

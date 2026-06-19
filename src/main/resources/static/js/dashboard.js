@@ -38,8 +38,8 @@ async function loadDashboardData() {
             totalEmployees: 0,
             presentToday: 0,
             absentToday: 0,        // ✅ STANDARDIZED: Added absent days
-            paidUsedLeaves: 0,    // ✅ STANDARDIZED: Added paid used leaves
-            unpaidUsedLeaves: 0,  // ✅ STANDARDIZED: Added unpaid used leaves
+            paidUsedLeaves: 0,    // ✅ STANDARDIZED: Added Paid Used Leaves
+            unpaidUsedLeaves: 0,  // ✅ STANDARDIZED: Added Unpaid Used Leaves
             monthlyPayroll: 0,
             leaveRequests: 0
         };

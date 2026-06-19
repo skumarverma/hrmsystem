@@ -279,11 +279,12 @@ public class PayslipController {
      * Download PDF payslip
      */
     @GetMapping("/{payslipId}/download-pdf")
-    @Operation(summary = "Download PDF", description = "Download PDF payslip file")
+    @Operation(summary = "Download/Preview PDF", description = "Download or preview PDF payslip file")
     public ResponseEntity<?> downloadPayslipPdf(
-            @Parameter(description = "Payslip ID") @PathVariable Long payslipId) {
+            @Parameter(description = "Payslip ID") @PathVariable Long payslipId,
+            @RequestParam(required = false, defaultValue = "false") boolean inline) {
         try {
-            log.info("Downloading PDF for payslip: {}", payslipId);
+            log.info("Downloading PDF for payslip: {}, inline={}", payslipId, inline);
             PayslipDTO payslip = payslipService.getPayslipById(payslipId);
 
             // If PDF isn't generated yet (common after regenerate/attendance edits),
@@ -292,17 +293,10 @@ public class PayslipController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payslip not found");
             }
 
-            boolean needsGeneration = (payslip.getPdfFilePath() == null);
-            if (!needsGeneration) {
-                File existingFile = new File(payslip.getPdfFilePath());
-                needsGeneration = !existingFile.exists();
-            }
-
-            if (needsGeneration) {
-                log.info("PDF not found for payslip {}. Generating first...", payslipId);
-                payslipService.generatePayslipPdf(payslipId);
-                payslip = payslipService.getPayslipById(payslipId);
-            }
+            // Always generate a fresh PDF to ensure the latest layout is generated
+            log.info("Generating fresh PDF for payslip {} to apply latest layout changes...", payslipId);
+            payslipService.generatePayslipPdf(payslipId);
+            payslip = payslipService.getPayslipById(payslipId);
 
             if (payslip.getPdfFilePath() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -316,16 +310,24 @@ public class PayslipController {
             }
 
             Resource resource = new FileSystemResource(file);
-            String filename = "Payslip_" + payslip.getEmployeeId() + "_" + payslip.getMonthYear() + ".pdf";
+            String formattedMonthYear = "";
+            try {
+                java.time.YearMonth ym = java.time.YearMonth.parse(payslip.getMonthYear());
+                formattedMonthYear = ym.format(java.time.format.DateTimeFormatter.ofPattern("MMM yyyy"));
+            } catch (Exception e) {
+                formattedMonthYear = payslip.getMonthYear();
+            }
+            String filename = payslip.getEmployeeName() + " " + formattedMonthYear + " Salary Slip_page-0001.pdf";
 
+            String disposition = inline ? "inline" : "attachment";
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, disposition + "; filename=\"" + filename + "\"")
                     .body(resource);
         } catch (Exception e) {
-            log.error("Error downloading PDF: {}", e.getMessage());
+            log.error("Error downloading/previewing PDF: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error downloading PDF: " + e.getMessage());
+                    .body("Error downloading/previewing PDF: " + e.getMessage());
         }
     }
 

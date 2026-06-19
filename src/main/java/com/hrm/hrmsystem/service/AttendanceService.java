@@ -36,8 +36,13 @@ public class AttendanceService {
     private final AuditLogService auditLogService;
     private final PayrollLockService payrollLockService;
     private final AttendanceEngine attendanceEngine;
+    private final LeaveRecalculationService leaveRecalculationService;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository, @Lazy PayslipService payslipService, LeaveRepository leaveRepository, AuditLogService auditLogService, PayrollLockService payrollLockService, AttendanceEngine attendanceEngine) {
+    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
+            @Lazy PayslipService payslipService, LeaveRepository leaveRepository,
+            AuditLogService auditLogService, PayrollLockService payrollLockService,
+            AttendanceEngine attendanceEngine,
+            @Lazy LeaveRecalculationService leaveRecalculationService) {
         this.attendanceRepository = attendanceRepository;
         this.employeeRepository = employeeRepository;
         this.payslipService = payslipService;
@@ -45,6 +50,7 @@ public class AttendanceService {
         this.auditLogService = auditLogService;
         this.payrollLockService = payrollLockService;
         this.attendanceEngine = attendanceEngine;
+        this.leaveRecalculationService = leaveRecalculationService;
     }
 
     private static final LocalTime STANDARD_CHECK_IN = LocalTime.of(9, 0);
@@ -59,9 +65,9 @@ public class AttendanceService {
             int month = date.getMonthValue();
             int year = date.getYear();
 
-            // Check if payroll is locked for this month
-            if (payrollLockService.isPayrollLocked(month, year)) {
-                System.out.println("Payroll is locked for " + year + "-" + month + ". Skipping payslip regeneration.");
+            // Check if payroll is locked for this employee
+            if (payrollLockService.isPayrollLockedForEmployee(employeeId, month, year)) {
+                System.out.println("Payroll is locked for employee " + employeeId + " for " + year + "-" + month + ". Skipping payslip regeneration.");
                 return;
             }
 
@@ -77,24 +83,17 @@ public class AttendanceService {
     }
 
     public AttendanceDTO checkIn(Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         LocalDate today = LocalDate.now();
         
         // ✅ NEW: Payroll Lock Check
-        if (payrollLockService.isPayrollLocked(today.getMonthValue(), today.getYear())) {
-            throw new RuntimeException("Payroll is locked for this month. Cannot check-in.");
+        if (payrollLockService.isPayrollLockedForEmployee(employee.getId(), today.getMonthValue(), today.getYear())) {
+            throw new RuntimeException("Payroll is locked for this employee for this month. Cannot check-in.");
         }
         
-        // ✅ REMOVED: Manual Sunday check - Use AttendanceEngine for all working day calculations
-        // SUNDAY CHECK: Cannot check-in on Sundays
-        // if (today.getDayOfWeek() == DayOfWeek.SUNDAY) {
-        //     throw new RuntimeException("Sunday is a non-working day. Cannot check-in.");
-        // }
-        // Note: Business workflow validation is OK, but calculation should use AttendanceEngine
-
-        List<Attendance> records = attendanceRepository.findAllByEmployeeIdAndDate(employeeId, today);
+        List<Attendance> records = attendanceRepository.findAllByEmployeeIdAndDate(employee.getId(), today);
 
         if (!records.isEmpty() && records.get(0).getCheckInTime() != null) {
             throw new RuntimeException("Already checked in today");
@@ -114,21 +113,17 @@ public class AttendanceService {
     }
 
     public AttendanceDTO checkOut(Long employeeId) {
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
         LocalDate today = LocalDate.now();
         
         // ✅ NEW: Payroll Lock Check
-        if (payrollLockService.isPayrollLocked(today.getMonthValue(), today.getYear())) {
-            throw new RuntimeException("Payroll is locked for this month. Cannot check-out.");
+        if (payrollLockService.isPayrollLockedForEmployee(employee.getId(), today.getMonthValue(), today.getYear())) {
+            throw new RuntimeException("Payroll is locked for this employee for this month. Cannot check-out.");
         }
         
-        // ✅ REMOVED: Manual Sunday check - Use AttendanceEngine for all working day calculations
-        // SUNDAY CHECK: Cannot check-out on Sundays (shouldn't have checked in either)
-        // if (today.getDayOfWeek() == DayOfWeek.SUNDAY) {
-        //     throw new RuntimeException("Sunday is a non-working day.");
-        // }
-        // Note: Business workflow validation is OK, but calculation should use AttendanceEngine
-
-        Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(employeeId, today)
+        Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(employee.getId(), today)
                 .orElseThrow(() -> new RuntimeException("No check-in found for today"));
 
         if (attendance.getCheckOutTime() != null) {
@@ -160,7 +155,11 @@ public class AttendanceService {
     }
 
     public List<AttendanceDTO> getAttendanceByEmployee(Long employeeId) {
-        return attendanceRepository.findByEmployeeId(employeeId)
+        Employee employee = employeeRepository.findByIdentifier(employeeId).orElse(null);
+        if (employee == null) {
+            return new java.util.ArrayList<>();
+        }
+        return attendanceRepository.findByEmployeeId(employee.getId())
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -191,7 +190,7 @@ public class AttendanceService {
             if (employee == null || isSystemUser(employee)) continue;
 
             // 1. Get balance for correct paid/unpaid resolution
-            AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(employeeId, YearMonth.from(date).minusMonths(1));
+            AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(employeeId, YearMonth.from(date), date);
             
             // 2. Get records
             Attendance attendance = attendances.stream()
@@ -223,7 +222,13 @@ public class AttendanceService {
                 dto.setStatus("WEEK_OFF");
                 dto.setWorkingHours(0.0);
             } else if (dayResult.absent >= 1.0) {
-                dto.setStatus("ABSENT");
+                if (dayResult.paidAbsent >= 1.0) {
+                    dto.setStatus("PAID_ABSENT");
+                } else if (dayResult.unpaidAbsent >= 1.0) {
+                    dto.setStatus("UNPAID_ABSENT");
+                } else {
+                    dto.setStatus("ABSENT");
+                }
                 dto.setWorkingHours(0.0);
             } else if (dayResult.absent > 0) {
                 dto.setStatus("PARTIAL_ABSENT");
@@ -245,7 +250,17 @@ public class AttendanceService {
                 dto.setWorkingHours(0.0);
             }
             
-            dto.setFullStatus(dayResult.status);
+            if (attendance != null) {
+                dto.setFullStatus(dayResult.status + ", DB_STATUS:" + attendance.getStatus() + ", DB_HALFTYPE:" + attendance.getHalfType());
+            } else {
+                dto.setFullStatus(dayResult.status);
+            }
+            
+            dto.setPaidAbsent(dayResult.paidAbsent);
+            dto.setUnpaidAbsent(dayResult.unpaidAbsent);
+            dto.setWorked(dayResult.worked);
+            dto.setPaidLeave(dayResult.paidLeave);
+            dto.setUnpaidLeave(dayResult.unpaidLeave);
             
             // Set remarks for leaves
             if (leaveForDate != null) {
@@ -282,19 +297,43 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void markUnmarked(Long employeeId, LocalDate date) {
+        if (date.isAfter(LocalDate.now())) {
+            throw new RuntimeException("Cannot modify future dates");
+        }
+        
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        if (payrollLockService.isPayrollLockedForEmployee(employee.getId(), date.getMonthValue(), date.getYear())) {
+            throw new RuntimeException("Payroll is locked for this employee for this month. Cannot modify attendance.");
+        }
+        
+        List<Attendance> existing = attendanceRepository.findAllByEmployeeIdAndDate(employee.getId(), date);
+        if (existing != null && !existing.isEmpty()) {
+            attendanceRepository.deleteAll(existing);
+            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            System.out.println("Deleted attendance record(s) to mark as UNMARKED for employee " + employee.getId() + " on date " + date);
+        }
+    }
+
     public AttendanceDTO markAbsent(Long employeeId, LocalDate date, String remarks) {
         // Validate: Cannot mark attendance for future dates
         if (date.isAfter(LocalDate.now())) {
             throw new RuntimeException("Cannot mark attendance for future dates");
         }
         
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
         // ✅ NEW: Payroll Lock Check
-        if (payrollLockService.isPayrollLocked(date.getMonthValue(), date.getYear())) {
-            throw new RuntimeException("Payroll is locked for this month. Cannot mark attendance.");
+        if (payrollLockService.isPayrollLockedForEmployee(employee.getId(), date.getMonthValue(), date.getYear())) {
+            throw new RuntimeException("Payroll is locked for this employee for this month. Cannot mark attendance.");
         }
         
         // STEP 3: LOCK LEAVE DAYS (Granular Check)
-        List<Leave> approvedLeaves = leaveRepository.findByEmployeeId(employeeId).stream()
+        List<Leave> approvedLeaves = leaveRepository.findByEmployeeId(employee.getId()).stream()
                 .filter(l -> l.getStatus() == Leave.LeaveStatus.APPROVED &&
                         !date.isBefore(l.getStartDate()) &&
                         !date.isAfter(l.getEndDate()))
@@ -310,11 +349,8 @@ public class AttendanceService {
             // We allow it here because markHalfDay is the preferred granular method.
         }
         
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
-
         // Check for existing records
-        List<Attendance> existingAttendances = attendanceRepository.findAllByEmployeeIdAndDate(employeeId, date);
+        List<Attendance> existingAttendances = attendanceRepository.findAllByEmployeeIdAndDate(employee.getId(), date);
         
         if (existingAttendances != null && !existingAttendances.isEmpty()) {
             // Update first record and delete duplicates
@@ -322,6 +358,10 @@ public class AttendanceService {
             attendance.setStatus(Attendance.AttendanceStatus.ABSENT);
             attendance.setRemarks(remarks);
             attendance = attendanceRepository.save(attendance);
+            // ✅ Trigger leave ledger recalculation after ABSENT mark
+            triggerLeaveRecalculation(employee.getId(), date);
+            // Regenerate payroll after attendance change
+            regeneratePayrollForAttendanceChange(employee.getId(), date);
             
             // Delete duplicate records
             if (existingAttendances.size() > 1) {
@@ -330,7 +370,7 @@ public class AttendanceService {
                 }
             }
             
-            System.out.println("Marked ABSENT for employee " + employeeId + " on date " + date);
+            System.out.println("Marked ABSENT for employee " + employee.getId() + " on date " + date);
             return convertToDTO(attendance);
         } else {
             // Create new record
@@ -342,7 +382,11 @@ public class AttendanceService {
                     .build();
 
             attendance = attendanceRepository.save(attendance);
-            System.out.println("Created new ABSENT record for employee " + employeeId + " on date " + date);
+            // ✅ Trigger leave ledger recalculation after ABSENT mark
+            triggerLeaveRecalculation(employee.getId(), date);
+            // Regenerate payroll after creating/updating attendance
+            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            System.out.println("Created new ABSENT record for employee " + employee.getId() + " on date " + date);
             return convertToDTO(attendance);
         }
     }
@@ -352,8 +396,11 @@ public class AttendanceService {
     }
 
     public AttendanceDTO markHalfDay(Long employeeId, LocalDate date, String halfType, String status) {
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
         // Fetch existing attendance (handle potential duplicates by taking the first one)
-        List<Attendance> existingList = attendanceRepository.findAllByEmployeeIdAndDate(employeeId, date);
+        List<Attendance> existingList = attendanceRepository.findAllByEmployeeIdAndDate(employee.getId(), date);
         Optional<Attendance> existingOpt = existingList.isEmpty() ? Optional.empty() : Optional.of(existingList.get(0));
         
         boolean markingPresent = !"ABSENT".equalsIgnoreCase(status);
@@ -368,8 +415,9 @@ public class AttendanceService {
             Attendance att = existingOpt.get();
             if (att.getStatus() == Attendance.AttendanceStatus.ABSENT) {
                 if (att.getHalfType() == null) {
-                    // Both halves were absent
-                    otherHalfCovered = false;
+                    // Previously FULL DAY absent. If user now explicitly marks a HALF day, 
+                    // we assume they are downgrading it, so the other half becomes covered (PRESENT).
+                    otherHalfCovered = true;
                 } else {
                     // Only one half was absent. If the other half is indeed absent, then it is NOT covered/present.
                     otherHalfCovered = (att.getHalfType() == targetHalf);
@@ -380,7 +428,7 @@ public class AttendanceService {
         // Check if other half has approved leave (which counts as covered)
         if (!otherHalfCovered) {
             String otherHalfStr = otherHalf.name();
-            boolean otherHalfIsLeave = leaveRepository.findByEmployeeId(employeeId).stream()
+            boolean otherHalfIsLeave = leaveRepository.findByEmployeeId(employee.getId()).stream()
                     .filter(l -> l.getStatus() == Leave.LeaveStatus.APPROVED &&
                             !date.isBefore(l.getStartDate()) &&
                             !date.isAfter(l.getEndDate()))
@@ -425,7 +473,7 @@ public class AttendanceService {
             }
         }
 
-        return markPresentWithOptions(employeeId, date, finalStatus, finalHours, finalHalfType);
+        return markPresentWithOptions(employee.getId(), date, finalStatus, finalHours, finalHalfType);
     }
     
     public AttendanceDTO markPresentWithOptions(Long employeeId, LocalDate date, String status, Double workingHours, String halfType) {
@@ -434,20 +482,19 @@ public class AttendanceService {
             throw new RuntimeException("Cannot mark attendance for future dates");
         }
         
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
         // ✅ NEW: Payroll Lock Check
-        if (payrollLockService.isPayrollLocked(date.getMonthValue(), date.getYear())) {
-            throw new RuntimeException("Payroll is locked for this month. Cannot mark attendance.");
+        if (payrollLockService.isPayrollLockedForEmployee(employee.getId(), date.getMonthValue(), date.getYear())) {
+            throw new RuntimeException("Payroll is locked for this employee for this month. Cannot mark attendance.");
         }
         
         // STEP 3: LOCK LEAVE DAYS (Bypassed)
         // Conflict resolution is now handled by AttendanceEngine.resolveDay
         
-        
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
-
         // Check if already has attendance for this date
-        List<Attendance> existingAttendances = attendanceRepository.findAllByEmployeeIdAndDate(employeeId, date);
+        List<Attendance> existingAttendances = attendanceRepository.findAllByEmployeeIdAndDate(employee.getId(), date);
         
         if (existingAttendances != null && !existingAttendances.isEmpty()) {
             // If duplicates exist, update the first one and delete others
@@ -468,6 +515,11 @@ public class AttendanceService {
                 attendance.setHalfType(null);
             }
             attendance = attendanceRepository.save(attendance);
+            // ✅ Trigger leave recalculation if status is ABSENT or HALF_DAY
+            if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
+                    attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
+                triggerLeaveRecalculation(employee.getId(), date);
+            }
             
             // Delete duplicate records
             if (existingAttendances.size() > 1) {
@@ -476,7 +528,10 @@ public class AttendanceService {
                 }
             }
             
-            System.out.println("Marked " + status + " for employee " + employeeId + " on date " + date + " with " + workingHours + " hours");
+            // Regenerate payroll after attendance update
+            regeneratePayrollForAttendanceChange(employee.getId(), date);
+
+            System.out.println("Marked " + status + " for employee " + employee.getId() + " on date " + date + " with " + workingHours + " hours");
             return convertToDTO(attendance);
         } else {
             // Create new record with default times
@@ -507,7 +562,14 @@ public class AttendanceService {
             }
 
             attendance = attendanceRepository.save(attendance);
-            System.out.println("Created new PRESENT record for employee " + employeeId + " on date " + date);
+            // ✅ Trigger leave recalculation if status is ABSENT or HALF_DAY
+            if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
+                    attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
+                triggerLeaveRecalculation(employee.getId(), date);
+            }
+            // Regenerate payroll after attendance creation
+            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            System.out.println("Created new " + status + " record for employee " + employee.getId() + " on date " + date);
             return convertToDTO(attendance);
         }
     }
@@ -515,6 +577,10 @@ public class AttendanceService {
     public AttendanceDTO updateAttendanceStatus(Long attendanceId, String status, Double workingHours) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found for ID: " + attendanceId));
+
+        if (payrollLockService.isPayrollLocked(attendance.getDate().getMonthValue(), attendance.getDate().getYear())) {
+            throw new RuntimeException("Payroll is locked for this month. Cannot update attendance.");
+        }
 
         if (status != null) {
             try {
@@ -529,7 +595,28 @@ public class AttendanceService {
         }
 
         attendance = attendanceRepository.save(attendance);
+        // ✅ Trigger leave recalculation if status is ABSENT or HALF_DAY
+        if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
+                attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
+            triggerLeaveRecalculation(attendance.getEmployee().getId(), attendance.getDate());
+        }
+        // Regenerate payroll after attendance update
+        regeneratePayrollForAttendanceChange(attendance.getEmployee().getId(), attendance.getDate());
         return convertToDTO(attendance);
+    }
+
+    /**
+     * ✅ Trigger leave ledger recalculation after any absence/half-day attendance change.
+     * Runs synchronously so the dashboard shows updated balances immediately.
+     */
+    private void triggerLeaveRecalculation(Long employeeId, LocalDate date) {
+        try {
+            leaveRecalculationService.recalculateFromDate(employeeId, date);
+        } catch (Exception e) {
+            System.err.println("Leave recalculation failed for employee " + employeeId
+                    + " on " + date + ": " + e.getMessage());
+            // Non-fatal: attendance is already saved; recalculation can be retried
+        }
     }
 
     private AttendanceDTO convertToDTO(Attendance attendance) {
@@ -619,6 +706,11 @@ public class AttendanceService {
             remarks != null ? remarks : "Resolved from PENDING to " + newStatus + resolutionType
         );
 
+        // ✅ Trigger recalculation if resolved to ABSENT or HALF_DAY
+        if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
+                attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
+            triggerLeaveRecalculation(attendance.getEmployee().getId(), attendance.getDate());
+        }
         regeneratePayrollForAttendanceChange(attendance.getEmployee().getId(), attendance.getDate());
         return convertToDTO(attendance);
     }
@@ -628,11 +720,9 @@ public class AttendanceService {
      */
     public long getPresentTodayCount() {
         LocalDate today = LocalDate.now();
-        List<AttendanceDTO> attendances = getAttendanceByDate(today);
-        return attendances.stream()
-                .filter(a -> "PRESENT".equals(a.getStatus()) || 
-                             "HALF_DAY".equals(a.getStatus()) || 
-                             "LATE".equals(a.getStatus()))
+        // Use optimized repository call instead of calculating daily resolution for every employee
+        return attendanceRepository.findByDate(today).stream()
+                .filter(a -> List.of(Attendance.AttendanceStatus.PRESENT, Attendance.AttendanceStatus.LATE, Attendance.AttendanceStatus.HALF_DAY).contains(a.getStatus()))
                 .count();
     }
 
@@ -640,8 +730,23 @@ public class AttendanceService {
      * Delete all attendance records
      */
     @Transactional
-    public void deleteAllAttendance() {
+    public java.util.Set<String> deleteAllAttendance() {
+        List<Attendance> allAttendance = attendanceRepository.findAll();
+        java.util.Set<String> affectedEmployeeMonths = new java.util.HashSet<>();
+        
+        for (Attendance att : allAttendance) {
+            int month = att.getDate().getMonthValue();
+            int year = att.getDate().getYear();
+            if (payrollLockService.isPayrollLocked(month, year)) {
+                throw new RuntimeException("Cannot delete attendance records: Attendance exists in locked payroll period " + year + "-" + month);
+            }
+            if (att.getEmployee() != null) {
+                String key = att.getEmployee().getId() + "_" + year + "_" + month;
+                affectedEmployeeMonths.add(key);
+            }
+        }
         attendanceRepository.deleteAll();
+        return affectedEmployeeMonths;
     }
 
     private boolean isSystemUser(Employee emp) {

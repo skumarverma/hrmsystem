@@ -38,7 +38,7 @@ Net Salary = Gross Salary - (PF + ESI + Income Tax + Insurance + Absent/Leave De
 
 ### Probation vs Post-Probation
 - **During Probation**: All leaves are considered unpaid
-- **Post-Probation**: Paid leaves are deducted from leave balance first, then unpaid leaves trigger deductions
+- **Post-Probation**: Paid Used Leaves are deducted from leave balance first, then Unpaid Used Leaves trigger deductions
 
 ### Payroll Lock
 - When payroll is locked for a month/year, attendance changes do NOT trigger payslip regeneration

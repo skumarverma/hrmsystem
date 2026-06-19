@@ -58,7 +58,6 @@ public class PayrollApprovalController {
                 map.put("grossSalary", payroll.getGrossSalary());
                 map.put("basicSalary", payroll.getBasicSalary());
                 map.put("hra", payroll.getHra());
-                map.put("da", payroll.getDa());
                 map.put("providentFund", payroll.getProvidentFund());
                 map.put("tax", payroll.getTax());
                 map.put("totalDeductions", payroll.getTotalDeductions());
@@ -160,9 +159,19 @@ public class PayrollApprovalController {
         try {
             User currentUser = getCurrentUser();
             
-            if (currentUser.getRole() != User.Role.ROLE_ADMIN && currentUser.getRole() != User.Role.ROLE_HR) {
+            String effectiveRole = currentUser.getRole().name();
+            if (currentUser.getRole() == User.Role.ROLE_ADMIN || currentUser.getRole() == User.Role.ROLE_HR) {
+                effectiveRole = "ROLE_HR";
+            } else if (currentUser.getEmployee() != null && currentUser.getEmployee().getDepartment() != null) {
+                String deptName = currentUser.getEmployee().getDepartment().getName().toLowerCase();
+                if (deptName.contains("hr") || deptName.equals("human resources")) {
+                    effectiveRole = "ROLE_HR";
+                }
+            }
+
+            if (!effectiveRole.equals("ROLE_HR")) {
                 return ResponseEntity.status(403)
-                    .body(Map.of("error", "Only Admin can authorize"));
+                    .body(Map.of("error", "Only Admin/HR can authorize"));
             }
 
             String comments = requestBody != null ? requestBody.get("comments") : "";
@@ -239,9 +248,19 @@ public class PayrollApprovalController {
         try {
             User currentUser = getCurrentUser();
             
-            if (currentUser.getRole() != User.Role.ROLE_ADMIN && currentUser.getRole() != User.Role.ROLE_HR) {
+            String effectiveRole = currentUser.getRole().name();
+            if (currentUser.getRole() == User.Role.ROLE_ADMIN || currentUser.getRole() == User.Role.ROLE_HR) {
+                effectiveRole = "ROLE_HR";
+            } else if (currentUser.getEmployee() != null && currentUser.getEmployee().getDepartment() != null) {
+                String deptName = currentUser.getEmployee().getDepartment().getName().toLowerCase();
+                if (deptName.contains("hr") || deptName.equals("human resources")) {
+                    effectiveRole = "ROLE_HR";
+                }
+            }
+
+            if (!effectiveRole.equals("ROLE_HR")) {
                 return ResponseEntity.status(403)
-                    .body(Map.of("error", "Only Admin can reject"));
+                    .body(Map.of("error", "Only Admin/HR can reject"));
             }
 
             String reason = requestBody.get("reason");

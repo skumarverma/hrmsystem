@@ -81,9 +81,8 @@ public class NotificationService {
             // Safe null handling for BigDecimal values
             double basicSalary = payroll.getBasicSalary() != null ? payroll.getBasicSalary().doubleValue() : 0.0;
             double hra = payroll.getHra() != null ? payroll.getHra().doubleValue() : 0.0;
-            double da = payroll.getDa() != null ? payroll.getDa().doubleValue() : 0.0;
             double ta = payroll.getTa() != null ? payroll.getTa().doubleValue() : 0.0;
-            double allowances = hra + da + ta;
+            double allowances = hra + ta;
             double deductions = payroll.getTotalDeductions() != null ? payroll.getTotalDeductions().doubleValue() : 0.0;
             double netSalary = payroll.getNetSalary() != null ? payroll.getNetSalary().doubleValue() : 0.0;
             
@@ -125,16 +124,14 @@ public class NotificationService {
      * Send an in-app notification to a specific user
      */
     public void sendInAppNotification(User recipient, String title, String message, String type, String actionLink) {
-        if (recipient == null) return;
-        AppNotification notification = AppNotification.builder()
-                .recipient(recipient)
-                .title(title)
-                .message(message)
-                .type(type)
-                .actionLink(actionLink)
-                .isRead(false)
-                .createdAt(java.time.LocalDateTime.now())
-                .build();
+        AppNotification notification = new AppNotification();
+        notification.setRecipient(recipient);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setType(type);
+        notification.setActionLink(actionLink);
+        notification.setRead(false);
+        notification.setCreatedAt(java.time.LocalDateTime.now());
         appNotificationRepository.save(notification);
     }
 
@@ -222,6 +219,21 @@ public class NotificationService {
     public void sendNewLeaveApplicationNotification(Leave leave, String hrEmail) {
         try {
             if (hrEmail == null || hrEmail.isEmpty()) {
+                return;
+            }
+
+            // Check recipient's email notification preferences
+            boolean shouldSend = userRepository.findByEmail(hrEmail)
+                .flatMap(user -> preferenceRepository.findByUser(user))
+                .map(pref -> {
+                    boolean globalEmail = pref.getEmailNotifications() != null && pref.getEmailNotifications();
+                    boolean categoryEnabled = pref.getLeaveUpdates() != null && pref.getLeaveUpdates();
+                    return globalEmail && categoryEnabled;
+                })
+                .orElse(true);
+
+            if (!shouldSend) {
+                System.out.println("⏩ Skipping new leave notification email for " + hrEmail + " (preference disabled)");
                 return;
             }
 

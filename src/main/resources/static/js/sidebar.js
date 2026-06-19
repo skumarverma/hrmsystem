@@ -73,6 +73,14 @@ const employeeSidebar = `
           My Profile
         </a>
       </li>
+      <li class="nav-item">
+        <a href="documents.html" id="nav-documents">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          My Documents
+        </a>
+      </li>
     </ul>
 
     <div class="nav-title" style="margin-top: 1.5rem;">Preferences</div>
@@ -636,39 +644,39 @@ function renderSidebar() {
     header.prepend(toggleBtn);
   }
 
-  // Add Notification Bell
-  if (header && !document.querySelector('.notification-container')) {
-    const actionContainer = header.querySelector('.flex.items-center, .flex.gap-2') || header;
+  // Add Notification Bell (DISABLED globally per user request)
+  if (false && header && currentPage === 'dashboard' && !document.querySelector('.notification-container')) {
+    const actionContainer = header.querySelector('.header-actions, .flex.items-center, .flex.gap-2') || header;
     
     const notifContainer = document.createElement('div');
     notifContainer.className = 'notification-container';
-    notifContainer.style.cssText = 'position: relative; margin-left: auto; padding-left: 15px; display: flex; align-items: center; margin-right: 15px;';
     
     notifContainer.innerHTML = `
-      <button id="notif-bell-btn" style="background: none; border: none; cursor: pointer; position: relative; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; color: #4b5563;">
+      <button id="notif-bell-btn">
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
         </svg>
-        <span id="notif-badge" style="position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid white;">0</span>
+        <span id="notif-badge" style="display: none;">0</span>
       </button>
       
-      <div id="notif-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; z-index: 1000; margin-top: 10px; overflow: hidden;">
-        <div style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: #f9fafb;">
-          <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: #111827;">Notifications</h3>
-          <button id="notif-read-all" style="background: none; border: none; font-size: 12px; color: #3b82f6; cursor: pointer; padding: 0;">Mark all as read</button>
+      <div id="notif-dropdown" style="display: none;">
+        <div class="notif-header">
+          <h3>Notifications</h3>
+          <button id="notif-read-all">Mark all as read</button>
         </div>
         <div id="notif-list" style="max-height: 350px; overflow-y: auto; padding: 0;">
           <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">Loading...</div>
         </div>
-        <div style="padding: 8px; text-align: center; border-top: 1px solid #e5e7eb; background: #f9fafb; display: none;">
-          <a href="#" style="font-size: 12px; color: #6b7280; text-decoration: none;">View all notifications</a>
-        </div>
       </div>
     `;
     
-    // Insert properly
+    // Insert properly (before logout/last button)
     if (actionContainer !== header) {
-      actionContainer.appendChild(notifContainer);
+      if (actionContainer.children.length > 0) {
+        actionContainer.insertBefore(notifContainer, actionContainer.lastElementChild);
+      } else {
+        actionContainer.appendChild(notifContainer);
+      }
     } else {
       header.appendChild(notifContainer);
     }
@@ -723,6 +731,8 @@ async function fetchNotifications() {
     }
 
     const list = document.getElementById('notif-list');
+    if (!list) return;
+
     if (!data.notifications || data.notifications.length === 0) {
       list.innerHTML = '<div style="padding: 24px; text-align: center; color: #9ca3af; font-size: 13px;">No notifications yet</div>';
       return;
@@ -734,29 +744,29 @@ async function fetchNotifications() {
       const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       const dateStr = date.toLocaleDateString([], {month: 'short', day: 'numeric'});
       
-      let icon = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+      let icon = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
       let bg = '#eff6ff';
       let color = '#3b82f6';
 
       if (n.type === 'PAYSLIP_APPROVAL') {
-        icon = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
+        icon = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
         bg = '#fef3c7'; color = '#d97706';
       }
 
       return `
-        <div class="notif-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick(${n.id}, '${n.actionLink || ''}')" style="padding: 12px 16px; border-bottom: 1px solid #f3f4f6; display: flex; gap: 12px; cursor: pointer; background: ${isUnread ? '#f8fafc' : 'white'}; transition: background 0.2s;">
-          <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: ${bg}; color: ${color}; display: flex; align-items: center; justify-content: center;">
+        <div class="notif-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick(${n.id}, '${n.actionLink || ''}')">
+          <div class="notif-icon-wrapper" style="background: ${bg}; color: ${color};">
             ${icon}
           </div>
-          <div style="flex: 1; min-width: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-              <h4 style="margin: 0; font-size: 13px; font-weight: ${isUnread ? '600' : '500'}; color: #111827;">${n.title}</h4>
-              <span style="font-size: 11px; color: #9ca3af; white-space: nowrap; margin-left: 8px;">${dateStr}</span>
+          <div class="notif-content">
+            <div class="notif-title-row">
+              <h4 class="notif-title" style="font-weight: ${isUnread ? '700' : '600'};">${n.title}</h4>
+              <span class="notif-date">${dateStr}</span>
             </div>
-            <p style="margin: 0; font-size: 12px; color: #6b7280; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${n.message}</p>
-            <div style="font-size: 10px; color: #9ca3af; margin-top: 4px;">${timeStr}</div>
+            <p class="notif-message">${n.message}</p>
+            <div class="notif-time">${timeStr}</div>
           </div>
-          ${isUnread ? `<div style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; align-self: center; flex-shrink: 0;"></div>` : ''}
+          ${isUnread ? `<div class="notif-dot"></div>` : ''}
         </div>
       `;
     }).join('');
@@ -795,7 +805,7 @@ function checkPageAccess() {
   const currentPage = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || 'dashboard.html';
 
   // Pages restricted by role
-  const hrAdminPages = ['employees.html', 'users.html', 'departments.html', 'leave.html', 'documents.html'];
+  const hrAdminPages = ['employees.html', 'users.html', 'departments.html', 'leave.html'];
   const hrAdminManagerPages = ['attendance.html'];
   const payrollPages = ['payroll.html', 'payslips.html'];
   const adminOnlyPages = [];

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,32 @@
     <link rel="stylesheet" href="../css/hrm-design-system.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .header .page-title {
+                display: none !important;
+            }
+        }
+
         /* Design tokens matching hrm-design-system.css & settings.html */
         :root {
             --primary: #1e3a5f;
@@ -21,7 +48,7 @@
             --danger-light: #fee2e2;
             --info: #2563eb;
             --info-light: #dbeafe;
-            
+
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
@@ -32,18 +59,18 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
-            
+
             --radius-sm: 0.375rem;
             --radius: 0.5rem;
             --radius-md: 0.75rem;
             --radius-lg: 1rem;
             --radius-xl: 1.25rem;
-            
+
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            
+
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -55,8 +82,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Card Container styling */
@@ -443,8 +477,80 @@
             background-color: #fca5a5;
             color: #b91c1c;
         }
+
+        /* PDF preview modal */
+        .doc-preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .doc-preview-overlay.active {
+            display: flex;
+        }
+
+        .doc-preview-panel {
+            background: #fff;
+            border-radius: 1rem;
+            width: min(960px, 100%);
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, .25);
+            overflow: hidden;
+        }
+
+        .doc-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+
+        .doc-preview-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            word-break: break-all;
+        }
+
+        .doc-preview-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--gray-500);
+            padding: .25rem .5rem;
+        }
+
+        .doc-preview-close:hover {
+            color: var(--danger);
+        }
+
+        .doc-preview-frame {
+            width: 100%;
+            height: min(75vh, 720px);
+            border: none;
+            background: var(--gray-100);
+        }
+
+        .doc-preview-fallback {
+            padding: 2rem;
+            text-align: center;
+            color: var(--gray-600);
+        }
     </style>
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -461,19 +567,49 @@
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner"
+                    style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
+                    <div style="z-index: 1;">
+                        <h1
+                            style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                            Employee Documents</h1>
+                        <p
+                            style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                            Search employee to view, upload, and download their official files</p>
+                    </div>
+
+                    <!-- Integrated Action Area on the Banner (just clock) -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    </div>
+                </div>
                 <!-- Search Box -->
-                <div class="card mb-6">
+                <div class="card mb-6" id="search-employee-card">
                     <h3 class="card-title-section">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--primary-light);">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.773 4.773z"/>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24" style="color: var(--primary-light);">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.773 4.773z" />
                         </svg>
                         1. Select Employee
                     </h3>
                     <div class="search-wrapper">
-                        <svg class="search-icon-left" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                        <svg class="search-icon-left" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
-                        <input type="text" id="employee-search" class="search-input" placeholder="Search by name, employee ID, or email address..." autocomplete="off">
+                        <input type="text" id="employee-search" class="search-input"
+                            placeholder="Search by name, employee code, or email address..." autocomplete="off">
                         <div id="suggestions" class="suggestions-dropdown"></div>
                     </div>
                 </div>
@@ -485,7 +621,7 @@
                         <div class="emp-meta-info">
                             <h3 class="emp-name-title" id="emp-fullName">John Doe</h3>
                             <div class="emp-details-subtext">
-                                <span>ID: <strong id="emp-id">N/A</strong></span>
+                                <span>Code: <strong id="emp-id">N/A</strong></span>
                                 <span>•</span>
                                 <span class="department-pill" id="emp-dept">N/A</span>
                                 <span>•</span>
@@ -493,7 +629,8 @@
                             </div>
                         </div>
                     </div>
-                    <button id="change-emp-btn" class="btn-secondary btn-sm" style="border-radius: var(--radius-md);">Change Employee</button>
+                    <button id="change-emp-btn" class="btn-secondary btn-sm"
+                        style="border-radius: var(--radius-md);">Change Employee</button>
                 </div>
 
                 <div id="main-document-area" style="display: none;">
@@ -501,15 +638,19 @@
                         <!-- Upload Card -->
                         <div class="card">
                             <h3 class="card-title-section">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--primary-light);">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    viewBox="0 0 24 24" style="color: var(--primary-light);">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 2. Upload Document
                             </h3>
                             <form id="document-upload-form">
                                 <div class="form-group mb-4">
-                                    <label class="form-label" style="font-weight: 600; color: var(--gray-700);">Document Type</label>
-                                    <select id="document-type" class="form-control" style="border-radius: var(--radius-md); padding: 0.75rem 1rem;" required>
+                                    <label class="form-label" style="font-weight: 600; color: var(--gray-700);">Document
+                                        Type</label>
+                                    <select id="document-type" class="form-control"
+                                        style="border-radius: var(--radius-md); padding: 0.75rem 1rem;" required>
                                         <option value="" disabled selected>-- Select Type --</option>
                                         <option value="Marksheets">Marksheets</option>
                                         <option value="Offer Letter">Offer Letter</option>
@@ -518,24 +659,33 @@
                                     </select>
                                 </div>
                                 <div class="form-group mb-4">
-                                    <label class="form-label" style="font-weight: 600; color: var(--gray-700);">Choose File</label>
+                                    <label class="form-label" style="font-weight: 600; color: var(--gray-700);">Choose
+                                        File</label>
                                     <div class="drag-drop-zone" id="drop-zone">
-                                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/>
+                                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                                         </svg>
                                         <span>Drag & Drop file here or Click to Browse</span>
                                         <input type="file" id="file-input" style="display: none;">
                                     </div>
                                     <div class="file-selected-info" id="file-info">
-                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        Selected: <span id="file-name-text" style="word-break: break-all; margin-left: 0.25rem;"></span>
+                                        Selected: <span id="file-name-text"
+                                            style="word-break: break-all; margin-left: 0.25rem;"></span>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn-primary w-full flex justify-center items-center gap-2" style="border-radius: var(--radius-md); padding: 0.875rem 1.25rem;">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                <button type="submit" class="btn-primary w-full flex justify-center items-center gap-2"
+                                    style="border-radius: var(--radius-md); padding: 0.875rem 1.25rem;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
                                     Upload Document
                                 </button>
@@ -545,8 +695,10 @@
                         <!-- Documents List -->
                         <div class="card">
                             <h3 class="card-title-section">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--primary-light);">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    viewBox="0 0 24 24" style="color: var(--primary-light);">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                 </svg>
                                 Uploaded Documents List
                             </h3>
@@ -561,7 +713,10 @@
                                         </tr>
                                     </thead>
                                     <tbody id="documents-table-body">
-                                        <tr><td colspan="4" class="text-center p-8 text-muted">No documents uploaded yet.</td></tr>
+                                        <tr>
+                                            <td colspan="4" class="text-center p-8 text-muted">No documents uploaded
+                                                yet.</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -572,11 +727,30 @@
         </main>
     </div>
 
+    <!-- PDF / document preview -->
+    <div id="doc-preview-overlay" class="doc-preview-overlay" role="dialog" aria-modal="true">
+        <div class="doc-preview-panel">
+            <div class="doc-preview-header">
+                <h3 id="doc-preview-title">Document preview</h3>
+                <button type="button" class="doc-preview-close" id="doc-preview-close"
+                    aria-label="Close">&times;</button>
+            </div>
+            <iframe id="doc-preview-frame" class="doc-preview-frame" title="Document preview"></iframe>
+            <div id="doc-preview-fallback" class="doc-preview-fallback" style="display: none;">
+                <p>Preview could not load in the browser.</p>
+                <a id="doc-preview-open-tab" href="#" target="_blank" rel="noopener" class="btn-primary"
+                    style="display: inline-flex; margin-top: 1rem;">Open in new tab</a>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/auth.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
-        if (!auth.requireManagement()) throw new Error('Management access required');
+        if (!auth.requireAuth()) throw new Error('Authentication required');
 
+        const user = auth.getCurrentUser();
+        const isManagementUser = auth.isManagement();
         let employeesList = [];
         let selectedEmployee = null;
 
@@ -597,55 +771,61 @@
         const searchInput = document.getElementById('employee-search');
         const suggestionsBox = document.getElementById('suggestions');
 
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value.trim().toLowerCase();
-            if (!val) {
-                suggestionsBox.style.display = 'none';
-                return;
-            }
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim().toLowerCase();
+                if (!val) {
+                    suggestionsBox.style.display = 'none';
+                    return;
+                }
 
-            const matches = employeesList.filter(emp => {
-                const fullName = `${emp.firstName || ''} ${emp.lastName || ''}`.toLowerCase();
-                const idStr = String(emp.id);
-                const emailStr = (emp.email || '').toLowerCase();
-                return fullName.includes(val) || idStr.includes(val) || emailStr.includes(val);
-            });
+                const matches = employeesList.filter(emp => {
+                    const fullName = `${emp.firstName || ''} ${emp.lastName || ''}`.toLowerCase();
+                    const idStr = String(emp.id);
+                    const codeStr = String(emp.employeeId || emp.id).toLowerCase();
+                    const emailStr = (emp.email || '').toLowerCase();
+                    return fullName.includes(val) || idStr.includes(val) || codeStr.includes(val) || emailStr.includes(val);
+                });
 
-            if (matches.length === 0) {
-                suggestionsBox.innerHTML = '<div style="padding: 12px; text-align: center; color: #9ca3af;">No employees found</div>';
-            } else {
-                suggestionsBox.innerHTML = matches.map(emp => `
-                    <div class="suggestion-item" onclick="selectEmployee(${emp.id})">
-                        <div class="emp-info">
-                            <span class="emp-name">${emp.firstName} ${emp.lastName}</span>
-                            <span class="emp-meta">ID: ${emp.id} | ${emp.departmentName || emp.department || 'No Dept'}</span>
+                if (matches.length === 0) {
+                    suggestionsBox.innerHTML = '<div style="padding: 12px; text-align: center; color: #9ca3af;">No employees found</div>';
+                } else {
+                    suggestionsBox.innerHTML = matches.map(emp => `
+                        <div class="suggestion-item" onclick="selectEmployee(${emp.id})">
+                            <div class="emp-info">
+                                <span class="emp-name">${emp.firstName} ${emp.lastName}</span>
+                                <span class="emp-meta">Code: ${emp.employeeId || emp.id} | ${emp.departmentName || emp.department || 'No Dept'}</span>
+                            </div>
+                            <span style="font-size: 11px; color: #9ca3af;">${emp.email || ''}</span>
                         </div>
-                        <span style="font-size: 11px; color: #9ca3af;">${emp.email || ''}</span>
-                    </div>
-                `).join('');
-            }
-            suggestionsBox.style.display = 'block';
-        });
+                    `).join('');
+                }
+                suggestionsBox.style.display = 'block';
+            });
+        }
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            if (searchInput && suggestionsBox && !searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
                 suggestionsBox.style.display = 'none';
             }
         });
 
-        function selectEmployee(id) {
+        window.selectEmployee = function(id) {
             const emp = employeesList.find(e => e.id === id);
             if (!emp) return;
+            selectEmployeeForUser(emp);
+        }
 
+        function selectEmployeeForUser(emp) {
             selectedEmployee = emp;
-            suggestionsBox.style.display = 'none';
-            searchInput.value = '';
+            if (suggestionsBox) suggestionsBox.style.display = 'none';
+            if (searchInput) searchInput.value = '';
 
             // Render selected details
-            document.getElementById('emp-avatar').textContent = `${emp.firstName[0]}${emp.lastName[0]}`;
+            document.getElementById('emp-avatar').textContent = `${emp.firstName ? emp.firstName[0] : '?'}${emp.lastName ? emp.lastName[0] : '?'}`;
             document.getElementById('emp-fullName').textContent = `${emp.firstName} ${emp.lastName}`;
-            document.getElementById('emp-id').textContent = emp.id;
+            document.getElementById('emp-id').textContent = emp.employeeId || emp.id;
             document.getElementById('emp-dept').textContent = emp.departmentName || emp.department || 'N/A';
             document.getElementById('emp-email').textContent = emp.email || 'N/A';
 
@@ -655,11 +835,14 @@
             loadDocuments(emp.id);
         }
 
-        document.getElementById('change-emp-btn').addEventListener('click', () => {
-            selectedEmployee = null;
-            document.getElementById('selected-employee-card').style.display = 'none';
-            document.getElementById('main-document-area').style.display = 'none';
-        });
+        const changeEmpBtn = document.getElementById('change-emp-btn');
+        if (changeEmpBtn) {
+            changeEmpBtn.addEventListener('click', () => {
+                selectedEmployee = null;
+                document.getElementById('selected-employee-card').style.display = 'none';
+                document.getElementById('main-document-area').style.display = 'none';
+            });
+        }
 
         // Drag & Drop
         const dropZone = document.getElementById('drop-zone');
@@ -667,35 +850,39 @@
         const fileInfo = document.getElementById('file-info');
         const fileNameText = document.getElementById('file-name-text');
 
-        dropZone.addEventListener('click', () => fileInput.click());
+        if (dropZone) {
+            dropZone.addEventListener('click', () => fileInput.click());
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateFileInfo();
+                }
+            });
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener('change', () => {
                 updateFileInfo();
-            }
-        });
-
-        fileInput.addEventListener('change', () => {
-            updateFileInfo();
-        });
+            });
+        }
 
         function updateFileInfo() {
-            if (fileInput.files.length > 0) {
+            if (fileInput && fileInput.files.length > 0) {
                 fileNameText.textContent = fileInput.files[0].name;
                 fileInfo.style.display = 'block';
-            } else {
+            } else if (fileInfo) {
                 fileInfo.style.display = 'none';
             }
         }
@@ -723,7 +910,15 @@
 
                 tbody.innerHTML = docs.map(doc => {
                     const date = new Date(doc.uploadedAt);
-                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    const deleteBtn = isManagementUser ? `
+                                    <button type="button" class="btn-action-mini btn-action-delete btn-doc-delete" data-doc-id="${doc.id}" data-doc-name="${encodeURIComponent(doc.fileName)}" title="Delete Document">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                                        Delete
+                                    </button>
+                    ` : '';
+
                     return `
                         <tr>
                             <td class="font-semibold text-slate-800" style="word-break: break-all;">${doc.fileName}</td>
@@ -731,56 +926,116 @@
                             <td class="text-sm text-slate-500">${formattedDate}</td>
                             <td class="text-center">
                                 <div class="actions-cell-wrapper">
-                                    <button type="button" onclick="handleDocumentAction(${doc.id}, false, '${doc.fileName}')" class="btn-action-mini btn-action-view" title="View Document">
+                                    <button type="button" class="btn-action-mini btn-action-view btn-doc-view" data-doc-id="${doc.id}" data-doc-name="${encodeURIComponent(doc.fileName)}" title="View Document">
                                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         View
                                     </button>
-                                    <button type="button" onclick="handleDocumentAction(${doc.id}, true, '${doc.fileName}')" class="btn-action-mini btn-action-download" title="Download Document">
+                                    <button type="button" class="btn-action-mini btn-action-download btn-doc-download" data-doc-id="${doc.id}" data-doc-name="${encodeURIComponent(doc.fileName)}" title="Download Document">
                                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                         Download
                                     </button>
-                                    <button type="button" onclick="deleteDocument(${doc.id}, '${doc.fileName}')" class="btn-action-mini btn-action-delete" title="Delete Document">
-                                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-                                        Delete
-                                    </button>
+                                    ${deleteBtn}
                                 </div>
                             </td>
                         </tr>
                     `;
                 }).join('');
+
+                document.querySelectorAll('.btn-doc-view').forEach(btn => {
+                    btn.addEventListener('click', () => handleDocumentAction(btn.dataset.docId, false, decodeURIComponent(btn.dataset.docName || 'document')));
+                });
+                document.querySelectorAll('.btn-doc-download').forEach(btn => {
+                    btn.addEventListener('click', () => handleDocumentAction(btn.dataset.docId, true, decodeURIComponent(btn.dataset.docName || 'document')));
+                });
+                if (isManagementUser) {
+                    document.querySelectorAll('.btn-doc-delete').forEach(btn => {
+                        btn.addEventListener('click', () => deleteDocument(btn.dataset.docId, decodeURIComponent(btn.dataset.docName || 'document')));
+                    });
+                }
             } catch (e) {
                 console.error(e);
                 auth.showNotification('Error loading documents', 'error');
             }
         }
 
-        window.handleDocumentAction = async function(id, isDownload, fileName) {
+        /**
+         * View/download via /api/documents/stream/{id} — proxies Cloudinary so CDN 400 errors
+         * (e.g. file_hgomxv without .pdf) do not break the browser.
+         */
+        window.handleDocumentAction = async function (id, isDownload, fileName) {
+            const docId = Number(id);
+            if (!docId || Number.isNaN(docId)) {
+                auth.showNotification('Invalid document id', 'error');
+                return;
+            }
+
+            const name = (fileName || '').toLowerCase();
+            const isPdf = name.endsWith('.pdf');
+
             try {
                 const { token } = auth.getAuth();
-                auth.showNotification(isDownload ? 'Downloading...' : 'Opening...', 'info');
-                const res = await fetch(`/api/documents/download/${id}?download=${isDownload}`, {
+                auth.showNotification(isDownload ? 'Preparing download...' : 'Opening document...', 'info');
+
+                if (isPdf || isDownload) {
+                    const disposition = isDownload ? 'attachment' : 'inline';
+                    const res = await fetch(`/api/documents/stream/${docId}?disposition=${disposition}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!res.ok) {
+                        auth.showNotification('Failed to load document (server ' + res.status + ')', 'error');
+                        return;
+                    }
+
+                    const blob = await res.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+
+                    if (isDownload) {
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = fileName || 'document';
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+                    } else {
+                        if (activePreviewBlobUrl) {
+                            URL.revokeObjectURL(activePreviewBlobUrl);
+                        }
+                        activePreviewBlobUrl = blobUrl;
+                        openPdfPreview(blobUrl, fileName, blobUrl);
+                    }
+                    return;
+                }
+
+                // For non-PDF files, proxy through the server stream endpoint as well
+                // This prevents the browser from hitting Cloudinary URLs directly (which can return 401/404).
+                const disposition = isDownload ? 'attachment' : 'inline';
+                const res = await fetch(`/api/documents/stream/${docId}?disposition=${disposition}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!res.ok) {
-                    auth.showNotification('Failed to retrieve document', 'error');
+                    auth.showNotification('Failed to load document (server ' + res.status + ')', 'error');
                     return;
                 }
 
                 const blob = await res.blob();
-                const url = window.URL.createObjectURL(blob);
-                
+                const blobUrl = URL.createObjectURL(blob);
+
                 if (isDownload) {
                     const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
+                    a.href = blobUrl;
+                    a.download = fileName || 'document';
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
-                    window.URL.revokeObjectURL(url);
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
                 } else {
-                    window.open(url, '_blank');
-                    // We don't revoke URL immediately here because the new tab needs time to load it
+                    // Open non-PDF files in a new tab using the proxied blob URL
+                    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+                    // Revoke after a short delay to allow the new tab to load
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
                 }
             } catch (err) {
                 console.error('Error fetching document', err);
@@ -788,14 +1043,57 @@
             }
         };
 
-        window.deleteDocument = async function(id, fileName) {
+        function openPdfPreview(blobUrl, title, openTabUrl) {
+            const overlay = document.getElementById('doc-preview-overlay');
+            const frame = document.getElementById('doc-preview-frame');
+            const fallback = document.getElementById('doc-preview-fallback');
+            const openTab = document.getElementById('doc-preview-open-tab');
+            document.getElementById('doc-preview-title').textContent = title || 'Document preview';
+            frame.style.display = 'block';
+            fallback.style.display = 'none';
+            frame.src = blobUrl;
+            openTab.href = openTabUrl || blobUrl;
+            openTab.onclick = (e) => {
+                e.preventDefault();
+                window.open(openTabUrl || blobUrl, '_blank', 'noopener');
+            };
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        let activePreviewBlobUrl = null;
+
+        function closePdfPreview() {
+            const overlay = document.getElementById('doc-preview-overlay');
+            const frame = document.getElementById('doc-preview-frame');
+            overlay.classList.remove('active');
+            frame.src = 'about:blank';
+            if (activePreviewBlobUrl) {
+                URL.revokeObjectURL(activePreviewBlobUrl);
+                activePreviewBlobUrl = null;
+            }
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('doc-preview-close').addEventListener('click', closePdfPreview);
+        document.getElementById('doc-preview-overlay').addEventListener('click', (e) => {
+            if (e.target.id === 'doc-preview-overlay') closePdfPreview();
+        });
+
+        window.deleteDocument = async function (id, fileName) {
+            const docId = Number(id);
+            if (!docId || Number.isNaN(docId)) {
+                auth.showNotification('Invalid document id', 'error');
+                return;
+            }
+
             if (!confirm(`Are you sure you want to delete "${fileName}"? This action cannot be undone.`)) {
                 return;
             }
 
             try {
                 const { token } = auth.getAuth();
-                const res = await fetch(`/api/documents/${id}`, {
+                const res = await fetch(`/api/documents/${docId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -805,8 +1103,23 @@
                     if (selectedEmployee) {
                         loadDocuments(selectedEmployee.id);
                     }
+                    return;
+                }
+
+                let errMsg = 'Delete failed';
+                try {
+                    const errJson = await res.json();
+                    errMsg = errJson.message || errJson.error || errMsg;
+                } catch {
+                    errMsg = await res.text() || errMsg;
+                }
+
+                if (res.status === 404) {
+                    auth.showNotification('Document already removed. Refreshing list...', 'info');
+                    if (selectedEmployee) {
+                        loadDocuments(selectedEmployee.id);
+                    }
                 } else {
-                    const errMsg = await res.text();
                     auth.showNotification('Failed to delete document: ' + errMsg, 'error');
                 }
             } catch (err) {
@@ -857,7 +1170,7 @@
                     auth.showNotification('Document uploaded successfully!', 'success');
                     // Reset form
                     document.getElementById('document-upload-form').reset();
-                    fileInfo.style.display = 'none';
+                    if (fileInfo) fileInfo.style.display = 'none';
                     // Reload list
                     loadDocuments(selectedEmployee.id);
                 } else {
@@ -870,8 +1183,63 @@
             }
         });
 
-        // Initialize
-        fetchEmployees();
+        // Initialize Page
+        async function initPage() {
+            if (isManagementUser) {
+                await fetchEmployees();
+            } else {
+                // Hide search card and change employee button
+                const searchCard = document.getElementById('search-employee-card');
+                if (searchCard) searchCard.style.display = 'none';
+                
+                const changeBtn = document.getElementById('change-emp-btn');
+                if (changeBtn) changeBtn.style.display = 'none';
+
+                // Load current employee profile
+                try {
+                    let empId = user ? user.employeeId : null;
+
+                    // Self-healing: if employeeId is not in localStorage, fetch from profile API
+                    if (!empId || empId === 0 || empId === 'null' || empId === 'undefined') {
+                        console.log('employeeId missing or invalid in local storage user, fetching from profile...');
+                        const profileRes = await auth.apiCall('/api/users/profile');
+                        if (profileRes && profileRes.ok) {
+                            const profile = await profileRes.json();
+                            if (profile && profile.employeeId) {
+                                empId = profile.employeeId;
+                                // Update localStorage
+                                user.employeeId = empId;
+                                localStorage.setItem('user', JSON.stringify(user));
+                                console.log('Successfully recovered employeeId:', empId);
+                            }
+                        }
+                    }
+
+                    if (!empId || empId === 0 || empId === 'null' || empId === 'undefined') {
+                        console.error('Could not determine employeeId');
+                        auth.showNotification('Error: Unable to load employee profile context. Please login again.', 'error');
+                        return;
+                    }
+
+                    // Fetch employee details
+                    const res = await auth.apiCall(`/api/employees/${empId}`);
+                    if (res && res.ok) {
+                        const emp = await res.json();
+                        selectEmployeeForUser(emp);
+                    } else {
+                        console.error('Failed to fetch employee details, status:', res ? res.status : 'no response');
+                        auth.showNotification('Error loading employee details', 'error');
+                    }
+                } catch (e) {
+                    console.error('Failed to load employee details', e);
+                    auth.showNotification('Error loading employee details', 'error');
+                }
+            }
+        }
+
+        // Run initialization
+        initPage();
     </script>
 </body>
+
 </html>

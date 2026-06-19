@@ -34,6 +34,32 @@
 
             <div class="page-content">
                 <div class="card p-0 overflow-hidden shadow-sm border border-gray-100">
+                    <div class="card-header border-b border-gray-100 flex justify-between items-center" style="padding: 1.25rem 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; background: #f9fafb;">
+                        <h3 class="card-title font-semibold text-gray-700" style="margin: 0; font-size: 1.1rem;">Approval Records</h3>
+                        <div class="flex gap-2 items-center" style="display: flex; gap: 0.75rem; align-items: center;">
+                            <select id="month-filter" class="form-control" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;" onchange="renderFilteredApprovals()">
+                                <option value="ALL">All Months</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select id="year-filter" class="form-control" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;" onchange="renderFilteredApprovals()">
+                                <option value="ALL">All Years</option>
+                                <option value="2026">2026</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="table-container dashboard-table-scroll">
                         <table class="data-table w-full text-left border-collapse">
                             <thead>
@@ -60,36 +86,58 @@
     <script>
         if (!auth.requireAuth()) throw new Error('Auth required');
         
+        let allApprovals = [];
+
         async function loadApprovals() {
             try {
-                // Director can see ALL payroll status
                 const res = await auth.apiCall('/api/payroll/list');
-                const data = res && res.ok ? await res.json() : [];
+                allApprovals = res && res.ok ? await res.json() : [];
                 
-                const tbody = document.getElementById('approvals-table');
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No payroll records found</td></tr>';
-                    return;
-                }
+                // Set default filters to current month/year
+                const now = new Date();
+                document.getElementById('month-filter').value = now.getMonth() + 1;
+                document.getElementById('year-filter').value = now.getFullYear();
                 
-                tbody.innerHTML = data.map(a => `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-medium text-gray-800">${a.employeeName || 'Unknown'}</td>
-                        <td class="p-4 text-gray-600">${a.month}/${a.year}</td>
-                        <td class="p-4 font-bold text-gray-800">${auth.formatCurrency(a.netSalary || 0)}</td>
-                        <td class="p-4">
-                            ${a.accountantApproved 
-                                ? '<span class="status-badge active bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">✅ Done</span>' 
-                                : '<span class="status-badge pending bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">⏳ Pending</span>'}
-                        </td>
-                        <td class="p-4">
-                            ${a.directorApproved 
-                                ? '<span class="status-badge active bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">✅ Done</span>' 
-                                : '<span class="status-badge pending bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">⏳ Pending</span>'}
-                        </td>
-                    </tr>
-                `).join('');
+                renderFilteredApprovals();
             } catch (e) { console.error(e); }
+        }
+
+        function renderFilteredApprovals() {
+            const tbody = document.getElementById('approvals-table');
+            const monthVal = document.getElementById('month-filter').value;
+            const yearVal = document.getElementById('year-filter').value;
+
+            let filtered = allApprovals;
+
+            if (monthVal !== 'ALL') {
+                filtered = filtered.filter(p => p.month === parseInt(monthVal));
+            }
+            if (yearVal !== 'ALL') {
+                filtered = filtered.filter(p => p.year === parseInt(yearVal));
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No payroll records found for selected period</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(a => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="p-4 font-medium text-gray-800">${a.employeeName || 'Unknown'}</td>
+                    <td class="p-4 text-gray-600">${a.month}/${a.year}</td>
+                    <td class="p-4 font-bold text-gray-800">${auth.formatCurrency(a.netSalary || 0)}</td>
+                    <td class="p-4">
+                        ${a.accountantApproved 
+                            ? '<span class="status-badge active bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">✅ Done</span>' 
+                            : '<span class="status-badge pending bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">⏳ Pending</span>'}
+                    </td>
+                    <td class="p-4">
+                        ${a.directorApproved 
+                            ? '<span class="status-badge active bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">✅ Done</span>' 
+                            : '<span class="status-badge pending bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">⏳ Pending</span>'}
+                    </td>
+                </tr>
+            `).join('');
         }
         
         function logout() { auth.logout(); }

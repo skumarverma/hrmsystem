@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class AttendanceEngineTest {
@@ -44,17 +45,25 @@ class AttendanceEngineTest {
         testEmployee.setId(1L);
         testEmployee.setJoiningDate(LocalDate.of(2024, 1, 1));
         testEmployee.setProbationPeriodMonths(3);
+
+        lenient().when(employeeRepository.findByIdentifier(any())).thenAnswer(invocation -> {
+            Long arg = invocation.getArgument(0);
+            return employeeRepository.findById(arg);
+        });
+        lenient().when(employeeRepository.findByIdentifierWithDepartment(any())).thenAnswer(invocation -> {
+            Long arg = invocation.getArgument(0);
+            return employeeRepository.findById(arg);
+        });
     }
 
     @Test
     void testCalculateLeaveSplit_FullPaid() {
-        // Employee in probation April 2024 (joined Jan 1, probation ends Apr 1)
-        // Available balance = 0, so all days should be unpaid
+        // Employee in probation March 2024 (joined Jan 1, probation ends Apr 1)
+        // Total Earned = 0, so all days should be unpaid
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
 
         AttendanceEngine.LeaveSplit result = attendanceEngine.calculateLeaveSplit(
-            1L, LocalDate.of(2024, 4, 1), LocalDate.of(2024, 4, 2), false);
+            1L, LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 2), false);
 
         assertEquals(0.0, result.paidDays, "Should be 0 paid during probation");
         assertEquals(2.0, result.unpaidDays, "Should be 2 unpaid during probation");
@@ -63,26 +72,25 @@ class AttendanceEngineTest {
 
     @Test
     void testCalculateLeaveSplit_MixedSplit() {
-        // Employee in probation April 2024 - no earned leaves available
+        // Employee in probation March 2024 - no earned leaves available
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
 
+        // Friday to Sunday (Friday, Saturday, Sunday count = 3 calendar days, 2 working days)
         AttendanceEngine.LeaveSplit result = attendanceEngine.calculateLeaveSplit(
-            1L, LocalDate.of(2024, 4, 1), LocalDate.of(2024, 4, 3), false);
+            1L, LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 3), false);
 
         assertEquals(0.0, result.paidDays, "Should be 0 paid during probation");
-        assertEquals(3.0, result.unpaidDays, "Should be 3 unpaid during probation");
-        assertEquals(3.0, result.totalDays, "Total should be 3 working days");
+        assertEquals(2.0, result.unpaidDays, "Should be 2 unpaid during probation (Sunday excluded)");
+        assertEquals(2.0, result.totalDays, "Total should be 2 working days (Sunday excluded)");
     }
 
     @Test
     void testCalculateLeaveSplit_HalfDay() {
-        // Employee in probation April 2024 - no earned leaves available
+        // Employee in probation March 2024 - no earned leaves available
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
 
         AttendanceEngine.LeaveSplit result = attendanceEngine.calculateLeaveSplit(
-            1L, LocalDate.of(2024, 4, 1), LocalDate.of(2024, 4, 1), true);
+            1L, LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 1), true);
 
         assertEquals(0.0, result.paidDays, "Should be 0 paid during probation");
         assertEquals(0.5, result.unpaidDays, "Should be 0.5 unpaid during probation");
@@ -92,15 +100,14 @@ class AttendanceEngineTest {
     @Test
     void testCalculateLeaveSplit_SundayExclusion() {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
 
-        // Friday to Sunday (Sunday excluded)
+        // Friday to Sunday
         AttendanceEngine.LeaveSplit result = attendanceEngine.calculateLeaveSplit(
-            1L, LocalDate.of(2024, 4, 5), LocalDate.of(2024, 4, 7), false);
+            1L, LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 3), false);
 
         assertEquals(0.0, result.paidDays, "Should be 0 paid during probation");
-        assertEquals(2.0, result.unpaidDays, "Friday + Saturday = 2 days (Sunday excluded)");
-        assertEquals(2.0, result.totalDays, "Total should be 2 days (Sunday excluded)");
+        assertEquals(2.0, result.unpaidDays, "Friday + Saturday (Sunday excluded) = 2 days");
+        assertEquals(2.0, result.totalDays, "Total should be 2 days");
     }
 
     @Test
@@ -111,7 +118,7 @@ class AttendanceEngineTest {
         
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 2);
         assertEquals(0.0, balance.earnedLeaves, "Should earn 0 during probation");
-        assertEquals(0.0, balance.usedLeaves, "Should have 0 used leaves");
+        assertEquals(0.0, balance.usedLeaves, "Should have 0 Total Used Leaves");
         assertEquals(0.0, balance.getAvailableLeaves(), "Should have 0 available leaves");
     }
 
@@ -122,9 +129,10 @@ class AttendanceEngineTest {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
         when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
         
-        // Should start earning from May (Apr + 1 month)
+        // Should start earning from April (same month as completion because day=15 <= 15)
+        // By May, should have earned for April and May = 3.0 leaves
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 5);
-        assertEquals(1.5, balance.earnedLeaves, "Should earn 1.5 from May (15th rule applied)");
+        assertEquals(3.0, balance.earnedLeaves, "Should earn 3.0 by May (15th rule applied, starts in April)");
     }
 
     @Test
@@ -134,9 +142,10 @@ class AttendanceEngineTest {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
         when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
         
-        // Should start earning from June (Apr + 2 months)
+        // Should start earning from May (next month because day=16 > 15)
+        // By June, should have earned for May and June = 3.0 leaves
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 6);
-        assertEquals(1.5, balance.earnedLeaves, "Should earn 1.5 from June (16th > 15th rule applied)");
+        assertEquals(3.0, balance.earnedLeaves, "Should earn 3.0 by June (16th > 15th rule applied, starts in May)");
     }
 
     @Test
@@ -170,9 +179,9 @@ class AttendanceEngineTest {
     void testCalculateWorkingDays_SundaysExcluded() {
         double days = attendanceEngine.calculateWorkingDays(
             LocalDate.of(2024, 4, 5), // Friday
-            LocalDate.of(2024, 4, 7)  // Sunday
+            LocalDate.of(2024, 4, 7)  // Sunday (should be excluded)
         );
-        assertEquals(2.0, days, "Should exclude Sunday, count only Friday and Saturday");
+        assertEquals(2.0, days, "Should count Friday and Saturday, excluding Sunday");
     }
 
     @Test
@@ -188,27 +197,27 @@ class AttendanceEngineTest {
     void testCalculateWorkingDays_MonthBoundary() {
         double days = attendanceEngine.calculateWorkingDays(
             LocalDate.of(2024, 3, 29), // Friday
-            LocalDate.of(2024, 4, 2)  // Tuesday
+            LocalDate.of(2024, 4, 2)  // Tuesday (March 31 is Sunday)
         );
-        assertEquals(4.0, days, "Should count correctly across month boundary");
+        assertEquals(4.0, days, "Should count correctly across month boundary, excluding Sunday");
     }
 
     @Test
     void testCalculateLeaveBalance_Integration() {
-        // Integration test combining earned leaves and used leaves
+        // Integration test combining earned leaves and Total Used Leaves
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
         when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
         assertTrue(balance.earnedLeaves >= 0, "Should have earned leaves");
-        assertEquals(0.0, balance.usedLeaves, "Should have 0 used leaves initially");
+        assertEquals(0.0, balance.usedLeaves, "Should have 0 Total Used Leaves initially");
         assertEquals(balance.earnedLeaves, balance.getAvailableLeaves(), "Available should equal earned when unused");
     }
 
     @Test
     void testCalculateLeaveBalance_WithUsedLeaves() {
-        // Test with existing used leaves
+        // Test with existing Total Used Leaves
         Leave usedLeave = new Leave();
         usedLeave.setId(1L);
         usedLeave.setPaidDays(1.5);
@@ -222,7 +231,7 @@ class AttendanceEngineTest {
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
-        assertEquals(1.5, balance.usedLeaves, "Should count only paid leaves as used");
+        assertEquals(1.5, balance.usedLeaves, "Should count only Paid Used Leaves as used");
         assertTrue(balance.getAvailableLeaves() < balance.earnedLeaves, "Available should be less than earned");
     }
 
@@ -231,7 +240,7 @@ class AttendanceEngineTest {
         // Test leave spanning cycle boundary (June 29 → July 2)
         Leave crossCycleLeave = new Leave();
         crossCycleLeave.setId(1L);
-        crossCycleLeave.setPaidDays(2.0);
+        crossCycleLeave.setPaidDays(3.0);
         crossCycleLeave.setUnpaidDays(1.0);
         crossCycleLeave.setStatus(Leave.LeaveStatus.APPROVED);
         crossCycleLeave.setStartDate(LocalDate.of(2024, 6, 29));
@@ -289,7 +298,7 @@ class AttendanceEngineTest {
         // Balance should be affected immediately even for future dates
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 11);
         
-        assertEquals(1.0, balance.usedLeaves, "Future approved leave should affect balance immediately");
+        assertEquals(0.0, balance.usedLeaves, "Future approved leave should not affect past month's Total Used Leaves count");
         assertTrue(balance.getAvailableLeaves() < balance.earnedLeaves, "Available should be reduced by future approved leave");
     }
 
@@ -354,5 +363,177 @@ class AttendanceEngineTest {
         
         assertEquals(0.0, balance.usedLeaves, "Rejected leave should not affect balance");
         assertEquals(0.0, balance.unpaidLeaves, "Rejected leave should not affect unpaid balance");
+    }
+
+    @Test
+    void testManualAbsence_ConsumesPaidLeaveBalance() {
+        Employee emp = new Employee();
+        emp.setId(2L);
+        emp.setJoiningDate(LocalDate.of(2024, 1, 1));
+        emp.setProbationPeriodMonths(3);
+        emp.setProbationStatus(Employee.ProbationStatus.CONFIRMED);
+
+        com.hrm.hrmsystem.model.Attendance attendance = new com.hrm.hrmsystem.model.Attendance();
+        attendance.setDate(LocalDate.of(2024, 5, 10));
+        attendance.setStatus(com.hrm.hrmsystem.model.Attendance.AttendanceStatus.ABSENT);
+        attendance.setEmployee(emp);
+
+        when(employeeRepository.findByIdentifier(2L)).thenReturn(Optional.of(emp));
+        when(employeeRepository.findById(2L)).thenReturn(Optional.of(emp));
+        when(attendanceRepository.findByEmployeeId(2L)).thenReturn(List.of(attendance));
+        when(attendanceRepository.findByEmployeeIdAndDateBetween(2L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
+            .thenReturn(List.of(attendance));
+
+        AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(2L, 2024, 5);
+        assertEquals(1.0, balance.usedLeaves, "Should count 1.0 paid leave from manual absence");
+        assertEquals(0.0, balance.unpaidLeaves, "Should count 0.0 unpaid leaves");
+        assertEquals(6.5, balance.remaining, "Remaining balance should be 6.5");
+
+        AttendanceSummary summary = attendanceEngine.calculate(2L, YearMonth.of(2024, 5));
+        assertEquals(1.0, summary.absent, "Total manually marked absent days should be 1.0");
+        assertEquals(1.0, summary.paidAbsent, "Paid absent days should be 1.0");
+        assertEquals(0.0, summary.unpaidAbsent, "Unpaid absent days should be 0.0");
+    }
+
+    @Test
+    void testManualAbsence_MixedPaidUnpaid() {
+        Employee emp = new Employee();
+        emp.setId(3L);
+        emp.setJoiningDate(LocalDate.of(2024, 1, 1));
+        emp.setProbationPeriodMonths(3);
+        emp.setProbationStatus(Employee.ProbationStatus.CONFIRMED);
+
+        Leave approvedLeave = new Leave();
+        approvedLeave.setId(10L);
+        approvedLeave.setPaidDays(6.0);
+        approvedLeave.setUnpaidDays(0.0);
+        approvedLeave.setStatus(Leave.LeaveStatus.APPROVED);
+        approvedLeave.setStartDate(LocalDate.of(2024, 5, 1));
+        approvedLeave.setEndDate(LocalDate.of(2024, 5, 7));
+        approvedLeave.setEmployee(emp);
+
+        com.hrm.hrmsystem.model.Attendance attendance = new com.hrm.hrmsystem.model.Attendance();
+        attendance.setDate(LocalDate.of(2024, 5, 15));
+        attendance.setStatus(com.hrm.hrmsystem.model.Attendance.AttendanceStatus.ABSENT);
+        attendance.setEmployee(emp);
+
+        when(employeeRepository.findByIdentifier(3L)).thenReturn(Optional.of(emp));
+        when(employeeRepository.findById(3L)).thenReturn(Optional.of(emp));
+        when(leaveRepository.findByEmployeeId(3L)).thenReturn(List.of(approvedLeave));
+        when(attendanceRepository.findByEmployeeId(3L)).thenReturn(List.of(attendance));
+        when(attendanceRepository.findByEmployeeIdAndDateBetween(3L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
+            .thenReturn(List.of(attendance));
+
+        AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(3L, 2024, 5);
+        assertEquals(7.0, balance.usedLeaves, "Total used paid leaves should be 7.0");
+        assertEquals(0.0, balance.unpaidLeaves, "Total unpaid leaves should be 0.0");
+        assertEquals(0.5, balance.remaining, "Remaining balance should be 0.5");
+
+        AttendanceSummary summary = attendanceEngine.calculate(3L, YearMonth.of(2024, 5));
+        assertEquals(1.0, summary.absent, "Total manual absent days should be 1.0");
+        assertEquals(1.0, summary.paidAbsent, "Paid absent days should be 1.0");
+        assertEquals(0.0, summary.unpaidAbsent, "Unpaid absent days should be 0.0");
+    }
+
+    @Test
+    void testCalculate_SundaysCountedAsPresent() {
+        Employee emp = new Employee();
+        emp.setId(4L);
+        emp.setJoiningDate(LocalDate.of(2024, 1, 1));
+        emp.setProbationPeriodMonths(3);
+        emp.setProbationStatus(Employee.ProbationStatus.CONFIRMED);
+
+        when(employeeRepository.findByIdentifier(4L)).thenReturn(Optional.of(emp));
+        when(employeeRepository.findById(4L)).thenReturn(Optional.of(emp));
+        
+        // No attendance or leave records (all weekdays unmarked, sundays weekly off)
+        when(attendanceRepository.findByEmployeeIdAndDateBetween(4L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
+            .thenReturn(List.of());
+
+        AttendanceSummary summary = attendanceEngine.calculate(4L, YearMonth.of(2024, 5));
+        // May 2024 has 4 Sundays (5th, 12th, 19th, 26th) and 27 weekdays.
+        // Under the new rules, unmarked past weekdays do NOT count as present.
+        // Only the 4 Sundays count as weekly off (which are counted as worked/payable).
+        assertEquals(4.0, summary.workedDays, "Sundays should count as 4.0 worked/present days");
+        assertEquals(4.0, summary.payableDays, "Sundays should count as 4.0 payable days");
+    }
+
+    @Test
+    void testCalculate_HalfDayAbsentToday_CountsAsHalfDayPresent() {
+        Employee emp = new Employee();
+        emp.setId(5L);
+        emp.setJoiningDate(LocalDate.of(2024, 1, 1));
+        emp.setProbationPeriodMonths(3);
+        emp.setProbationStatus(Employee.ProbationStatus.CONFIRMED);
+
+        LocalDate today = LocalDate.now();
+        YearMonth currentMonth = YearMonth.from(today);
+
+        // Add one attendance record for TODAY: marked ABSENT for FIRST_HALF
+        com.hrm.hrmsystem.model.Attendance attendance = new com.hrm.hrmsystem.model.Attendance();
+        attendance.setDate(today);
+        attendance.setStatus(com.hrm.hrmsystem.model.Attendance.AttendanceStatus.ABSENT);
+        attendance.setHalfType(com.hrm.hrmsystem.model.Attendance.HalfType.FIRST_HALF);
+        attendance.setEmployee(emp);
+
+        when(employeeRepository.findByIdentifier(5L)).thenReturn(Optional.of(emp));
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(emp));
+        when(attendanceRepository.findByEmployeeIdAndDateBetween(5L, currentMonth.atDay(1), currentMonth.atEndOfMonth()))
+            .thenReturn(List.of(attendance));
+
+        AttendanceSummary summary = attendanceEngine.calculate(5L, currentMonth);
+
+        // Today's calculation:
+        // FIRST_HALF = ABSENT (0.5 absent)
+        // SECOND_HALF = auto-present (0.5 worked) because attendance is not null on today.
+        // So for today: worked = 0.5, absent = 0.5.
+        assertEquals(0.5, summary.absent, "Should count 0.5 absent days");
+        assertTrue(summary.workedDays % 1.0 == 0.5, "Worked days should have a half-day present (.5)");
+    }
+
+    @Test
+    void testCalculate_HalfDayLeaveAndHalfDayAbsent() {
+        Employee emp = new Employee();
+        emp.setId(6L);
+        emp.setJoiningDate(LocalDate.of(2024, 1, 1));
+        emp.setProbationPeriodMonths(3);
+        emp.setProbationStatus(Employee.ProbationStatus.CONFIRMED);
+
+        LocalDate date = LocalDate.of(2024, 5, 10);
+        YearMonth currentMonth = YearMonth.of(2024, 5);
+
+        Leave halfLeave = new Leave();
+        halfLeave.setId(20L);
+        halfLeave.setPaidDays(0.5);
+        halfLeave.setUnpaidDays(0.0);
+        halfLeave.setStatus(Leave.LeaveStatus.APPROVED);
+        halfLeave.setStartDate(date);
+        halfLeave.setEndDate(date);
+        halfLeave.setIsHalfDay(true);
+        halfLeave.setHalfType(Leave.HalfType.FIRST_HALF);
+        halfLeave.setEmployee(emp);
+
+        com.hrm.hrmsystem.model.Attendance attendance = new com.hrm.hrmsystem.model.Attendance();
+        attendance.setDate(date);
+        attendance.setStatus(com.hrm.hrmsystem.model.Attendance.AttendanceStatus.ABSENT);
+        attendance.setHalfType(com.hrm.hrmsystem.model.Attendance.HalfType.SECOND_HALF);
+        attendance.setEmployee(emp);
+
+        when(employeeRepository.findByIdentifier(6L)).thenReturn(Optional.of(emp));
+        when(employeeRepository.findById(6L)).thenReturn(Optional.of(emp));
+        when(leaveRepository.findByEmployeeId(6L)).thenReturn(List.of(halfLeave));
+        when(attendanceRepository.findByEmployeeId(6L)).thenReturn(List.of(attendance));
+        when(attendanceRepository.findByEmployeeIdAndDateBetween(6L, currentMonth.atDay(1), currentMonth.atEndOfMonth()))
+            .thenReturn(List.of(attendance));
+
+        AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(6L, 2024, 5);
+        assertEquals(1.0, balance.usedLeaves, "Total used paid leaves should be 1.0");
+        assertEquals(0.0, balance.unpaidLeaves, "Total unpaid leaves should be 0.0");
+        assertEquals(6.5, balance.remaining, "Remaining balance should be 6.5");
+
+        AttendanceSummary summary = attendanceEngine.calculate(6L, currentMonth);
+        assertEquals(0.5, summary.paidLeave, "Paid leave should be 0.5");
+        assertEquals(0.5, summary.absent, "Absent should be 0.5");
+        assertEquals(0.5, summary.paidAbsent, "Paid absent should be 0.5");
     }
 }

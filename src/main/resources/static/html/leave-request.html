@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply Leave - HRM System</title>
+    <link rel="stylesheet" href="../css/hrm-design-system.css">
     <link rel="stylesheet" href="../css/employee-theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -16,59 +17,77 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="header flex justify-between items-center mb-6">
-                <div class="page-title">
-                    <h1>Apply Leave</h1>
-                    <p>Submit a new leave request for approval</p>
+            <!-- Welcome Banner -->
+            <div class="welcome-banner"
+                style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                <!-- Ambient glows for aesthetic excellence -->
+                <div
+                    style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
                 </div>
-                <div class="header-actions">
-                    <button class="icon-btn" onclick="history.back()" title="Go Back">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="auth.logout()" title="Logout">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                    </button>
+                <div
+                    style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
                 </div>
-            </header>
+
+                <div style="z-index: 1;">
+                    <h1
+                        style="margin: 0; font-size: 2.25rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                        Apply Leave</h1>
+                    <p
+                        style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                        Submit a new leave request for approval</p>
+                </div>
+
+
+            </div>
 
             <div class="page-content">
                 <!-- Two Column Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto; align-items: start;">
-                    
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto; align-items: start;">
+
                     <!-- LEFT COLUMN: Employee Info & Summaries -->
                     <div class="space-y-4" style="display: flex; flex-direction: column; gap: 1rem;">
                         <!-- Employee Info Card -->
-                        <div id="employee-info-card" class="card" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; display: none;">
-                            <div class="card-body" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                                <h4 style="margin: 0; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                        <div id="employee-info-card" class="card"
+                            style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; display: none; flex-shrink: 0;">
+                            <div class="card-body"
+                                style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <h4
+                                    style="margin: 0; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
                                     Employee Details
                                 </h4>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                                     <div>
-                                        <div style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Name</div>
-                                        <div id="info-name" style="font-size: 0.875rem; font-weight: 700; color: #1f2937;">-</div>
+                                        <div
+                                            style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">
+                                            Name</div>
+                                        <div id="info-name"
+                                            style="font-size: 0.875rem; font-weight: 700; color: #1f2937;">-</div>
                                     </div>
                                     <div>
-                                        <div style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Department</div>
-                                        <div id="info-dept" style="font-size: 0.875rem; font-weight: 500; color: #4b5563;">-</div>
+                                        <div
+                                            style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">
+                                            Department</div>
+                                        <div id="info-dept"
+                                            style="font-size: 0.875rem; font-weight: 500; color: #4b5563;">-</div>
                                     </div>
                                     <div>
-                                        <div style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Designation</div>
-                                        <div id="info-designation" style="font-size: 0.875rem; font-weight: 500; color: #4b5563;">-</div>
+                                        <div
+                                            style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">
+                                            Designation</div>
+                                        <div id="info-designation"
+                                            style="font-size: 0.875rem; font-weight: 500; color: #4b5563;">-</div>
                                     </div>
                                     <div style="grid-column: span 2;">
-                                        <div style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Probation Status</div>
-                                        <div id="probation-badge-admin" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 0.25rem;">
+                                        <div
+                                            style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">
+                                            Probation Status</div>
+                                        <div id="probation-badge-admin"
+                                            style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 0.25rem;">
                                             <span id="probation-status">-</span>
                                         </div>
-                                        <div id="probation-dates" style="font-size: 0.65rem; color: #6b7280; margin-top: 0.25rem;">-</div>
+                                        <div id="probation-dates"
+                                            style="font-size: 0.65rem; color: #6b7280; margin-top: 0.25rem;">-</div>
                                     </div>
                                 </div>
                             </div>
@@ -76,7 +95,7 @@
 
                         <!-- Leave Summary Card -->
                         <div id="leave-summary-card" class="card"
-                            style="background: #fffbeb; border: 1px solid #fde047; border-radius: 12px; display: none;">
+                            style="background: #fffbeb; border: 1px solid #fde047; border-radius: 12px; display: none; flex-shrink: 0;">
                             <div class="card-body" style="padding: 1.25rem;">
                                 <h4
                                     style="margin: 0 0 0.75rem 0; color: #92400e; font-size: 0.9rem; border-bottom: 1px solid #fde047; padding-bottom: 0.5rem; font-weight: 600;">
@@ -84,16 +103,25 @@
                                 <div
                                     style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center;">
                                     <div>
-                                        <p style="margin: 0; font-size: 0.7rem; color: #d97706; font-weight: 500;">Available Balance</p>
-                                        <p id="bal-available" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #d97706; font-size: 1.1rem;">0</p>
+                                        <p style="margin: 0; font-size: 0.7rem; color: #d97706; font-weight: 500;">
+                                            Available Balance</p>
+                                        <p id="bal-available"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #d97706; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                     <div>
-                                        <p style="margin: 0; font-size: 0.7rem; color: #d97706; font-weight: 500;">Used Leaves (Paid+Unpaid)</p>
-                                        <p id="bal-used-calc" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #d97706; font-size: 1.1rem;">0</p>
+                                        <p style="margin: 0; font-size: 0.7rem; color: #d97706; font-weight: 500;">Used
+                                            Leaves (Paid+Unpaid)</p>
+                                        <p id="bal-used-calc"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #d97706; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                     <div>
-                                        <p style="margin: 0; font-size: 0.7rem; color: #16a34a; font-weight: 500;">After Approval</p>
-                                        <p id="bal-remaining" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #16a34a; font-size: 1.1rem;">0</p>
+                                        <p style="margin: 0; font-size: 0.7rem; color: #16a34a; font-weight: 500;">After
+                                            Approval</p>
+                                        <p id="bal-remaining"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #16a34a; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                 </div>
                                 <p id="balance-note"
@@ -104,7 +132,7 @@
 
                         <!-- Attendance & Leave Summary Card -->
                         <div id="attendance-summary-card" class="card"
-                            style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; display: none;">
+                            style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; display: none; flex-shrink: 0;">
                             <div class="card-body" style="padding: 1.25rem;">
                                 <h4
                                     style="margin: 0 0 0.75rem 0; color: #1e40af; font-size: 0.9rem; border-bottom: 1px solid #bfdbfe; padding-bottom: 0.5rem; font-weight: 600;">
@@ -112,26 +140,35 @@
                                 <div
                                     style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.5rem;">
                                     <div>
-                                        <p style="margin: 0; font-size: 0.75rem; color: #3b82f6; font-weight: 500;">Present Days</p>
-                                        <p id="att-present" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #1d4ed8; font-size: 1.1rem;">0</p>
+                                        <p style="margin: 0; font-size: 0.75rem; color: #3b82f6; font-weight: 500;">
+                                            Present Days</p>
+                                        <p id="att-present"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #1d4ed8; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                     <div>
-                                        <p style="margin: 0; font-size: 0.75rem; color: #3b82f6; font-weight: 500;">Absent Days</p>
-                                        <p id="att-absent" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #dc2626; font-size: 1.1rem;">0</p>
-                                        <div
-                                            style="font-size: 0.65rem; color: #ef4444; font-weight: 500; margin-top: 4px; line-height: 1.1;">
-                                            ⚠️ Salary will be double deducted if not approved by admin</div>
+                                        <p style="margin: 0; font-size: 0.75rem; color: #3b82f6; font-weight: 500;">
+                                            Absent Days</p>
+                                        <p id="att-absent"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #dc2626; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                 </div>
                                 <div
                                     style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; text-align: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #bfdbfe;">
                                     <div>
-                                        <p style="margin: 0; font-size: 0.75rem; color: #15803d; font-weight: 500;">Paid Used Leaves</p>
-                                        <p id="att-paid" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #059669; font-size: 1.1rem;">0</p>
+                                        <p style="margin: 0; font-size: 0.75rem; color: #15803d; font-weight: 500;">Paid
+                                            Used Leaves</p>
+                                        <p id="att-paid"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #059669; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                     <div>
-                                        <p style="margin: 0; font-size: 0.75rem; color: #dc2626; font-weight: 500;">Unpaid Used Leaves</p>
-                                        <p id="att-unpaid" style="margin: 0.25rem 0 0 0; font-weight: 700; color: #dc2626; font-size: 1.1rem;">0</p>
+                                        <p style="margin: 0; font-size: 0.75rem; color: #dc2626; font-weight: 500;">
+                                            Unpaid Used Leaves</p>
+                                        <p id="att-unpaid"
+                                            style="margin: 0.25rem 0 0 0; font-weight: 700; color: #dc2626; font-size: 1.1rem;">
+                                            0</p>
                                     </div>
                                 </div>
                                 <p id="attendance-note"
@@ -142,11 +179,14 @@
                     </div>
 
                     <!-- RIGHT COLUMN: Form & Calculation -->
-                    <div class="card" style="border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                    <div class="card"
+                        style="border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
                         <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb;">
-                            <h3 class="card-title" style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 0;">
+                            <h3 class="card-title"
+                                style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 0;">
                                 Leave Application Form</h3>
-                            <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6b7280;">Fill in the details to apply for leave</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6b7280;">Fill in the details
+                                to apply for leave</p>
                         </div>
                         <div class="card-body" style="padding: 1.5rem;">
                             <form id="leave-form">
@@ -193,7 +233,8 @@
                                 <div class="form-group" id="halfTypeContainer"
                                     style="margin-bottom: 1.25rem; display: none;">
                                     <label class="form-label"
-                                        style="font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; display: block;">Select Half</label>
+                                        style="font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; display: block;">Select
+                                        Half</label>
                                     <select id="halfType" class="form-control"
                                         style="width: 100%; padding: 0.625rem 0.875rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem;">
                                         <option value="FIRST_HALF">First Half (Morning)</option>
@@ -202,21 +243,28 @@
                                 </div>
 
                                 <!-- Warning Section -->
-                                <div id="warning-section" style="display: none; margin-bottom: 1.25rem; flex-direction: column; gap: 0.5rem;">
+                                <div id="warning-section"
+                                    style="display: none; margin-bottom: 1.25rem; flex-direction: column; gap: 0.5rem;">
+                                    <div id="overlap-warning"
+                                        style="display: none; padding: 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #b91c1c; font-size: 0.75rem; font-weight: 500;">
+                                        ⛔ Warning: You are already on approved leave for the selected date(s). Please choose different date(s) or contact HR to modify your existing leave request.
+                                    </div>
                                     <div id="probation-warning"
                                         style="display: none; padding: 0.75rem; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; color: #b45309; font-size: 0.75rem; font-weight: 500;">
                                         ⚠️ Employee is in probation. All leaves will be unpaid.
                                     </div>
                                     <div id="excess-warning"
                                         style="display: none; padding: 0.75rem; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #b91c1c; font-size: 0.75rem; font-weight: 500;">
-                                        ⚠️ <span id="excess-message">Only 3 paid leaves allowed. Extra will be unpaid.</span>
+                                        ⚠️ <span id="excess-message">Only 3 paid leaves allowed. Extra will be
+                                            unpaid.</span>
                                     </div>
                                 </div>
 
                                 <!-- Calculation Preview -->
                                 <div id="leave-preview" class="form-group"
                                     style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 2px solid #e2e8f0; display: none; margin-bottom: 1.25rem;">
-                                    <h4 style="margin: 0 0 1rem 0; color: #334155; font-size: 0.95rem; font-weight: 600;">
+                                    <h4
+                                        style="margin: 0 0 1rem 0; color: #334155; font-size: 0.95rem; font-weight: 600;">
                                         Leave Calculation Preview</h4>
                                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
                                         <div
@@ -241,9 +289,13 @@
                                                 0</p>
                                         </div>
                                     </div>
-                                    <div style="margin-top: 1rem; text-align: center; padding: 0.75rem; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
-                                        <p style="margin: 0; font-size: 0.75rem; color: #6b7280;">Estimated Salary Deduction</p>
-                                        <p id="preview-deduction" style="margin: 0.25rem 0 0 0; font-size: 1.25rem; font-weight: 700; color: #dc2626;">Rs. 0.00</p>
+                                    <div
+                                        style="margin-top: 1rem; text-align: center; padding: 0.75rem; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                        <p style="margin: 0; font-size: 0.75rem; color: #6b7280;">Estimated Salary
+                                            Deduction</p>
+                                        <p id="preview-deduction"
+                                            style="margin: 0.25rem 0 0 0; font-size: 1.25rem; font-weight: 700; color: #dc2626;">
+                                            Rs. 0.00</p>
                                     </div>
                                     <p id="preview-message"
                                         style="margin: 1rem 0 0 0; padding: 0.75rem; background: #dbeafe; color: #1e40af; font-size: 0.85rem; border-radius: 8px; text-align: center;">
@@ -269,12 +321,12 @@
                                     style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                                     <div class="form-group">
                                         <label class="form-label"
-                                            style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Approval Department <span style="color: #dc2626;">*</span></label>
+                                            style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Approval
+                                            Department <span style="color: #dc2626;">*</span></label>
                                         <select id="approverDept" class="form-control" required
                                             style="width: 100%; padding: 0.625rem 0.875rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem; background: white;">
                                             <option value="">Select Department</option>
                                             <option value="HR">HR</option>
-                                            <option value="Admin">Admin</option>
                                             <option value="Leaves">Leaves</option>
                                             <option value="Accountant">Accountant</option>
                                             <option value="Director">Director</option>
@@ -282,7 +334,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label"
-                                            style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Approval Person <span style="color: #dc2626;">*</span></label>
+                                            style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Approval
+                                            Person <span style="color: #dc2626;">*</span></label>
                                         <select id="approverId" class="form-control" required
                                             style="width: 100%; padding: 0.625rem 0.875rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem; background: white;">
                                             <option value="">Select Person</option>
@@ -292,7 +345,8 @@
                                 <div style="display: flex; gap: 1rem;">
                                     <button type="submit" class="btn btn-primary"
                                         style="flex: 1; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg width="18" height="18" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 4v16m8-8H4" />
                                         </svg>
@@ -320,20 +374,32 @@
         renderSidebar();
 
         const user = auth.getCurrentUser();
-        let selectedEmployee = null;
+        let selectedEmployee = null;   // Always populated from SERVER response — single source of truth
         let employeeLeaveBalance = null;
         let currentMonthContext = null;
+        let myExistingLeaves = [];     // Stores the employee's own APPROVED leaves for overlap checking
+
+        // ─── Employee-only page guard ───────────────────────────────────────────
+        // Management roles (HR/Admin/Accountant/Director/Leaves) have their own
+        // leave-management screens.  If somehow a management user lands here,
+        // they still see THEIR OWN employee profile – but we flag it clearly.
+        // Pure employee accounts: ROLE_EMPLOYEE (also catches dept-derived roles).
+        // ───────────────────────────────────────────────────────────────────────
 
         // Load employee probation status
-        function loadEmployeeProbationStatus(emp) {
+        function loadEmployeeProbationStatus(emp, month, year) {
             const joiningDate = emp.joiningDate ? new Date(emp.joiningDate) : null;
-            const probationMonths = emp.probationPeriodMonths || 3;
+            const probationMonths = (emp.probationPeriodMonths !== null && emp.probationPeriodMonths !== undefined) ? emp.probationPeriodMonths : 3;
 
             if (joiningDate) {
                 const probationEnd = new Date(joiningDate);
                 probationEnd.setMonth(probationEnd.getMonth() + probationMonths);
-                const today = new Date();
-                const isInProbation = today < probationEnd;
+                
+                let targetDate = new Date();
+                if (month && year) {
+                    targetDate = new Date(year, month, 0); // month-end
+                }
+                const isInProbation = targetDate < probationEnd;
 
                 const badge = document.getElementById('probation-badge-admin');
                 const statusText = document.getElementById('probation-status');
@@ -363,7 +429,7 @@
             if (!banner) {
                 banner = document.createElement('div');
                 banner.id = 'month-context-banner';
-                banner.style.cssText = 'background: #dbeafe; border: 1px solid #3b82f6; border-radius: 12px; padding: 0.75rem; margin-bottom: 1rem; text-align: center;';
+                banner.style.cssText = 'background: #dbeafe; border: 1px solid #3b82f6; border-radius: 12px; padding: 0.75rem; margin-bottom: 1rem; text-align: center; flex-shrink: 0;';
 
                 const employeeInfoCard = document.getElementById('employee-info-card');
                 if (employeeInfoCard) {
@@ -395,10 +461,27 @@
             banner.style.display = 'block';
         }
 
+        // Fetch all APPROVED leaves for the current employee (for overlap validation)
+        async function fetchMyApprovedLeaves(employeeId) {
+            try {
+                const res = await auth.apiCall(`/api/leaves/my`);
+                if (res && res.ok) {
+                    const leaves = await res.json();
+                    myExistingLeaves = leaves.filter(l => l.status === 'APPROVED');
+                    console.log('Loaded approved leaves for overlap check:', myExistingLeaves.length);
+                }
+            } catch (e) {
+                console.error('Failed to fetch existing leaves for overlap check', e);
+            }
+        }
+
         // Load employee leave balance for specific month
+        // NOTE: startDate parameter is intentionally removed — balance must reflect the true
+        // server-side current balance without excluding future approved leaves.
         async function loadEmployeeLeaveBalance(employeeId, month, year) {
             try {
-                const res = await auth.apiCall(`/api/dashboard/leave-balance/${employeeId}?month=${month}&year=${year}`);
+                const url = `/api/dashboard/leave-balance/${employeeId}?month=${month}&year=${year}`;
+                const res = await auth.apiCall(url);
                 if (res && res.ok) {
                     employeeLeaveBalance = await res.json();
 
@@ -474,7 +557,31 @@
         // Fetch current employee details and trigger loading month context
         async function loadCurrentEmployeeDetails() {
             try {
-                const res = await auth.apiCall(`/api/employees/${user.employeeId}`);
+                let empId = user ? user.employeeId : null;
+
+                // Self-healing: if employeeId is not in localStorage, fetch from profile API
+                if (!empId || empId === 0 || empId === 'null' || empId === 'undefined') {
+                    console.log('employeeId missing or invalid in local storage user, fetching from profile...');
+                    const profileRes = await auth.apiCall('/api/users/profile');
+                    if (profileRes && profileRes.ok) {
+                        const profile = await profileRes.json();
+                        if (profile && profile.employeeId) {
+                            empId = profile.employeeId;
+                            // Update localStorage
+                            user.employeeId = empId;
+                            localStorage.setItem('user', JSON.stringify(user));
+                            console.log('Successfully recovered employeeId:', empId);
+                        }
+                    }
+                }
+
+                if (!empId || empId === 0 || empId === 'null' || empId === 'undefined') {
+                    console.error('Could not determine employeeId');
+                    auth.showNotification('Error: Unable to load employee profile context. Please login again.', 'error');
+                    return;
+                }
+
+                const res = await auth.apiCall(`/api/employees/${empId}`);
                 if (res && res.ok) {
                     selectedEmployee = await res.json();
 
@@ -482,15 +589,16 @@
                     document.getElementById('info-dept').textContent = selectedEmployee.departmentName || '-';
                     document.getElementById('info-designation').textContent = selectedEmployee.designation || '-';
 
-                    loadEmployeeProbationStatus(selectedEmployee);
-
                     const today = new Date();
                     const month = today.getMonth() + 1;
                     const year = today.getFullYear();
                     currentMonthContext = { month, year };
 
+                    loadEmployeeProbationStatus(selectedEmployee, month, year);
+
                     await loadEmployeeLeaveBalance(selectedEmployee.id, month, year);
                     await loadEmployeeAttendance(selectedEmployee.id, month, year);
+                    await fetchMyApprovedLeaves(selectedEmployee.id);
                     showMonthContext(month, year);
 
                     document.getElementById('employee-info-card').style.display = 'block';
@@ -509,49 +617,40 @@
         const approverDept = document.getElementById('approverDept');
         const approverSelect = document.getElementById('approverId');
 
-        approverDept.addEventListener('change', async function() {
+        approverDept.addEventListener('change', async function () {
             const selectedDept = this.value;
-            approverSelect.innerHTML = '<option value="">Select Person</option>';
-            
-            if (!selectedDept) return;
+            approverSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (!selectedDept) {
+                approverSelect.innerHTML = '<option value="">Select Person</option>';
+                return;
+            }
 
             try {
-                // Fetch both regular and system employees concurrently
-                const [resRegular, resSystem] = await Promise.all([
-                    auth.apiCall('/api/employees'),
-                    auth.apiCall('/api/employees/system')
-                ]);
-                
-                let allEmployees = [];
-                if (resRegular && resRegular.ok) {
-                    const regularEmployees = await resRegular.json();
-                    allEmployees = allEmployees.concat(regularEmployees);
-                }
-                if (resSystem && resSystem.ok) {
-                    const systemEmployees = await resSystem.json();
-                    allEmployees = allEmployees.concat(systemEmployees);
-                }
+                // Use the dedicated approvers endpoint — accessible by all authenticated users
+                const res = await auth.apiCall(`/api/employees/approvers?department=${encodeURIComponent(selectedDept)}`);
 
-                // Filter employees by department name (case insensitive)
-                const filtered = allEmployees.filter(emp => {
-                    if (!emp.departmentName) return false;
-                    const deptName = emp.departmentName.trim().toLowerCase();
-                    const targetDept = selectedDept.trim().toLowerCase();
-                    return deptName === targetDept;
-                });
+                approverSelect.innerHTML = '<option value="">Select Person</option>';
 
-                if (filtered.length === 0) {
-                    approverSelect.innerHTML = '<option value="">No person found in this department</option>';
+                if (res && res.ok) {
+                    const approvers = await res.json();
+                    if (approvers.length === 0) {
+                        approverSelect.innerHTML = '<option value="">No person found in this department</option>';
+                    } else {
+                        approvers.forEach(emp => {
+                            const option = document.createElement('option');
+                            option.value = emp.id;
+                            option.textContent = `${emp.firstName} ${emp.lastName} (${emp.designation || 'Staff'})`;
+                            approverSelect.appendChild(option);
+                        });
+                    }
                 } else {
-                    filtered.forEach(emp => {
-                        const option = document.createElement('option');
-                        option.value = emp.id;
-                        option.textContent = `${emp.firstName} ${emp.lastName} (${emp.designation || 'Staff'})`;
-                        approverSelect.appendChild(option);
-                    });
+                    approverSelect.innerHTML = '<option value="">Error loading persons</option>';
+                    console.error('Failed to fetch approvers, status:', res ? res.status : 'no response');
                 }
             } catch (err) {
-                console.error('Error fetching employees:', err);
+                approverSelect.innerHTML = '<option value="">Error loading persons</option>';
+                console.error('Error fetching approvers:', err);
             }
         });
 
@@ -581,15 +680,32 @@
 
         // Helper function to count days excluding Sundays
         function countDaysExcludingSundays(start, end) {
-            let days = 0;
-            let current = new Date(start);
-            while (current <= end) {
-                if (current.getDay() !== 0) {
-                    days++;
+            if (!start || !end) return 0;
+            
+            // Helper to get local date components to avoid timezone shifts
+            let current, endDate;
+            if (start instanceof Date) {
+                current = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            } else {
+                const parts = String(start).split('-');
+                current = new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            
+            if (end instanceof Date) {
+                endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            } else {
+                const parts = String(end).split('-');
+                endDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            
+            let count = 0;
+            while (current <= endDate) {
+                if (current.getDay() !== 0) { // 0 is Sunday
+                    count++;
                 }
                 current.setDate(current.getDate() + 1);
             }
-            return days;
+            return count;
         }
 
         // Real-time leave calculation with dynamic month context detection
@@ -597,8 +713,17 @@
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const isHalfDay = document.getElementById('isHalfDay').checked;
+            const submitBtn = document.querySelector('#leave-form button[type="submit"]');
 
-            if (!startDate || !endDate || !selectedEmployee) {
+            // Guard: do nothing if dates are not yet set
+            if (!startDate || !endDate) {
+                document.getElementById('leave-preview').style.display = 'none';
+                document.getElementById('overlap-warning').style.display = 'none';
+                document.getElementById('warning-section').style.display = 'none';
+                return;
+            }
+
+            if (!selectedEmployee) {
                 document.getElementById('leave-preview').style.display = 'none';
                 return;
             }
@@ -611,21 +736,60 @@
                 return;
             }
 
-            // Dynamically detect and update month context
+            // ── OVERLAP CHECK (Validation 1) ────────────────────────────────────
+            // Normalize dates to avoid timezone/format issues
+            const selectedStart = new Date(startDate);
+            const selectedEnd = new Date(endDate);
+
+            const hasOverlap = myExistingLeaves.some(leave => {
+                const leaveStart = new Date(leave.startDate);
+                const leaveEnd = new Date(leave.endDate);
+                return (
+                    selectedStart <= leaveEnd &&
+                    selectedEnd >= leaveStart
+                );
+            });
+
+            if (hasOverlap) {
+                // Show overlap warning, hide preview, disable submit
+                document.getElementById('overlap-warning').style.display = 'block';
+                document.getElementById('probation-warning').style.display = 'none';
+                document.getElementById('excess-warning').style.display = 'none';
+                document.getElementById('warning-section').style.display = 'flex';
+                document.getElementById('leave-preview').style.display = 'none';
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; submitBtn.style.cursor = 'not-allowed'; }
+                return;
+            }
+
+            // No overlap — clear warning and re-enable submit
+            document.getElementById('overlap-warning').style.display = 'none';
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; submitBtn.style.cursor = 'pointer'; }
+
+            // ── MONTH CONTEXT DETECTION ─────────────────────────────────────────
             const d = new Date(startDate);
             const newMonth = d.getMonth() + 1;
             const newYear = d.getFullYear();
 
+            let contextChanged = false;
             if (!currentMonthContext || currentMonthContext.month !== newMonth || currentMonthContext.year !== newYear) {
                 console.log(`Month context changed: reload data for ${newMonth}/${newYear}`);
                 currentMonthContext = { month: newMonth, year: newYear };
+                contextChanged = true;
+            }
 
-                await loadEmployeeLeaveBalance(selectedEmployee.id, newMonth, newYear);
+            // NOTE: No startDate param — balance reflects the true server-side current balance
+            await loadEmployeeLeaveBalance(selectedEmployee.id, newMonth, newYear);
+
+            if (contextChanged) {
                 await loadEmployeeAttendance(selectedEmployee.id, newMonth, newYear);
+                loadEmployeeProbationStatus(selectedEmployee, newMonth, newYear);
                 showMonthContext(newMonth, newYear);
             }
 
-            let totalDays = isHalfDay ? 0.5 : countDaysExcludingSundays(start, end);
+            // ── LEAVE CALCULATION (Validation 2) ────────────────────────────────
+            // Use ONLY the current server-returned balance and current request days.
+            // Do NOT recalculate using historical or future leave records.
+            let totalDays = isHalfDay ? 0.5 : countDaysExcludingSundays(startDate, endDate);
 
             let paidDays = 0;
             let unpaidDays = 0;
@@ -634,9 +798,10 @@
             let showExcessWarning = false;
 
             const joiningDate = selectedEmployee.joiningDate ? new Date(selectedEmployee.joiningDate) : null;
-            const probationMonths = selectedEmployee.probationPeriodMonths || 3;
-            const probationEnd = joiningDate ? new Date(joiningDate.setMonth(joiningDate.getMonth() + probationMonths)) : null;
-            const isInProbation = probationEnd && new Date() < probationEnd;
+            const probationMonths = (selectedEmployee.probationPeriodMonths !== null && selectedEmployee.probationPeriodMonths !== undefined) ? selectedEmployee.probationPeriodMonths : 3;
+            const probationEnd = joiningDate ? new Date(new Date(joiningDate).setMonth(joiningDate.getMonth() + probationMonths)) : null;
+            const targetMonthEnd = new Date(newYear, newMonth, 0);
+            const isInProbation = probationEnd && targetMonthEnd < probationEnd;
 
             if (isInProbation) {
                 paidDays = 0;
@@ -644,24 +809,24 @@
                 message = 'You are currently in probation. All requested leaves will be UNPAID.';
                 showProbationWarning = true;
             } else {
+                // Business rule: only use server-returned available balance and current request
                 const availableBalance = employeeLeaveBalance ? (employeeLeaveBalance.remaining || 0) : 0;
 
-                if (totalDays <= availableBalance) {
-                    paidDays = totalDays;
-                    unpaidDays = 0;
-                    message = `All ${totalDays} day(s) will be paid leave.`;
-                } else {
-                    paidDays = availableBalance;
-                    unpaidDays = totalDays - availableBalance;
-                    message = `${paidDays.toFixed(1)} day(s) will be paid (from ${availableBalance.toFixed(1)} available). ${unpaidDays.toFixed(1)} day(s) will be unpaid.`;
+                paidDays = Math.min(totalDays, availableBalance);
+                unpaidDays = totalDays - paidDays;
+
+                if (unpaidDays > 0) {
+                    message = `${paidDays.toFixed(1)} day(s) will be paid (from ${availableBalance.toFixed(1)} available). ${unpaidDays.toFixed(1)} day(s) will be UNPAID.`;
                     showExcessWarning = true;
+                } else {
+                    message = `All ${totalDays} day(s) will be paid `;
                 }
             }
 
             document.getElementById('probation-warning').style.display = showProbationWarning ? 'block' : 'none';
             document.getElementById('excess-warning').style.display = showExcessWarning ? 'block' : 'none';
             document.getElementById('warning-section').style.display = (showProbationWarning || showExcessWarning) ? 'flex' : 'none';
-            
+
             if (showExcessWarning) {
                 document.getElementById('excess-message').textContent = `Only ${paidDays.toFixed(1)} paid leaves allowed. Extra ${unpaidDays.toFixed(1)} days will be unpaid.`;
             }
@@ -673,33 +838,30 @@
             document.getElementById('preview-message').textContent = message;
 
             if (employeeLeaveBalance) {
-                const currentRemaining = employeeLeaveBalance.remaining || 0;
-                const currentlyUsed = paidDays;
+                const availableBalance = employeeLeaveBalance.remaining || 0;
                 const totalUsedAlready = employeeLeaveBalance.totalUsed || ((employeeLeaveBalance.used || 0) + (employeeLeaveBalance.unpaid || 0));
                 const projectedUsed = totalUsedAlready + totalDays;
+                const remainingAfter = Math.max(0, availableBalance - paidDays);
 
-                const remainingAfter = Math.max(0, currentRemaining - currentlyUsed);
-
-                if (document.getElementById('bal-available')) document.getElementById('bal-available').textContent = currentRemaining.toFixed(1);
+                if (document.getElementById('bal-available')) document.getElementById('bal-available').textContent = availableBalance.toFixed(1);
                 if (document.getElementById('bal-used-calc')) document.getElementById('bal-used-calc').textContent = projectedUsed.toFixed(1);
                 if (document.getElementById('bal-remaining')) document.getElementById('bal-remaining').textContent = remainingAfter.toFixed(1);
 
                 const balanceNote = document.getElementById('balance-note');
-                if (remainingAfter === 0 && currentlyUsed > 0) {
-                    balanceNote.innerHTML = `⚠️ <strong>Warning:</strong> This will use ALL remaining paid leave balance (${currentRemaining.toFixed(1)} days).`;
+                if (remainingAfter === 0 && paidDays > 0) {
+                    balanceNote.innerHTML = `⚠️ <strong>Warning:</strong> This will use ALL remaining paid leave balance (${availableBalance.toFixed(1)} days).`;
                     balanceNote.style.color = '#f59e0b';
-                } else if (currentlyUsed > 0) {
-                    balanceNote.innerHTML = `✓ <strong>Impact Preview:</strong> This uses ${currentlyUsed.toFixed(1)} day(s).<br>Remaining after approval: <strong>${remainingAfter.toFixed(1)}</strong> day(s)`;
+                } else if (paidDays > 0) {
+                    balanceNote.innerHTML = `✓ <strong>Impact Preview:</strong> This uses ${paidDays.toFixed(1)} day(s).<br>Remaining after approval: <strong>${remainingAfter.toFixed(1)}</strong> day(s)`;
                     balanceNote.style.color = '#166534';
                 } else {
-                    const availableBalance = employeeLeaveBalance.remaining || 0;
                     balanceNote.textContent = `${availableBalance.toFixed(1)} paid leave day(s) available.`;
                     balanceNote.style.color = '#166534';
                 }
             }
         }
 
-        document.getElementById('isHalfDay').addEventListener('change', function() {
+        document.getElementById('isHalfDay').addEventListener('change', function () {
             document.getElementById('halfTypeContainer').style.display = this.checked ? 'block' : 'none';
             updateLeaveCalculation();
         });
@@ -734,15 +896,22 @@
             // Exclude Sundays and support half day
             const isHalfDay = document.getElementById('isHalfDay').checked;
             const halfType = isHalfDay ? document.getElementById('halfType').value : null;
-            let totalDays = isHalfDay ? 0.5 : countDaysExcludingSundays(start, end);
+            let totalDays = isHalfDay ? 0.5 : countDaysExcludingSundays(startDate, endDate);
 
             const approverIdVal = document.getElementById('approverId').value;
             if (!approverIdVal) {
                 return auth.showNotification('Please select an approval person.', 'error');
             }
 
+            // CRITICAL: Always use selectedEmployee.id (loaded from server for this
+            // authenticated user).  Never trust user.employeeId alone – it could be
+            // stale or absent from localStorage.
+            if (!selectedEmployee || !selectedEmployee.id) {
+                return auth.showNotification('Error: Employee profile not loaded. Please refresh the page.', 'error');
+            }
+
             const requestData = {
-                employeeId: user.employeeId,
+                employeeId: selectedEmployee.id,   // ← server-verified, not localStorage
                 leaveType: leaveType,
                 startDate: startDate,
                 endDate: endDate,
@@ -769,7 +938,7 @@
                     e.target.reset();
                     document.getElementById('leave-preview').style.display = 'none';
                     document.getElementById('halfTypeContainer').style.display = 'none';
-                    
+
                     // Reload dynamic details for currently selected month
                     if (currentMonthContext) {
                         await loadEmployeeLeaveBalance(selectedEmployee.id, currentMonthContext.month, currentMonthContext.year);
@@ -778,15 +947,19 @@
                 } else {
                     let errorMessage = 'Failed to apply leave';
                     try {
-                        const errorData = await res.json();
-                        errorMessage = errorData.error || errorData.message || errorMessage;
-                    } catch (parseError) {
                         const text = await res.text();
-                        if (text && text.includes('No enum constant')) {
-                            errorMessage = 'Invalid Leave Type selected. Please choose a valid category from the list.';
-                        } else {
-                            errorMessage = text || errorMessage;
+                        try {
+                            const errorData = JSON.parse(text);
+                            errorMessage = errorData.error || errorData.message || errorMessage;
+                        } catch (parseError) {
+                            if (text && text.includes('No enum constant')) {
+                                errorMessage = 'Invalid Leave Type selected. Please choose a valid category from the list.';
+                            } else {
+                                errorMessage = text || errorMessage;
+                            }
                         }
+                    } catch (err) {
+                        console.error('Failed to read response body:', err);
                     }
                     auth.showNotification(errorMessage, 'error');
                 }

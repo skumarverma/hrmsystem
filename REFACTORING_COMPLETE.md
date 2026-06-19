@@ -105,7 +105,7 @@ LeaveBalanceServiceFixed.LeaveBalanceResult result = leaveBalanceService.calcula
 
 **NEVER again do:**
 ```java
-earned - Used Leaves  // ❌ Outside engine
+earned - Total Used Leaves  // ❌ Outside engine
 monthsWorked * 1.5  // ❌ Outside engine
 ```
 

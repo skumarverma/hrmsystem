@@ -27,7 +27,7 @@ public class ProbationPeriodController {
      */
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<?> getProbationByEmployee(@PathVariable Long employeeId) {
-        return employeeRepository.findById(employeeId)
+        return employeeRepository.findByIdentifier(employeeId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -37,7 +37,7 @@ public class ProbationPeriodController {
      */
     @GetMapping("/employee/{employeeId}/status")
     public ResponseEntity<?> checkProbationStatus(@PathVariable Long employeeId) {
-        Optional<Employee> employeeOpt = employeeRepository.findById(employeeId);
+        Optional<Employee> employeeOpt = employeeRepository.findByIdentifier(employeeId);
         
         if (employeeOpt.isPresent()) {
             Employee employee = employeeOpt.get();

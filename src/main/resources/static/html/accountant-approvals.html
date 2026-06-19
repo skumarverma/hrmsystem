@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="../css/hrm-design-system.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -14,31 +16,58 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="header flex justify-between items-center mb-6">
-                <div class="page-title">
-                    <h1>Accountant Approvals</h1>
-                    <p>Review pending approvals or browse historically approved payroll records</p>
+            <!-- Header Banner -->
+            <div class="welcome-banner"
+                style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                <!-- Decorative background elements -->
+                <div
+                    style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;">
                 </div>
-                <div class="flex gap-2 items-center">
-                    <span class="badge-accountant" style="background: #fef3c7; color: #92400e; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div
+                    style="position: absolute; bottom: -30px; left: 10%; width: 100px; height: 100px; background: rgba(255,255,255,0.03); border-radius: 50%;">
+                </div>
+
+                <div style="position: relative; z-index: 1;">
+                    <h1
+                        style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                        Accountant Approvals</h1>
+                    <p
+                        style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                        Review pending approvals or browse historically approved payroll records</p>
+                </div>
+
+                <!-- Integrated Action Area on the Banner -->
+                <div id="banner-actions"
+                    style="z-index: 1; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                    <span class="badge-accountant"
+                        style="background: rgba(255, 255, 255, 0.15); color: white; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                         Accountant View
                     </span>
                     <button class="btn-danger flex items-center gap-2" onclick="auth.logout()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
                         Logout
                     </button>
                 </div>
-            </header>
+            </div>
 
             <div class="page-content">
                 <div class="card p-0 overflow-hidden shadow-sm border border-gray-100">
                     <!-- Filter Row -->
-                    <div class="card-header border-b border-gray-100 flex justify-between items-center" style="padding: 1.25rem 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; background: #f9fafb;">
-                        <h3 class="card-title font-semibold text-gray-700" style="margin: 0; font-size: 1.1rem;">Approval Records</h3>
+                    <div class="card-header border-b border-gray-100 flex justify-between items-center"
+                        style="padding: 1.25rem 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; background: #f9fafb;">
+                        <h3 class="card-title font-semibold text-gray-700" style="margin: 0; font-size: 1.1rem;">
+                            Approval Records</h3>
                         <div class="flex gap-2 items-center" style="display: flex; gap: 0.75rem; align-items: center;">
-                            <select id="month-filter" class="form-control" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;" onchange="renderFilteredApprovals()">
+                            <select id="month-filter" class="form-control"
+                                style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;"
+                                onchange="renderFilteredApprovals()">
                                 <option value="ALL">All Months</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -53,13 +82,17 @@
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
-                            <select id="year-filter" class="form-control" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;" onchange="renderFilteredApprovals()">
+                            <select id="year-filter" class="form-control"
+                                style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;"
+                                onchange="renderFilteredApprovals()">
                                 <option value="ALL">All Years</option>
                                 <option value="2026">2026</option>
                                 <option value="2025">2025</option>
                                 <option value="2024">2024</option>
                             </select>
-                            <select id="status-filter" class="form-control" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;" onchange="renderFilteredApprovals()">
+                            <select id="status-filter" class="form-control"
+                                style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;"
+                                onchange="renderFilteredApprovals()">
                                 <option value="ALL">All Statuses</option>
                                 <option value="PENDING_APPROVAL">Pending Approval</option>
                                 <option value="APPROVED_PAID">Approved & Paid History</option>
@@ -102,8 +135,10 @@
                 <!-- Content loaded dynamically -->
             </div>
             <div class="modal-actions">
-                <button onclick="approve(currentPayrollId)" class="btn-success" style="flex: 1; padding: 0.5rem 1rem;">Approve Payroll</button>
-                <button onclick="reject(currentPayrollId)" class="btn-danger" style="flex: 1; padding: 0.5rem 1rem;">Reject</button>
+                <button onclick="approve(currentPayrollId)" class="btn-success"
+                    style="flex: 1; padding: 0.5rem 1rem;">Approve Payroll</button>
+                <button onclick="reject(currentPayrollId)" class="btn-danger"
+                    style="flex: 1; padding: 0.5rem 1rem;">Reject</button>
                 <button onclick="closeModal()" class="btn-secondary" style="padding: 0.5rem 1rem;">Close</button>
             </div>
         </div>
@@ -163,7 +198,7 @@
 
             tbody.innerHTML = filtered.map(a => {
                 const isPendingApproval = a.status === 'PENDING_APPROVAL';
-                const statusBadge = a.status === 'PAID' 
+                const statusBadge = a.status === 'PAID'
                     ? '<span class="status-badge active bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">✅ Paid</span>'
                     : a.status === 'APPROVED'
                         ? '<span class="status-badge active bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">✅ Approved</span>'
@@ -177,9 +212,7 @@
                         <button onclick="reject(${a.id})" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Reject</button>
                     `;
                 } else {
-                    actionButtons = `
-                        <button onclick="viewDetails(${a.id})" class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">View Details</button>
-                    `;
+                    actionButtons = `<span class="text-gray-400">-</span>`;
                 }
 
                 return `
@@ -232,8 +265,7 @@
                         `;
                     }
                 }
-
-                content.innerHTML = `
+                             content.innerHTML = `
                     <div class="detail-grid">
                         <div class="detail-section">
                             <h4>Employee Information</h4>
@@ -245,13 +277,12 @@
                         </div>
                         
                         <div class="detail-section">
-                            <h4>Attendance & Leave Summary</h4>
-                            <div class="detail-row"><span>Present Days:</span><strong>${p.presentDays || 0}</strong></div>
-                            <div class="detail-row"><span>Absent Days:</span><strong style="color: #dc2626;">${p.absentDays || 0}</strong></div>
-                            <div style="font-size: 0.65rem; color: #ef4444; font-weight: 500; margin-top: -4px; margin-bottom: 8px;">⚠️ Salary will be double deducted if not approved by admin</div>
-                            <div class="detail-row"><span>Half Days:</span><strong>${p.halfDays || 0}</strong></div>
-                            <div class="detail-row"><span>Paid used:</span><strong>${p.paidLeaveDays || 0}</strong></div>
-                            <div class="detail-row"><span>Unpaid used:</span><strong style="color: #dc2626;">${p.unpaidLeaveDays || 0}</strong></div>
+                            <h4>Attendance &amp; Leave Summary</h4>
+                            <div class="detail-row"><span>Present Days:</span><strong>${p.presentDays != null ? p.presentDays : 0}</strong></div>
+                            <div class="detail-row"><span>Absent Days:</span><strong style="color: #dc2626;">${p.absentDays != null ? p.absentDays : 0}</strong></div>
+                            <div class="detail-row"><span>Half Days:</span><strong>${p.halfDays != null ? p.halfDays : 0}</strong></div>
+                            <div class="detail-row"><span>Paid Leave Used:</span><strong>${p.paidLeaveDays != null ? p.paidLeaveDays : 0}</strong></div>
+                            <div class="detail-row"><span>Unpaid Leave Used:</span><strong style="color: #dc2626;">${p.unpaidLeaveDays != null ? p.unpaidLeaveDays : 0}</strong></div>
                         </div>
                         
                         <div class="detail-section" style="background: #f0fdf4; border: 1px solid #86efac;">
@@ -266,8 +297,10 @@
                             <h4>Earnings</h4>
                             <div class="detail-row"><span>Basic Salary:</span><span>${auth.formatCurrency(p.basicSalary || 0)}</span></div>
                             <div class="detail-row"><span>HRA:</span><span>${auth.formatCurrency(p.hra || 0)}</span></div>
-                            <div class="detail-row"><span>DA:</span><span>${auth.formatCurrency(p.da || 0)}</span></div>
                             <div class="detail-row"><span>TA:</span><span>${auth.formatCurrency(p.ta || 0)}</span></div>
+                            ${(p.specialAllowance && parseFloat(p.specialAllowance) > 0) ? `<div class="detail-row"><span>Special Allowance:</span><span>${auth.formatCurrency(p.specialAllowance)}</span></div>` : ''}
+                            ${(p.bonus && parseFloat(p.bonus) > 0) ? `<div class="detail-row"><span>Bonus:</span><span>${auth.formatCurrency(p.bonus)}</span></div>` : ''}
+                            ${(p.incentive && parseFloat(p.incentive) > 0) ? `<div class="detail-row"><span>Incentive:</span><span>${auth.formatCurrency(p.incentive)}</span></div>` : ''}
                             <div class="detail-row"><span>Other Allowances:</span><span>${auth.formatCurrency(p.otherAllowances || 0)}</span></div>
                             <div class="detail-row total"><span>Gross Salary:</span><strong>${auth.formatCurrency(p.grossSalary || 0)}</strong></div>
                         </div>
@@ -276,37 +309,36 @@
                             <h4 style="color: #991b1b;">➖ Deductions Breakdown</h4>
                             <div style="background: #fef2f2; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
                                 <h5 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: #7f1d1d;">Statutory Deductions</h5>
-                                <div class="detail-row"><span>Provident Fund (PF):</span><span style="color: #dc2626;">-${auth.formatCurrency(p.providentFund || p.pf || 0)}</span></div>
-                                <div class="detail-row"><span>Professional Tax:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.tax || p.incomeTax || 0)}</span></div>
-                                <div class="detail-row"><span>Insurance:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.insurance || p.otherDeduction || 0)}</span></div>
+                                <div class="detail-row"><span>Provident Fund (PF):</span><span style="color: #dc2626;">-${auth.formatCurrency(p.providentFund || 0)}</span></div>
+                                <div class="detail-row"><span>ESIC:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.esic || 0)}</span></div>
+                                <div class="detail-row"><span>Professional Tax:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.professionalTax || 0)}</span></div>
+                                <div class="detail-row"><span>TDS:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.tds || 0)}</span></div>
+                                ${(p.lwf && parseFloat(p.lwf) > 0) ? `<div class="detail-row"><span>LWF:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.lwf)}</span></div>` : ''}
+                                ${(p.insurance && parseFloat(p.insurance) > 0) ? `<div class="detail-row"><span>Insurance:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.insurance)}</span></div>` : ''}
+                                ${(p.loanDeduction && parseFloat(p.loanDeduction) > 0) ? `<div class="detail-row"><span>Loan Deduction:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.loanDeduction)}</span></div>` : ''}
+                                ${(p.otherDeductions && parseFloat(p.otherDeductions) > 0) ? `<div class="detail-row"><span>Other Deductions:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.otherDeductions)}</span></div>` : ''}
                             </div>
                             <div style="background: #fef2f2; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
-                                <h5 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: #7f1d1d;">Attendance & Leave Deductions</h5>
+                                <h5 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: #7f1d1d;">Attendance &amp; Leave Deductions</h5>
                                 ${(() => {
-                                    const dailyRate = p.basicSalary ? p.basicSalary / 26 : 0;
-                                    const absentDeduction = (p.absentDays || 0) * dailyRate;
-                                    const unpaidDeduction = (p.unpaidLeaveDays || 0) * dailyRate;
-                                    const halfDayDeduction = ((p.halfDays || 0) * dailyRate * 0.5);
-                                    let html = '';
-                                    if ((p.absentDays || 0) > 0) {
-                                        html += `<div class="detail-row"><span>Absent Days (${p.absentDays} days):</span><span style="color: #dc2626;">-${auth.formatCurrency(absentDeduction)}</span></div>`;
-                                        html += `<div style="font-size: 0.65rem; color: #ef4444; font-weight: 500; margin-top: -2px; margin-bottom: 4px; text-align: right;">⚠️ Salary will be double deducted if not approved by admin</div>`;
-                                    }
-                                    if ((p.unpaidLeaveDays || 0) > 0) {
-                                        html += `<div class="detail-row"><span>Unpaid Leaves (${p.unpaidLeaveDays} days):</span><span style="color: #dc2626;">-${auth.formatCurrency(unpaidDeduction)}</span></div>`;
-                                    }
-                                    if ((p.halfDays || 0) > 0) {
-                                        html += `<div class="detail-row"><span>Half Days (${p.halfDays} × 0.5):</span><span style="color: #dc2626;">-${auth.formatCurrency(halfDayDeduction)}</span></div>`;
-                                    }
-                                    const totalAttendanceDeduction = p.absentLeaveDeduction || (absentDeduction + unpaidDeduction + halfDayDeduction) || 0;
-                                    if (absentDeduction === 0 && unpaidDeduction === 0 && halfDayDeduction === 0) {
-                                        html += '<div style="color: #059669; font-size: 0.875rem;">✓ No attendance deductions</div>';
-                                    }
-                                    html += `<div class="detail-row" style="border-top: 1px solid #fca5a5; margin-top: 0.5rem; padding-top: 0.5rem;"><span><strong>Total Attendance Deduction:</strong></span><strong style="color: #dc2626;">-${auth.formatCurrency(totalAttendanceDeduction)}</strong></div>`;
-                                    return html;
-                                })()}
+                        const unpaidDeduction = parseFloat(p.unpaidLeaveDeduction || 0);
+                        const absentDeduction = parseFloat(p.absentPenaltyDeduction || p.absentLeaveDeduction || 0);
+                        const totalAttendanceDeduction = unpaidDeduction + absentDeduction;
+                        let html = '';
+                        if ((p.absentDays || 0) > 0) {
+                            html += `<div class="detail-row"><span>Absent Days (${p.absentDays} days):</span><span style="color: #dc2626;">-${auth.formatCurrency(absentDeduction)}</span></div>`;
+                        }
+                        if ((p.unpaidLeaveDays || 0) > 0) {
+                            html += `<div class="detail-row"><span>Unpaid Leaves (${p.unpaidLeaveDays} days):</span><span style="color: #dc2626;">-${auth.formatCurrency(unpaidDeduction)}</span></div>`;
+                        }
+                        if (totalAttendanceDeduction === 0) {
+                            html += '<div style="color: #059669; font-size: 0.875rem;">✓ No attendance deductions</div>';
+                        }
+                        html += `<div class="detail-row" style="border-top: 1px solid #fca5a5; margin-top: 0.5rem; padding-top: 0.5rem;"><span><strong>Total Attendance Deduction:</strong></span><strong style="color: #dc2626;">-${auth.formatCurrency(totalAttendanceDeduction)}</strong></div>`;
+                        return html;
+                    })()}
                             </div>
-                            <div class="detail-row total" style="background: #fee2e2; padding: 0.5rem; border-radius: 6px;"><span>Total Deductions:</span><strong style="color: #dc2626;">-${auth.formatCurrency(p.totalDeductions || p.totalDeduction || 0)}</strong></div>
+                            <div class="detail-row total" style="background: #fee2e2; padding: 0.5rem; border-radius: 6px;"><span>Total Deductions:</span><strong style="color: #dc2626;">-${auth.formatCurrency(p.totalDeductions || 0)}</strong></div>
                         </div>
                         
                         <div class="detail-section net-salary">
@@ -315,19 +347,19 @@
                         </div>
                     </div>
                 `;
-                
+
                 modal.style.display = 'flex';
             }).catch(e => {
                 console.error(e);
                 auth.showNotification('Failed to load payroll details', 'error');
             });
         }
-        
+
         function closeModal() {
             document.getElementById('detail-modal').style.display = 'none';
             currentPayrollId = null;
         }
-        
+
         async function approve(id) {
             if (!confirm('Are you sure you want to approve this payroll?')) return;
 
@@ -348,11 +380,11 @@
                 auth.showNotification('Error: ' + e.message, 'error');
             }
         }
-        
+
         async function reject(id) {
             const reason = prompt('Enter rejection reason:');
             if (!reason) return;
-            
+
             try {
                 const res = await auth.apiCall(`/api/payroll/reject/${id}`, {
                     method: 'POST',
@@ -363,19 +395,19 @@
                     loadApprovals();
                     closeModal();
                 }
-            } catch (e) { 
-                auth.showNotification(e.message, 'error'); 
+            } catch (e) {
+                auth.showNotification(e.message, 'error');
             }
         }
-        
+
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('detail-modal');
             if (event.target === modal) {
                 closeModal();
             }
         }
-        
+
         loadApprovals();
     </script>
     <style>
@@ -500,4 +532,5 @@
         }
     </style>
 </body>
+
 </html>

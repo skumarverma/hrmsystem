@@ -19,6 +19,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class EmailUtil {
@@ -55,7 +57,7 @@ public class EmailUtil {
      * Check if a valid, non-empty SMTP login is configured.
      */
     private boolean isMailConfigured() {
-        if (smtpPassword != null && smtpPassword.trim().startsWith("xkeysib-")) {
+        if (smtpPassword != null && (smtpPassword.trim().startsWith("xkeysib-") || smtpPassword.trim().startsWith("xsmtpsib-"))) {
             return true;
         }
         if (smtpUsername == null) return false;
@@ -68,13 +70,14 @@ public class EmailUtil {
 
     private boolean isBrevoRestApi() {
         return smtpPassword != null && smtpPassword.trim().startsWith("xkeysib-");
+        // xsmtpsib- keys are SMTP keys and should NOT use REST API
     }
 
     /**
      * Send a simple text email
      */
     public void sendSimpleEmail(String toEmail, String subject, String body) {
-        System.out.println("EMAIL = [" + toEmail + "]");
+        log.debug("Preparing to send simple email to: {}", toEmail);
         if (!isMailConfigured()) {
             log.info("📢 [SMTP SIMULATION] Simple email simulated to: {} | Subject: {}", toEmail.trim(), subject);
             return;
@@ -94,6 +97,13 @@ public class EmailUtil {
             log.info("Simple email sent to: {}", toEmail.trim());
         } catch (Exception e) {
             log.error("Error sending email to {}: {}", toEmail.trim(), e.getMessage());
+            System.out.println("\n================================================================");
+            System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL TO CONSOLE:");
+            System.out.println("TO: " + toEmail.trim());
+            System.out.println("SUBJECT: " + subject);
+            System.out.println("BODY:");
+            System.out.println(body);
+            System.out.println("================================================================\n");
         }
     }
 
@@ -101,7 +111,7 @@ public class EmailUtil {
      * Send HTML email
      */
     public void sendHtmlEmail(String toEmail, String subject, String htmlBody) {
-        System.out.println("EMAIL = [" + toEmail + "]");
+        log.debug("Preparing to send HTML email to: {}", toEmail);
         if (!isMailConfigured()) {
             log.info("📢 [SMTP SIMULATION] HTML email simulated to: {} | Subject: {}", toEmail.trim(), subject);
             return;
@@ -128,9 +138,23 @@ public class EmailUtil {
                     log.info("HTML email sent successfully to {} via Brevo HTTP API", toEmail.trim());
                 } else {
                     log.error("Failed to send HTML email to {}. Status: {}, Response: {}", toEmail.trim(), response.statusCode(), response.body());
+                    System.out.println("\n================================================================");
+                    System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING HTML EMAIL TO CONSOLE:");
+                    System.out.println("TO: " + toEmail.trim());
+                    System.out.println("SUBJECT: " + subject);
+                    System.out.println("HTML BODY:");
+                    System.out.println(htmlBody);
+                    System.out.println("================================================================\n");
                 }
             } catch (Exception e) {
-                log.error("Error sending HTML email via Brevo REST API to {}: {}", toEmail.trim(), e.getMessage(), e);
+                log.error("Error sending HTML email via Brevo REST API to {}: {}", toEmail.trim(), e.getMessage());
+                System.out.println("\n================================================================");
+                System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING HTML EMAIL TO CONSOLE:");
+                System.out.println("TO: " + toEmail.trim());
+                System.out.println("SUBJECT: " + subject);
+                System.out.println("HTML BODY:");
+                System.out.println(htmlBody);
+                System.out.println("================================================================\n");
             }
             return;
         }
@@ -147,6 +171,13 @@ public class EmailUtil {
             log.info("HTML email sent to: {}", toEmail.trim());
         } catch (Exception e) {
             log.error("Error sending HTML email to {}: {}", toEmail.trim(), e.getMessage());
+            System.out.println("\n================================================================");
+            System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING HTML EMAIL TO CONSOLE:");
+            System.out.println("TO: " + toEmail.trim());
+            System.out.println("SUBJECT: " + subject);
+            System.out.println("HTML BODY:");
+            System.out.println(htmlBody);
+            System.out.println("================================================================\n");
         }
     }
 
@@ -154,7 +185,7 @@ public class EmailUtil {
      * Send email with attachment
      */
     public void sendEmailWithAttachment(String toEmail, String subject, String body, byte[] attachment, String filename) {
-        System.out.println("EMAIL = [" + toEmail + "]");
+        log.debug("Preparing to send email with attachment to: {}", toEmail);
         if (!isMailConfigured()) {
             log.info("📢 [SMTP SIMULATION] Email with attachment simulated to: {} | Subject: {} | File: {}", toEmail.trim(), subject, filename);
             return;
@@ -186,9 +217,25 @@ public class EmailUtil {
                     log.info("Email with attachment sent successfully to {} via Brevo HTTP API", toEmail.trim());
                 } else {
                     log.error("Failed to send email with attachment to {}. Status: {}, Response: {}", toEmail.trim(), response.statusCode(), response.body());
+                    System.out.println("\n================================================================");
+                    System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL WITH ATTACHMENT TO CONSOLE:");
+                    System.out.println("TO: " + toEmail.trim());
+                    System.out.println("SUBJECT: " + subject);
+                    System.out.println("FILENAME: " + filename);
+                    System.out.println("BODY:");
+                    System.out.println(body);
+                    System.out.println("================================================================\n");
                 }
             } catch (Exception e) {
-                log.error("Error sending email with attachment via Brevo REST API to {}: {}", toEmail.trim(), e.getMessage(), e);
+                log.error("Error sending email with attachment via Brevo REST API to {}: {}", toEmail.trim(), e.getMessage());
+                System.out.println("\n================================================================");
+                System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL WITH ATTACHMENT TO CONSOLE:");
+                System.out.println("TO: " + toEmail.trim());
+                System.out.println("SUBJECT: " + subject);
+                System.out.println("FILENAME: " + filename);
+                System.out.println("BODY:");
+                System.out.println(body);
+                System.out.println("================================================================\n");
             }
             return;
         }
@@ -206,6 +253,14 @@ public class EmailUtil {
             log.info("Email with attachment sent to: {}", toEmail.trim());
         } catch (Exception e) {
             log.error("Error sending email with attachment to {}: {}", toEmail.trim(), e.getMessage());
+            System.out.println("\n================================================================");
+            System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL WITH ATTACHMENT TO CONSOLE:");
+            System.out.println("TO: " + toEmail.trim());
+            System.out.println("SUBJECT: " + subject);
+            System.out.println("FILENAME: " + filename);
+            System.out.println("BODY:");
+            System.out.println(body);
+            System.out.println("================================================================\n");
         }
     }
 
@@ -283,7 +338,7 @@ public class EmailUtil {
                 employeeName, month
         );
         
-        sendEmailWithAttachment(employeeEmail, subject, htmlBody, payslipPdf, "Payslip_" + month + ".pdf");
+        sendEmailWithAttachment(employeeEmail, subject, htmlBody, payslipPdf, employeeName + " " + month + " Salary Slip_page-0001.pdf");
     }
 
     /**
@@ -330,8 +385,16 @@ public class EmailUtil {
                 File pdfFile = new File(payslip.getPdfFilePath());
                 if (pdfFile.exists()) {
                     try {
+                        String formattedMonthYearVal = "";
+                        try {
+                            java.time.YearMonth ym = java.time.YearMonth.parse(payslip.getMonthYear());
+                            formattedMonthYearVal = ym.format(java.time.format.DateTimeFormatter.ofPattern("MMM yyyy"));
+                        } catch (Exception e) {
+                            formattedMonthYearVal = payslip.getMonthYear();
+                        }
+                        String attachmentName = employeeName + " " + formattedMonthYearVal + " Salary Slip_page-0001.pdf";
                         byte[] fileContent = Files.readAllBytes(pdfFile.toPath());
-                        sendEmailWithAttachment(employeeEmail, subject, htmlBody, fileContent, pdfFile.getName());
+                        sendEmailWithAttachment(employeeEmail, subject, htmlBody, fileContent, attachmentName);
                     } catch (IOException e) {
                         log.warn("Could not read PDF file for payslip {}: {}", payslip.getId(), e.getMessage());
                         sendHtmlEmail(employeeEmail, subject, htmlBody);

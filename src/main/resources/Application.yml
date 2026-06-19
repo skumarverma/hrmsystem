@@ -1,5 +1,6 @@
 server:
-  port: 8081
+  port: ${PORT:8082}
+
   error:
     include-message: always
     include-binding-errors: always
@@ -10,51 +11,62 @@ spring:
       enabled: false
     livereload:
       enabled: true
+
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   datasource:
-    url: "jdbc:mysql://${MYSQL_HOST:enego.ct2au2680qip.ap-south-1.rds.amazonaws.com}:3306/hrmsystem?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    url: jdbc:mysql://${MYSQL_HOST:enego.ct2au2680qip.ap-south-1.rds.amazonaws.com}:3306/hrmsystem?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ${MYSQL_USER:admin}
     password: ${MYSQL_PASSWORD:Rishu952818}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
     hikari:
       transaction-isolation: TRANSACTION_READ_COMMITTED
       minimum-idle: 5
-      maximum-pool-size: 20
+      maximum-pool-size: 5
       idle-timeout: 300000
-      max-lifetime: 1200000
+      max-lifetime: 450000
       connection-timeout: 20000
       pool-name: HikariCP
-  
+
   jpa:
     hibernate:
       ddl-auto: update
+
     show-sql: false
+
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: false
+
     open-in-view: false
-  
+
   flyway:
     enabled: false
-  
+
   mail:
     host: ${SMTP_HOST:smtp-relay.brevo.com}
     port: ${SMTP_PORT:2525}
     username: ${SMTP_USERNAME:abaed9001@smtp-brevo.com}
-    password: ${SMTP_PASSWORD:YOUR_SMTP_KEY}
+    password: ${SMTP_PASSWORD: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}
     from: ${SMTP_FROM:skvenego@gmail.com}
     default-encoding: UTF-8
+
     properties:
       mail:
         debug: true
+
         smtp:
           auth: true
+
           starttls:
             enable: true
             required: true
+
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
@@ -63,14 +75,26 @@ spring:
     resources:
       cache:
         period: 0
+
       static-locations: file:src/main/resources/static/
+
   mvc:
     static-path-pattern: /**
 
+# Cloudinary document storage
+# Option A (recommended): set one env var before starting the app:
+# export CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@dhancq0ek
+# Option B: use the keys below (or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:dhancq0ek}
+  api-key: ${CLOUDINARY_API_KEY:362765168154384}
+  api-secret: ${CLOUDINARY_API_SECRET:Vs5Tw1D5xv35H0zKOWrn84Z2V1s}
+  folder: ${CLOUDINARY_FOLDER:hrm-documents}
+
 # JWT Configuration
 jwt:
-  secret: ThisIsAVerySecureSecretKeyForJWTTokenGenerationThatMustBeAtLeast32CharactersLong!123456
-  expiration: 86400000
+  secret: ${JWT_SECRET:ThisIsAVerySecureSecretKeyForJWTTokenGenerationThatMustBeAtLeast32CharactersLong!123456}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 # Payslip Configuration
 payslip:
@@ -90,8 +114,10 @@ logging:
     com.hrm.hrmsystem: INFO
     org.springframework.web: WARN
     org.hibernate: WARN
+
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
   file:
     name: logs/hrmsystem.log
     max-size: 10MB
@@ -103,9 +129,11 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+
   endpoint:
     health:
       show-details: when_authorized
+
   info:
     env:
       enabled: true
@@ -115,3 +143,14 @@ info:
     name: HRM System
     description: Human Resource Management System
     version: 1.0.0
+
+# Fast2SMS OTP Configurations
+fast2sms:
+  api-key: ${FAST2SMS_API_KEY:NfMpczuOYltnTHgk9RL6UBK8aE3yV0Db7hQX4qAmx2svGijd5rSkEHF6yZ0zTd1j8ae7fRtsmuKrCUqi}
+  route: ${FAST2SMS_ROUTE:dlt}
+  otp-id: ${FAST2SMS_OTP_ID:0ba8e60fd1}
+  sender-id: ${FAST2SMS_SENDER_ID:ENEGOH}
+  otp-expiry-minutes: ${FAST2SMS_OTP_EXPIRY:2}
+  otp-length: ${FAST2SMS_OTP_LENGTH:6}
+  cooldown-ms: ${OTP_SEND_COOLDOWN_MS:60000}
+  max-attempts: ${OTP_MAX_VERIFY_ATTEMPTS:5}

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,25 +8,52 @@
     <link rel="stylesheet" href="../css/hrm-design-system.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .header .page-title,
+            .header .attendance-action-bar {
+                display: none !important;
+            }
+        }
+
         /* ===== Design Tokens ===== */
         :root {
-            --primary:       #1e3a5f;
+            --primary: #1e3a5f;
             --primary-light: #2c5282;
-            --accent:        #d4af37;
-            --accent-light:  #f0d878;
-            --success:       #059669;
-            --success-bg:    #d1fae5;
-            --success-border:#6ee7b7;
-            --danger:        #dc2626;
-            --danger-bg:     #fee2e2;
+            --accent: #d4af37;
+            --accent-light: #f0d878;
+            --success: #059669;
+            --success-bg: #d1fae5;
+            --success-border: #6ee7b7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
             --danger-border: #fca5a5;
-            --warning:       #d97706;
-            --warning-bg:    #fef3c7;
-            --warning-border:#fcd34d;
-            --info:          #2563eb;
-            --info-bg:       #dbeafe;
-            --info-border:   #93c5fd;
-            --gray-50:  #f9fafb;
+            --warning: #d97706;
+            --warning-bg: #fef3c7;
+            --warning-border: #fcd34d;
+            --info: #2563eb;
+            --info-bg: #dbeafe;
+            --info-border: #93c5fd;
+            --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
             --gray-300: #d1d5db;
@@ -36,22 +64,32 @@
             --gray-800: #1f2937;
             --gray-900: #111827;
             --radius-sm: 0.375rem;
-            --radius:    0.5rem;
+            --radius: 0.5rem;
             --radius-md: 0.75rem;
             --radius-lg: 1rem;
             --radius-xl: 1.25rem;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-            --shadow:    0 4px 6px -1px rgba(0,0,0,.06), 0 2px 4px -1px rgba(0,0,0,.04);
-            --shadow-md: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -2px rgba(0,0,0,.04);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,.10), 0 10px 10px -5px rgba(0,0,0,.04);
-            --transition: all 0.22s cubic-bezier(.4,0,.2,1);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, .06), 0 2px 4px -1px rgba(0, 0, 0, .04);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, .08), 0 4px 6px -2px rgba(0, 0, 0, .04);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, .10), 0 10px 10px -5px rgba(0, 0, 0, .04);
+            --transition: all 0.22s cubic-bezier(.4, 0, .2, 1);
         }
 
         /* ===== Page Layout ===== */
-        .page-content { animation: fadeIn .35s ease-out; }
+        .page-content {
+            animation: fadeIn .35s ease-out;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0);   }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ===== Header Action Bar ===== */
@@ -73,9 +111,10 @@
             transition: var(--transition) !important;
             cursor: pointer;
         }
+
         .attendance-date-picker:focus {
             border-color: var(--primary-light) !important;
-            box-shadow: 0 0 0 3px rgba(44,82,130,.15) !important;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, .15) !important;
             outline: none !important;
         }
 
@@ -95,12 +134,16 @@
             box-shadow: var(--shadow-sm);
             letter-spacing: 0.01em;
         }
-        .action-btn svg { flex-shrink: 0; }
+
+        .action-btn svg {
+            flex-shrink: 0;
+        }
 
         .action-btn-success {
             background: linear-gradient(135deg, #059669, #10b981);
             color: #fff;
         }
+
         .action-btn-success:hover {
             background: linear-gradient(135deg, #047857, #059669);
             transform: translateY(-1px);
@@ -112,6 +155,7 @@
             color: var(--gray-700);
             border: 1px solid var(--gray-200);
         }
+
         .action-btn-secondary:hover {
             background: var(--gray-50);
             border-color: var(--gray-300);
@@ -122,6 +166,7 @@
             background: linear-gradient(135deg, #dc2626, #ef4444);
             color: #fff;
         }
+
         .action-btn-danger:hover {
             background: linear-gradient(135deg, #b91c1c, #dc2626);
             transform: translateY(-1px);
@@ -132,11 +177,13 @@
             background: linear-gradient(135deg, #d97706, #f59e0b);
             color: #fff;
         }
+
         .action-btn-warning:hover {
             background: linear-gradient(135deg, #b45309, #d97706);
             transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
+
         .action-btn-warning.active-filter {
             background: linear-gradient(135deg, #ca8a04, #eab308);
         }
@@ -146,6 +193,7 @@
             position: relative;
             width: 300px;
         }
+
         .attendance-search-icon {
             position: absolute;
             left: 0.875rem;
@@ -156,6 +204,7 @@
             width: 16px;
             height: 16px;
         }
+
         .attendance-search-input {
             width: 100%;
             padding: 0.65rem 1rem 0.65rem 2.5rem !important;
@@ -167,9 +216,10 @@
             transition: var(--transition) !important;
             box-shadow: var(--shadow-sm) !important;
         }
+
         .attendance-search-input:focus {
             border-color: var(--primary-light) !important;
-            box-shadow: 0 0 0 3px rgba(44,82,130,.15) !important;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, .15) !important;
             outline: none !important;
         }
 
@@ -186,17 +236,20 @@
             margin-bottom: 1.5rem;
             box-shadow: var(--shadow-sm);
         }
+
         .info-banner-icon {
             color: var(--info);
             flex-shrink: 0;
             margin-top: 2px;
         }
+
         .info-banner-title {
             font-size: 0.875rem;
             font-weight: 700;
             color: #1e3a8a;
             margin-bottom: 0.25rem;
         }
+
         .info-banner-body {
             font-size: 0.78rem;
             color: #1d4ed8;
@@ -217,6 +270,7 @@
             border: 1px solid transparent;
             white-space: nowrap;
         }
+
         .status-badge::before {
             content: '';
             width: 6px;
@@ -232,36 +286,56 @@
             color: var(--success);
             border-color: var(--success-border);
         }
+
         .status-badge.absent {
             background: var(--danger-bg);
             color: var(--danger);
             border-color: var(--danger-border);
         }
-        .status-badge.partial_absent, .status-badge.half_day {
+
+        .status-badge.paid_absent {
+            background: var(--info-bg);
+            color: var(--info);
+            border-color: var(--info-border);
+        }
+
+        .status-badge.unpaid_absent {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: var(--danger-border);
+        }
+
+        .status-badge.partial_absent,
+        .status-badge.half_day {
             background: var(--warning-bg);
             color: var(--warning);
             border-color: var(--warning-border);
         }
+
         .status-badge.paid_leave {
             background: #d1fae5;
             color: #065f46;
             border-color: #a7f3d0;
         }
+
         .status-badge.unpaid_leave {
             background: #fee2e2;
             color: #991b1b;
             border-color: #fca5a5;
         }
+
         .status-badge.week_off {
             background: var(--gray-100);
             color: var(--gray-600);
             border-color: var(--gray-300);
         }
+
         .status-badge.pending {
             background: #fef9c3;
             color: #854d0e;
             border-color: #fde68a;
         }
+
         .status-badge.not_marked {
             background: var(--gray-50);
             color: var(--gray-400);
@@ -277,6 +351,7 @@
             border-radius: var(--radius-sm);
             border: 1px solid var(--gray-200);
         }
+
         .btn-mini {
             padding: 3px 9px;
             font-size: 0.72rem;
@@ -289,16 +364,38 @@
             transition: var(--transition);
             letter-spacing: 0.02em;
         }
-        .btn-mini:hover { background: var(--gray-200); color: var(--gray-800); }
-        .active-p {
+
+        .btn-mini:hover {
+            background: var(--gray-200);
+            color: var(--gray-800);
+        }
+
+        .btn-toggle.active-p {
             background: #059669 !important;
             color: #fff !important;
-            box-shadow: 0 1px 3px rgba(5,150,105,.3) !important;
+            border-color: #047857 !important;
+            box-shadow: 0 1px 3px rgba(5, 150, 105, .3) !important;
         }
-        .active-a {
+
+        .btn-toggle.active-a {
             background: #dc2626 !important;
             color: #fff !important;
-            box-shadow: 0 1px 3px rgba(220,38,38,.3) !important;
+            border-color: #b91c1c !important;
+            box-shadow: 0 1px 3px rgba(220, 38, 38, .3) !important;
+        }
+
+        .btn-toggle.active-h {
+            background: #f59e0b !important;
+            color: #fff !important;
+            box-shadow: 0 1px 3px rgba(245, 158, 11, .3) !important;
+            border-color: #d97706 !important;
+        }
+
+        .btn-toggle.active-u {
+            background: #4b5563 !important;
+            color: #fff !important;
+            border-color: #374151 !important;
+            box-shadow: 0 1px 3px rgba(75, 85, 99, .3) !important;
         }
 
         /* Full-day P/A toggle */
@@ -314,7 +411,11 @@
             transition: var(--transition);
             letter-spacing: 0.02em;
         }
-        .btn-toggle:hover { background: var(--gray-50); border-color: var(--gray-300); }
+
+        .btn-toggle:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
 
         /* Label badges for leave halves */
         .badge-mini {
@@ -337,8 +438,17 @@
             border: 1px solid var(--gray-200);
             box-shadow: var(--shadow);
         }
-        .table-container { border-radius: var(--radius-xl); overflow: hidden; }
-        .data-table { width: 100%; border-collapse: collapse; }
+
+        .table-container {
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
         .data-table th {
             background: var(--gray-50);
             color: var(--gray-600);
@@ -349,6 +459,7 @@
             padding: 0.875rem 1rem;
             border-bottom: 1px solid var(--gray-200);
         }
+
         .data-table td {
             padding: 0.875rem 1rem;
             border-bottom: 1px solid var(--gray-100);
@@ -356,9 +467,18 @@
             font-size: 0.875rem;
             color: var(--gray-700);
         }
-        .data-table tbody tr:last-child td { border-bottom: none; }
-        .data-table tbody tr { transition: var(--transition); }
-        .data-table tbody tr:hover { background: var(--gray-50); }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr {
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--gray-50);
+        }
 
         /* Employee Avatar */
         .user-avatar {
@@ -383,12 +503,14 @@
             justify-content: center;
             animation: fadeIn .2s ease-out;
         }
+
         .modal-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,.45);
+            background: rgba(0, 0, 0, .45);
             backdrop-filter: blur(4px);
         }
+
         .employee-modal .modal-content {
             position: relative;
             z-index: 1;
@@ -398,12 +520,21 @@
             max-width: 480px;
             box-shadow: var(--shadow-lg);
             overflow: hidden;
-            animation: slideUp .25s cubic-bezier(.4,0,.2,1);
+            animation: slideUp .25s cubic-bezier(.4, 0, .2, 1);
         }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(.97); }
-            to   { opacity: 1; transform: translateY(0)   scale(1);    }
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
+
         .employee-modal .modal-header {
             display: flex;
             align-items: center;
@@ -412,14 +543,16 @@
             border-bottom: 1px solid var(--gray-100);
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
         }
+
         .employee-modal .modal-header h2 {
             font-size: 1rem;
             font-weight: 700;
             color: #fff;
             margin: 0;
         }
+
         .employee-modal .close-btn {
-            background: rgba(255,255,255,.15);
+            background: rgba(255, 255, 255, .15);
             border: none;
             color: #fff;
             width: 28px;
@@ -434,11 +567,16 @@
             padding: 0;
             line-height: 1;
         }
-        .employee-modal .close-btn:hover { background: rgba(255,255,255,.25); }
+
+        .employee-modal .close-btn:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
         .employee-modal .modal-body {
             padding: 2rem 1.5rem;
             text-align: center;
         }
+
         .employee-modal .emp-avatar {
             width: 72px;
             height: 72px;
@@ -451,31 +589,36 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1rem;
-            box-shadow: 0 4px 12px rgba(30,58,95,.25);
+            box-shadow: 0 4px 12px rgba(30, 58, 95, .25);
         }
+
         .employee-modal h3 {
             font-size: 1.15rem;
             font-weight: 700;
             color: var(--gray-900);
             margin: 0 0 0.25rem;
         }
+
         .employee-modal .emp-designation {
             font-size: 0.8rem;
             color: var(--gray-500);
             margin-bottom: 1.5rem;
         }
+
         .emp-details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
             text-align: left;
         }
+
         .detail-item {
             background: var(--gray-50);
             border: 1px solid var(--gray-200);
             border-radius: var(--radius-md);
             padding: 0.75rem;
         }
+
         .detail-item label {
             display: block;
             font-size: 0.68rem;
@@ -485,6 +628,7 @@
             letter-spacing: 0.05em;
             margin-bottom: 0.25rem;
         }
+
         .detail-item span {
             font-size: 0.85rem;
             font-weight: 600;
@@ -505,18 +649,26 @@
             cursor: pointer;
             transition: var(--transition);
         }
+
         .resolve-btn-present {
             background: var(--success-bg);
             color: var(--success);
             border: 1px solid var(--success-border);
         }
-        .resolve-btn-present:hover { background: #a7f3d0; }
+
+        .resolve-btn-present:hover {
+            background: #a7f3d0;
+        }
+
         .resolve-btn-absent {
             background: var(--danger-bg);
             color: var(--danger);
             border: 1px solid var(--danger-border);
         }
-        .resolve-btn-absent:hover { background: #fecaca; }
+
+        .resolve-btn-absent:hover {
+            background: #fecaca;
+        }
 
         /* ===== Vertical divider in action cells ===== */
         .cell-divider {
@@ -542,6 +694,7 @@
             transition: var(--transition);
             font-size: 0.9rem;
         }
+
         .btn-view-details:hover {
             background: var(--gray-100);
             color: var(--gray-800);
@@ -549,6 +702,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -562,36 +716,79 @@
                     <h1>Attendance Management</h1>
                     <p>Track and manage employee daily attendance</p>
                 </div>
-                <div class="attendance-action-bar">
-                    <input type="date" id="date-input" class="attendance-date-picker">
-                    <button onclick="markAllPresent()" class="action-btn action-btn-success">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        All Present
-                    </button>
-                    <button onclick="markAllAbsent()" class="action-btn action-btn-secondary">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        All Absent
-                    </button>
-                    <button onclick="clearAllAttendance()" class="action-btn action-btn-danger" style="display: none;">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-                        Clear All
-                    </button>
-                    <button onclick="filterPendingOnly()" id="filter-pending-btn" class="action-btn action-btn-warning">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                        Pending
-                    </button>
-                </div>
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner"
+                    style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
+                    <div style="z-index: 1;">
+                        <h1
+                            style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                            Attendance Management</h1>
+                        <p
+                            style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                            Track and manage employee daily attendance</p>
+                    </div>
+
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <input type="date" id="date-input" class="attendance-date-picker">
+                        <button onclick="markAllPresent()" class="action-btn action-btn-success">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            All Present
+                        </button>
+                        <button onclick="markAllAbsent()" class="action-btn action-btn-secondary">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            All Absent
+                        </button>
+                        <button onclick="clearAllAttendance()" class="action-btn action-btn-danger"
+                            style="display: none;">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                            Clear All
+                        </button>
+                        <button onclick="markAllUnmarked()" class="action-btn action-btn-warning">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                            All Unmarked
+                        </button>
+
+
+                    </div>
+                </div>
                 <!-- Search Bar -->
                 <div class="flex justify-between items-center mb-5">
                     <div></div>
                     <div class="attendance-search-wrapper">
-                        <svg class="attendance-search-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                        <svg class="attendance-search-icon" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
-                        <input type="text" id="search-input" placeholder="Search by name or department..." class="attendance-search-input" onkeyup="filterEmployees()">
+                        <input type="text" id="search-input" placeholder="Search by name or department..."
+                            class="attendance-search-input" onkeyup="filterEmployees()">
                     </div>
                 </div>
 
@@ -606,21 +803,7 @@
                     </div>
                 </div>
 
-                <!-- Deduction Policy Info Banner -->
-                <div class="info-banner">
-                    <div class="info-banner-icon">
-                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="info-banner-title">Standard Deduction Policy</div>
-                        <p class="info-banner-body">
-                            • <strong>Standard Deduction:</strong> Marking any half as 'Absent' results in <strong>0.5 absent days</strong>. Salary is deducted at a 1:1 ratio based on absent days.<br>
-                            • <strong>Independent Control:</strong> You can mark each half (Morning / Afternoon) independently per employee.
-                        </p>
-                    </div>
-                </div>
+
 
                 <!-- Attendance Table -->
                 <div class="card" style="padding: 0; overflow: hidden;">
@@ -631,6 +814,8 @@
                                     <th>Employee</th>
                                     <th>Date</th>
                                     <th>Status</th>
+                                    <th class="text-center">Paid</th>
+                                    <th class="text-center">Unpaid</th>
                                     <th class="text-center">Check In</th>
                                     <th class="text-center">Check Out</th>
                                     <th class="text-center">Working Hrs</th>
@@ -638,7 +823,9 @@
                                 </tr>
                             </thead>
                             <tbody id="attendance-table">
-                                <tr><td colspan="7" class="text-center p-8 text-muted">Loading employees...</td></tr>
+                                <tr>
+                                    <td colspan="9" class="text-center p-8 text-muted">Loading employees...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -651,51 +838,60 @@
     <script src="../js/sidebar.js"></script>
     <script>
         if (!auth.requireAuth()) throw new Error('Auth required');
-        
+
         let selectedDate = new Date().toISOString().split('T')[0];
         document.getElementById('date-input').value = selectedDate;
-        
+
         function isFutureDate(date) {
             const selected = new Date(date);
-            selected.setHours(0,0,0,0);
+            selected.setHours(0, 0, 0, 0);
             const today = new Date();
-            today.setHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
             return selected > today;
         }
-        
+
         // SUNDAY CHECK: Returns true if date is Sunday
         function isSunday(date) {
             const d = new Date(date);
             return d.getDay() === 0; // 0 = Sunday
         }
-        
+
         let allEmployees = [];
         let attendanceData = [];
         let filteredEmployees = [];
-        
+
         // Professional status formatting function
-        function formatStatus(status) {
-            switch(status) {
-                case "PAID_LEAVE": return "Paid Leave";
-                case "UNPAID_LEAVE": return "Unpaid Leave";
+        function formatStatus(status, remarks = null) {
+            const isLeave = status === 'PAID_LEAVE' || status === 'UNPAID_LEAVE' || status.includes('LEAVE');
+            if (isLeave) {
+                if (remarks && remarks !== '-' && remarks !== 'No record') {
+                    return remarks;
+                }
+                return status === 'PAID_LEAVE' ? "Paid Leave" : "Unpaid Leave";
+            }
+            switch (status) {
                 case "PRESENT": return "Present";
                 case "ABSENT": return "Absent";
+                case "PAID_ABSENT": return "Paid Absent";
+                case "UNPAID_ABSENT": return "Unpaid Absent";
                 case "PARTIAL_ABSENT": return "Partial Absent";
+                case "HALF_DAY": return "Paid 0.5 / Unpaid 0.5";
                 case "WEEK_OFF": return "Week Off";
-                case "HALF_DAY": return "Half Day";
                 case "PENDING": return "Pending";
                 case "NOT_MARKED": return "Not Marked";
                 default: return status ? status.replace(/_/g, ' ') : "Not Marked";
             }
         }
-        
+
         // Get professional color for status
         function getStatusColor(status) {
-            switch(status) {
+            switch (status) {
                 case "PAID_LEAVE": return "#22c55e"; // Green
                 case "UNPAID_LEAVE": return "#ef4444"; // Red
                 case "PRESENT": return "#22c55e"; // Green
                 case "ABSENT": return "#ef4444"; // Red
+                case "PAID_ABSENT": return "#2563eb"; // Blue
+                case "UNPAID_ABSENT": return "#ef4444"; // Red
                 case "PARTIAL_ABSENT": return "#f59e0b"; // Amber
                 case "WEEK_OFF": return "#6b7280"; // Gray
                 case "HALF_DAY": return "#f59e0b"; // Amber
@@ -704,7 +900,7 @@
                 default: return "#6b7280"; // Gray
             }
         }
-        
+
         async function loadAllEmployees() {
             try {
                 const res = await auth.apiCall('/api/employees');
@@ -715,24 +911,24 @@
                 console.error('Failed to load employees:', e);
             }
         }
-        
+
         async function loadAttendance() {
             if (isFutureDate(selectedDate)) {
                 showPopup('Cannot view attendance for future dates');
                 return;
             }
-            
+
             // SUNDAY CHECK: Show warning and disable actions
             if (isSunday(selectedDate)) {
                 showPopup('⚠️ Sunday is a non-working day. Attendance cannot be marked.');
             }
-            
+
             try {
                 // First ensure we have all employees
                 if (allEmployees.length === 0) {
                     await loadAllEmployees();
                 }
-                
+
                 // Load attendance for selected date
                 const timestamp = new Date().getTime();
                 const res = await auth.apiCall(`/api/attendance/date/${selectedDate}?_t=${timestamp}`);
@@ -742,22 +938,23 @@
                 if (attendanceData.length > 0) {
                     console.log('Sample attendance record:', attendanceData[0]);
                 }
-                
+
                 const tbody = document.getElementById('attendance-table');
-                
+
                 // Merge all employees with attendance data
                 const mergedData = allEmployees.map(emp => {
                     const attendance = attendanceData.find(a => a.employeeId === emp.id);
-                    
+
                     // Extract department name from departmentName field
                     const deptName = emp.departmentName || emp.department || '-';
-                    
+
                     const status = attendance?.status || 'NOT_MARKED';
+                    const remarks = attendance?.remarks || '-';
                     console.log(`Employee ${emp.id} (${emp.firstName}) status:`, status);
-                    
+
                     // Professional status formatting
-                    const displayStatus = formatStatus(status);
-                    
+                    const displayStatus = formatStatus(status, remarks);
+
                     return {
                         employeeId: emp.id,
                         employeeName: `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || 'Unknown',
@@ -771,15 +968,20 @@
                         workingHours: attendance?.workingHours !== undefined ? attendance.workingHours : '-',
                         halfType: attendance?.halfType || null,
                         remarks: attendance?.remarks || '-',
+                        paidAbsent: attendance?.paidAbsent ?? 0.0,
+                        unpaidAbsent: attendance?.unpaidAbsent ?? 0.0,
+                        worked: attendance?.worked ?? 0.0,
+                        paidLeave: attendance?.paidLeave ?? 0.0,
+                        unpaidLeave: attendance?.unpaidLeave ?? 0.0,
                         isFuture: isFutureDate(selectedDate)
                     };
                 });
-                
+
                 if (mergedData.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No employees found</td></tr>';
                     return;
                 }
-                
+
                 // Store for filtering
                 filteredEmployees = mergedData;
                 renderAttendanceTable(mergedData);
@@ -792,17 +994,60 @@
 
         function renderAttendanceTable(data) {
             const tbody = document.getElementById('attendance-table');
-            
+
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8">No employees found matching your search</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center p-8">No employees found matching your search</td></tr>';
                 return;
             }
-            
+
             tbody.innerHTML = data.map(a => {
                 const status = a.status || 'NOT_MARKED';
                 const statusDisplay = a.displayStatus;
                 const statusClass = status.toLowerCase();
-                
+
+                const fs = a.fullStatus || '';
+                let dbStatus = '';
+                let dbHalfType = '';
+                if (fs.includes('DB_STATUS:')) {
+                    const statusMatch = fs.match(/DB_STATUS:([A-Z_]+)/);
+                    if (statusMatch) dbStatus = statusMatch[1];
+                }
+                if (fs.includes('DB_HALFTYPE:')) {
+                    const halfTypeMatch = fs.match(/DB_HALFTYPE:([A-Z_]+)/);
+                    if (halfTypeMatch) dbHalfType = halfTypeMatch[1];
+                }
+
+                // If not in database, fallback to resolved status
+                const activeStatus = dbStatus || status;
+                const activeHalfType = dbHalfType || a.halfType || '';
+
+                const isPresentActive = activeStatus === 'PRESENT';
+                const isAbsentActive = (activeStatus === 'ABSENT' || activeStatus === 'PAID_ABSENT' || activeStatus === 'UNPAID_ABSENT') && (!activeHalfType || activeHalfType === 'null' || activeHalfType === 'undefined' || activeHalfType === '');
+
+                const is1HPActive = (activeStatus === 'HALF_DAY' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'PAID_ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'UNPAID_ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'PARTIAL_ABSENT' && activeHalfType === 'SECOND_HALF');
+
+                const is2HPActive = (activeStatus === 'HALF_DAY' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'PAID_ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'UNPAID_ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'PARTIAL_ABSENT' && activeHalfType === 'FIRST_HALF');
+
+                const is1HAActive = (activeStatus === 'ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'PAID_ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'UNPAID_ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'PARTIAL_ABSENT' && activeHalfType === 'FIRST_HALF') ||
+                    (activeStatus === 'HALF_DAY' && activeHalfType === 'SECOND_HALF');
+
+                const is2HAActive = (activeStatus === 'ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'PAID_ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'UNPAID_ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'PARTIAL_ABSENT' && activeHalfType === 'SECOND_HALF') ||
+                    (activeStatus === 'HALF_DAY' && activeHalfType === 'FIRST_HALF');
+
                 return `
                     <tr>
                         <td>
@@ -818,6 +1063,32 @@
                         <td>
                             <span class="status-badge ${statusClass}">${statusDisplay}</span>
                         </td>
+                        <td class="text-center">
+                            ${(() => {
+                        const s = a.status ? a.status.trim().toUpperCase() : '';
+                        if (s === 'WEEK_OFF' || s === 'WEEKLY_OFF' || s === 'NOT_MARKED' || s === 'PENDING') return '<span style="color:#9ca3af;">-</span>';
+
+                        const paidLeaveAbsent = (a.paidLeave || 0) + (a.paidAbsent || 0);
+
+                        if (paidLeaveAbsent > 0) {
+                            return `<span style="color:#2563eb;font-weight:600;">${paidLeaveAbsent % 1 === 0 ? paidLeaveAbsent : paidLeaveAbsent.toFixed(1)}</span>`;
+                        }
+                        return '<span style="color:#9ca3af;">-</span>';
+                    })()}
+                        </td>
+                        <td class="text-center">
+                            ${(() => {
+                        const s = a.status ? a.status.trim().toUpperCase() : '';
+                        if (s === 'WEEK_OFF' || s === 'WEEKLY_OFF' || s === 'NOT_MARKED' || s === 'PENDING') return '<span style="color:#9ca3af;">-</span>';
+
+                        const totalUnpaid = (a.unpaidLeave || 0) + (a.unpaidAbsent || 0);
+
+                        if (totalUnpaid > 0) {
+                            return `<span style="color:#dc2626;font-weight:600;">${totalUnpaid % 1 === 0 ? totalUnpaid : totalUnpaid.toFixed(1)}</span>`;
+                        }
+                        return '<span style="color:#9ca3af;">-</span>';
+                    })()}
+                        </td>
                         <td class="text-center">${a.checkInTime}</td>
                         <td class="text-center">${a.checkOutTime}</td>
                         <td class="text-center">${a.workingHours !== undefined && a.workingHours > 0 && !a.status.includes('LEAVE') ? a.workingHours + ' hrs' : '-'}</td>
@@ -829,58 +1100,22 @@
                                     ` : status === 'PENDING' ? `
                                         <button onclick="resolvePendingAttendance(${a.employeeId}, 'PRESENT', this)" class="resolve-btn resolve-btn-present">✓ Present</button>
                                         <button onclick="resolvePendingAttendance(${a.employeeId}, 'ABSENT', this)" class="resolve-btn resolve-btn-absent">✗ Absent</button>
-                                    ` : (function() {
-                                        const fs = a.fullStatus || '';
-                                        const h1Leave = fs.includes('1H:PAID_LEAVE') || fs.includes('1H:UNPAID_LEAVE');
-                                        const h2Leave = fs.includes('2H:PAID_LEAVE') || fs.includes('2H:UNPAID_LEAVE');
-                                        const isFullLeave = h1Leave && h2Leave;
-                                        
-                                        const h1Present = fs.includes('1H:PRESENT') || status === 'PRESENT';
-                                        const h2Present = fs.includes('2H:PRESENT') || status === 'PRESENT';
-                                        const h1Absent = fs.includes('1H:ABSENT') || status === 'ABSENT';
-                                        const h2Absent = fs.includes('2H:ABSENT') || status === 'ABSENT';
-
-                                        let buttons = '';
-                                        
-                                        if (isFullLeave) {
-                                            return `<span class="badge-mini" style="background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; padding: 4px 12px; font-size: 0.75rem;">Full Day Leave</span>`;
-                                        }
-
-                                        // 1H Group
-                                        if (h1Leave) {
-                                            buttons += `<span class="badge-mini">1H Leave</span>`;
-                                        } else {
-                                            buttons += `
-                                                <div class="attendance-mini-group">
-                                                    <button onclick="setAttendance(${a.employeeId}, 'HALF_DAY', 'FIRST_HALF')" class="btn-mini ${h1Present ? 'active-p' : ''}" title="1H Present">P</button>
-                                                    <button onclick="setAttendance(${a.employeeId}, 'ABSENT', 'FIRST_HALF')" class="btn-mini ${h1Absent ? 'active-a' : ''}" title="1H Absent">A</button>
-                                                </div>
-                                            `;
-                                        }
-
-                                        // 2H Group
-                                        if (h2Leave) {
-                                            buttons += `<span class="badge-mini">2H Leave</span>`;
-                                        } else {
-                                            buttons += `
-                                                <div class="attendance-mini-group">
-                                                    <button onclick="setAttendance(${a.employeeId}, 'HALF_DAY', 'SECOND_HALF')" class="btn-mini ${h2Present ? 'active-p' : ''}" title="2H Present">P</button>
-                                                    <button onclick="setAttendance(${a.employeeId}, 'ABSENT', 'SECOND_HALF')" class="btn-mini ${h2Absent ? 'active-a' : ''}" title="2H Absent">A</button>
-                                                </div>
-                                            `;
-                                        }
-
-                                        // Full Day Actions
-                                        if (!h1Leave && !h2Leave) {
-                                            buttons += `
-                                                <div class="cell-divider"></div>
-                                                <button onclick="setAttendance(${a.employeeId}, 'PRESENT')" class="btn-toggle ${status === 'PRESENT' ? 'active-p' : ''}" title="Full Day Present">P</button>
-                                                <button onclick="setAttendance(${a.employeeId}, 'ABSENT')" class="btn-toggle ${status === 'ABSENT' ? 'active-a' : ''}" title="Full Day Absent">A</button>
-                                            `;
-                                        }
-
-                                        return buttons;
-                                    })()}
+                                    ` : `
+                                        <div class="flex flex-col gap-1">
+                                            ${(status.includes('LEAVE') || status === 'PAID_LEAVE' || status === 'UNPAID_LEAVE') ? `<div class="mb-1"><span class="badge-mini" style="background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; padding: 2px 6px; font-size: 0.68rem;">On Leave</span></div>` : ''}
+                                            <div class="flex items-center gap-1">
+                                                <button onclick="setAttendance(${a.employeeId}, 'PRESENT')" class="btn-toggle ${isPresentActive ? 'active-p' : ''}" style="min-width: 65px; padding: 3px 8px; font-size: 0.72rem;" title="Full Day Present">Present</button>
+                                                <button onclick="setAttendance(${a.employeeId}, 'HALF_DAY', 'FIRST_HALF')" class="btn-toggle ${is1HPActive ? 'active-p' : ''}" style="padding: 3px 8px; font-size: 0.72rem;" title="First Half Present">1HP</button>
+                                                <button onclick="setAttendance(${a.employeeId}, 'HALF_DAY', 'SECOND_HALF')" class="btn-toggle ${is2HPActive ? 'active-p' : ''}" style="padding: 3px 8px; font-size: 0.72rem;" title="Second Half Present">2HP</button>
+                                            </div>
+                                            <div class="flex items-center gap-1">
+                                                <button onclick="setAttendance(${a.employeeId}, 'ABSENT')" class="btn-toggle ${isAbsentActive ? 'active-a' : ''}" style="min-width: 65px; padding: 3px 8px; font-size: 0.72rem;" title="Full Day Absent">Absent</button>
+                                                <button onclick="setAttendance(${a.employeeId}, 'ABSENT', 'FIRST_HALF')" class="btn-toggle ${is1HAActive ? 'active-a' : ''}" style="padding: 3px 8px; font-size: 0.72rem;" title="First Half Absent">1HA</button>
+                                                <button onclick="setAttendance(${a.employeeId}, 'ABSENT', 'SECOND_HALF')" class="btn-toggle ${is2HAActive ? 'active-a' : ''}" style="padding: 3px 8px; font-size: 0.72rem;" title="Second Half Absent">2HA</button>
+                                                <button onclick="setUnmarked(${a.employeeId})" class="btn-toggle ${!dbStatus ? 'active-u' : ''}" style="padding: 3px 8px; font-size: 0.72rem;" title="Unmark / Clear Attendance">Unmark</button>
+                                            </div>
+                                        </div>
+                                    `}
                                     <button onclick="viewEmployeeDetails(${a.employeeId})" class="btn-view-details" title="View Employee Details">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     </button>
@@ -890,7 +1125,7 @@
                     </tr>
                 `}).join('');
         }
-        
+
         function filterEmployees() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
             if (!searchTerm) {
@@ -906,31 +1141,58 @@
             renderAttendanceTable(filtered);
         }
 
-        let showPendingOnly = false;
-        function filterPendingOnly() {
-            showPendingOnly = !showPendingOnly;
-            const btn = document.getElementById('filter-pending-btn');
+        function isApprovedLeave(empRecord) {
+            if (!empRecord) return false;
+            const status = empRecord.status || '';
+            const remarks = empRecord.remarks || '';
+            const fs = empRecord.fullStatus || '';
+            return status.includes('LEAVE') || remarks.toLowerCase().includes('leave') || fs.includes('LEAVE');
+        }
 
-            if (showPendingOnly) {
-                btn.classList.add('active-filter');
-                btn.style.removeProperty('background');
-                btn.innerHTML = `
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                    Show All
-                `;
-                const pendingOnly = filteredEmployees.filter(emp => emp.status === 'PENDING');
-                renderAttendanceTable(pendingOnly);
-            } else {
-                btn.classList.remove('active-filter');
-                btn.style.removeProperty('background');
-                btn.innerHTML = `
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                    Pending
-                `;
-                renderAttendanceTable(filteredEmployees);
+        async function setUnmarked(empId, shouldReload = true) {
+            if (isFutureDate(selectedDate)) {
+                showPopup('Cannot modify future dates');
+                return;
+            }
+
+            if (isSunday(selectedDate)) {
+                showPopup('❌ Sunday is a non-working day. Cannot modify attendance.');
+                return;
+            }
+
+            const empRecord = filteredEmployees.find(e => e.employeeId === empId);
+            if (empRecord && isApprovedLeave(empRecord)) {
+                const fs = empRecord.fullStatus || '';
+                const hasDbRecord = fs.includes('DB_STATUS:');
+                if (!hasDbRecord) {
+                    auth.showNotification('This employee has an approved leave. Cannot clear/unmark approved leaves.', 'error');
+                    return;
+                }
+                // If they have a DB record, ask if they want to restore the leave status
+                if (shouldReload && !confirm('This employee is on approved leave. Clearing attendance will restore their approved leave status. Do you want to continue?')) {
+                    return;
+                }
+            }
+
+            try {
+                const url = `/api/attendance/mark-unmarked/${empId}?date=${selectedDate}`;
+                const res = await auth.apiCall(url, { method: 'POST' });
+                if (res && res.ok) {
+                    if (shouldReload) {
+                        auth.showNotification('Attendance cleared (marked as unmarked)', 'success');
+                        await loadAttendance();
+                    }
+                } else {
+                    const error = await res.text();
+                    console.error('Attendance error:', error);
+                    auth.showNotification(error || 'Failed to clear attendance', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                auth.showNotification('Failed to clear attendance', 'error');
             }
         }
-        
+
         async function viewEmployeeDetails(empId) {
             try {
                 const emp = allEmployees.find(e => e.id === empId);
@@ -938,13 +1200,13 @@
                     auth.showNotification('Employee not found', 'error');
                     return;
                 }
-                
+
                 // Get department name from departmentName field
                 const deptName = emp.departmentName || emp.department || 'N/A';
-                
+
                 // Get join date - could be joiningDate or joinDate
                 const joinDate = emp.joiningDate || emp.joinDate || 'N/A';
-                
+
                 const modal = document.createElement('div');
                 modal.className = 'employee-modal';
                 modal.innerHTML = `
@@ -961,8 +1223,8 @@
                             
                             <div class="emp-details-grid">
                                 <div class="detail-item">
-                                    <label>Employee ID</label>
-                                    <span>${emp.id}</span>
+                                    <label>Employee Code</label>
+                                    <span>${emp.employeeId || emp.id}</span>
                                 </div>
                                 <div class="detail-item">
                                     <label>Department</label>
@@ -996,7 +1258,7 @@
                 auth.showNotification('Failed to load employee details', 'error');
             }
         }
-        
+
         function closeEmployeeModal() {
             const modal = document.querySelector('.employee-modal');
             if (modal) modal.remove();
@@ -1009,11 +1271,34 @@
                 showPopup('Cannot mark attendance for future dates');
                 return;
             }
-            
+
             // SUNDAY CHECK: Block attendance marking on Sundays
             if (isSunday(selectedDate)) {
                 showPopup('❌ Sunday is a non-working day. Attendance cannot be marked.');
                 return;
+            }
+
+            // APPROVED LEAVE CHECK & 3-TIME WARNING
+            const empRecord = filteredEmployees.find(e => e.employeeId === empId);
+            const isApprovedLeave = empRecord &&
+                empRecord.status !== 'PRESENT' &&
+                empRecord.status !== 'ABSENT' &&
+                empRecord.status !== 'PARTIAL_ABSENT' &&
+                empRecord.status !== 'HALF_DAY' &&
+                (
+                    empRecord.status === 'PAID_LEAVE' ||
+                    empRecord.status === 'UNPAID_LEAVE' ||
+                    empRecord.status.includes('LEAVE') ||
+                    (empRecord.fullStatus && empRecord.fullStatus.includes('LEAVE'))
+                ) &&
+                (!empRecord.fullStatus || !empRecord.fullStatus.includes('DB_STATUS:'));
+            if (isApprovedLeave) {
+                const w1 = confirm("⚠️ Warning 1 of 3: This employee has an Approved Leave for this date. Changing their attendance manually can cause calculation mismatches in payroll. Do you want to continue?");
+                if (!w1) return;
+                const w2 = confirm("⚠️ Warning 2 of 3: This is a past approved leave. You should not modify it unless absolutely necessary. Are you sure you want to proceed?");
+                if (!w2) return;
+                const w3 = confirm("⚠️ FINAL WARNING 3 of 3: Overwriting approved leaves will affect their leave balance and payroll deduction reports. Are you absolutely certain you want to make this change?");
+                if (!w3) return;
             }
 
             try {
@@ -1025,7 +1310,7 @@
                     // Full day marking
                     url = `/api/attendance/mark-${status.toLowerCase().replace('_', '-')}/${empId}?date=${selectedDate}`;
                 }
-                
+
                 const res = await auth.apiCall(url, { method: 'POST' });
                 if (res && res.ok) {
                     auth.showNotification(`Marked ${status.replace(/_/g, ' ').toLowerCase()}${halfType ? ' (' + halfType.replace('_', ' ').toLowerCase() + ')' : ''}`, 'success');
@@ -1143,26 +1428,120 @@
                 const isPartial = newStatus === 'PARTIAL_ABSENT';
                 const isPending = newStatus === 'PENDING';
                 const isLeave = newStatus.includes('LEAVE');
-                
+
                 statusBadge.style.background = isPresent ? '#dcfce7' : isAbsent ? '#fee2e2' : isPartial ? '#fef3c7' : isPending ? '#fef9c3' : isLeave ? '#e0e7ff' : '#f3f4f6';
                 statusBadge.style.color = isPresent ? '#166534' : isAbsent ? '#991b1b' : isPartial ? '#92400e' : isPending ? '#854d0e' : isLeave ? '#3730a3' : '#6b7280';
                 statusBadge.style.border = isPresent ? '1px solid #86efac' : isAbsent ? '1px solid #fca5a5' : isPartial ? '1px solid #fcd34d' : isPending ? '1px solid #fde047' : isLeave ? '1px solid #c7d2fe' : '1px solid #d1d5db';
                 statusBadge.textContent = newStatus.replace(/_/g, ' ');
             }
         }
-        
+
+        function isEmployeeUnmarked(empRecord) {
+            if (!empRecord) return false;
+            const fs = empRecord.fullStatus || '';
+            const hasDbRecord = fs.includes('DB_STATUS:');
+            const status = empRecord.status || 'NOT_MARKED';
+            const isLeaveOrOff = status.includes('LEAVE') || status === 'WEEK_OFF' || status === 'WEEKLY_OFF';
+            return !hasDbRecord && !isLeaveOrOff;
+        }
+
         async function markAllPresent() {
             if (isFutureDate(selectedDate)) {
                 showPopup('Cannot mark future dates');
                 return;
             }
-            
+
             // SUNDAY CHECK: Block bulk marking on Sundays
             if (isSunday(selectedDate)) {
                 showPopup('❌ Sunday is a non-working day. Cannot mark attendance.');
                 return;
             }
-            
+
+            // Get all employee IDs from the table that are unmarked in the DB and not on leave/off
+            const rows = document.querySelectorAll('#attendance-table tr');
+            const empIds = [];
+            rows.forEach(row => {
+                const btn = row.querySelector('button[onclick*="setAttendance"]');
+                if (btn) {
+                    const match = btn.getAttribute('onclick').match(/setAttendance\((\d+)/);
+                    if (match) {
+                        const empId = parseInt(match[1]);
+                        const empRecord = filteredEmployees.find(e => e.employeeId === empId);
+                        if (isEmployeeUnmarked(empRecord)) {
+                            empIds.push(empId);
+                        }
+                    }
+                }
+            });
+
+            if (empIds.length === 0) {
+                auth.showNotification('No unmarked days to update', 'info');
+                return;
+            }
+
+            // Mark all as present
+            for (const empId of empIds) {
+                await setAttendance(empId, 'PRESENT');
+            }
+
+            auth.showNotification(`Marked ${empIds.length} employees as present`, 'success');
+        }
+
+        async function markAllAbsent() {
+            if (isFutureDate(selectedDate)) {
+                showPopup('Cannot mark future dates');
+                return;
+            }
+
+            // SUNDAY CHECK: Block bulk marking on Sundays
+            if (isSunday(selectedDate)) {
+                showPopup('❌ Sunday is a non-working day. Cannot mark attendance.');
+                return;
+            }
+
+            // Get all employee IDs from the table that are unmarked in the DB and not on leave/off
+            const rows = document.querySelectorAll('#attendance-table tr');
+            const empIds = [];
+            rows.forEach(row => {
+                const btn = row.querySelector('button[onclick*="setAttendance"]');
+                if (btn) {
+                    const match = btn.getAttribute('onclick').match(/setAttendance\((\d+)/);
+                    if (match) {
+                        const empId = parseInt(match[1]);
+                        const empRecord = filteredEmployees.find(e => e.employeeId === empId);
+                        if (isEmployeeUnmarked(empRecord)) {
+                            empIds.push(empId);
+                        }
+                    }
+                }
+            });
+
+            if (empIds.length === 0) {
+                auth.showNotification('No unmarked days to update', 'info');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to mark ${empIds.length} unmarked employees as absent?`)) return;
+
+            for (const empId of empIds) {
+                await setAttendance(empId, 'ABSENT');
+            }
+
+            auth.showNotification(`Marked ${empIds.length} employees as absent`, 'success');
+        }
+
+        async function markAllUnmarked() {
+            if (isFutureDate(selectedDate)) {
+                showPopup('Cannot modify future dates');
+                return;
+            }
+
+            // SUNDAY CHECK: Block bulk marking on Sundays
+            if (isSunday(selectedDate)) {
+                showPopup('❌ Sunday is a non-working day. Cannot modify attendance.');
+                return;
+            }
+
             // Get all employee IDs from the table
             const rows = document.querySelectorAll('#attendance-table tr');
             const empIds = [];
@@ -1170,49 +1549,37 @@
                 const btn = row.querySelector('button[onclick*="setAttendance"]');
                 if (btn) {
                     const match = btn.getAttribute('onclick').match(/setAttendance\((\d+)/);
-                    if (match) empIds.push(match[1]);
+                    if (match) empIds.push(parseInt(match[1]));
                 }
             });
-            
-            // Mark all as present
-            for (const empId of empIds) {
-                await setAttendance(empId, 'PRESENT');
-            }
-            
-            auth.showNotification(`Marked ${empIds.length} employees as present`, 'success');
-        }
-        
-        async function markAllAbsent() {
-            if (isFutureDate(selectedDate)) {
-                showPopup('Cannot mark future dates');
-                return;
-            }
-            
-            // SUNDAY CHECK: Block bulk marking on Sundays
-            if (isSunday(selectedDate)) {
-                showPopup('❌ Sunday is a non-working day. Cannot mark attendance.');
-                return;
-            }
-            
-            if (!confirm('Are you sure you want to mark all employees as absent?')) return;
-            
-            const rows = document.querySelectorAll('#attendance-table tr');
-            const empIds = [];
-            rows.forEach(row => {
-                const btn = row.querySelector('button[onclick*="setAttendance"]');
-                if (btn) {
-                    const match = btn.getAttribute('onclick').match(/setAttendance\((\d+)/);
-                    if (match) empIds.push(match[1]);
+
+            // Filter to only those that actually have a DB record (are not already unmarked) and are NOT on approved leave
+            const markedEmpIds = empIds.filter(empId => {
+                const empRecord = filteredEmployees.find(e => e.employeeId === empId);
+                if (empRecord) {
+                    const fs = empRecord.fullStatus || '';
+                    const hasDbRecord = fs.includes('DB_STATUS:');
+                    return hasDbRecord && !isApprovedLeave(empRecord);
                 }
+                return false;
             });
-            
-            for (const empId of empIds) {
-                await setAttendance(empId, 'ABSENT');
+
+            if (markedEmpIds.length === 0) {
+                auth.showNotification('No marked employees to clear', 'info');
+                return;
             }
-            
-            auth.showNotification(`Marked ${empIds.length} employees as absent`, 'success');
+
+            if (!confirm(`Are you sure you want to clear attendance for all ${markedEmpIds.length} marked employees to make them unmarked?`)) return;
+
+            // Clear attendance for each marked employee
+            for (const empId of markedEmpIds) {
+                await setUnmarked(empId, false);
+            }
+
+            await loadAttendance();
+            auth.showNotification(`Cleared attendance for ${markedEmpIds.length} employees`, 'success');
         }
-        
+
         async function clearAllAttendance() {
             if (!confirm('Are you sure you want to delete ALL attendance records? This action cannot be undone.')) return;
             try {
@@ -1225,22 +1592,22 @@
                 }
             } catch (e) { auth.showNotification(e.message, 'error'); }
         }
-        
+
         function showPopup(msg) {
             document.getElementById('popup-message').textContent = msg;
             document.getElementById('popup').style.display = 'flex';
             document.body.style.overflow = 'hidden';
             document.documentElement.style.overflow = 'hidden';
         }
-        
+
         function closePopup() {
             document.getElementById('popup').style.display = 'none';
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
         }
-        
+
         function logout() { auth.logout(); }
-        
+
         document.getElementById('date-input').addEventListener('change', (e) => {
             selectedDate = e.target.value;
             if (isFutureDate(selectedDate)) {
@@ -1251,11 +1618,14 @@
             }
             loadAttendance();
         });
-        
+
+
+
         // Initialize date input
         document.getElementById('date-input').value = selectedDate;
-        
+
         loadAttendance();
     </script>
 </body>
+
 </html>

@@ -139,8 +139,8 @@ GET /api/payroll/list
 |------------|------|-------------|
 | `presentDays` | double | Present days + paid leave days |
 | `absentDays` | double | Absent days only |
-| `paidUsedLeaves` | double | Paid leave days Used Leaves |
-| `unpaidUsedLeaves` | double | Unpaid leave days Used Leaves |
+| `paidUsedLeaves` | double | Paid leave days Total Used Leaves |
+| `unpaidUsedLeaves` | double | Unpaid leave days Total Used Leaves |
 | `effectiveDays` | double | Present + paid leave |
 | `totalHours` | double | Total working hours |
 
@@ -148,8 +148,8 @@ GET /api/payroll/list
 | Field Name | Type | Description |
 |------------|------|-------------|
 | `earnedLeaves` | double | Total earned leaves |
-| `Used LeavesLeaves` | double | Paid leaves Used Leaves |
-| `unpaidLeaves` | double | Unpaid leaves Used Leaves |
+| `Used LeavesLeaves` | double | Paid Used Leaves Total Used Leaves |
+| `unpaidLeaves` | double | Unpaid Used Leaves Total Used Leaves |
 | `availableLeaves` | double | Remaining leaves |
 | `totalEarnedLeaves` | double | Total earned in cycle |
 | `cycle` | int | Current leave cycle (1 or 2) |
@@ -220,7 +220,7 @@ GET /api/payroll/list
 ❌ dashboard.js: /api/attendance/date/{today}
 ❌ dashboard.html: /api/attendance/date/{today}
 ❌ my-attendance.html: /api/dashboard/my/attendance/daily
-❌ Various field names: present, absent, Used Leaves, unpaid
+❌ Various field names: present, absent, Total Used Leaves, unpaid
 ```
 
 ### After Standardization:

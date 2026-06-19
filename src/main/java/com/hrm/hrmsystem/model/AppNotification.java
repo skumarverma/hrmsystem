@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AppNotification {
 
     @Id
@@ -35,13 +34,11 @@ public class AppNotification {
     @Column(nullable = false)
     private String type;
 
-    @Builder.Default
     @Column(nullable = false)
-    private boolean isRead = false;
+private boolean isRead = false;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+@Column(nullable = false)
+private LocalDateTime createdAt = LocalDateTime.now();
     
     // Optional link for the notification to redirect the user
     @Column(length = 255)

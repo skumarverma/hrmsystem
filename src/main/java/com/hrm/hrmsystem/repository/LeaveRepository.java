@@ -21,8 +21,11 @@ public interface LeaveRepository extends JpaRepository<Leave, Long> {
     List<Leave> findByEmployeeIdAndStatusAndStartDateBetween(
             Long employeeId, Leave.LeaveStatus status, LocalDate startDate, LocalDate endDate);
 
+    /** Find all leaves assigned to a specific approver (by employee ID) */
+    List<Leave> findByApproverId(Long approverId);
     
     // REMOVED: countWorkingDays() - Use AttendanceEngine.calculateWorkingDays() only
 
     void deleteByEmployeeId(Long employeeId);
 }
+

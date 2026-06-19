@@ -1,3 +1,4 @@
+package com.hrm.hrmsystem;
 
 import com.hrm.hrmsystem.model.Leave;
 import com.hrm.hrmsystem.repository.LeaveRepository;

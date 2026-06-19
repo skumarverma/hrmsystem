@@ -143,7 +143,7 @@ public class AttendanceEngine {
 1. **Single Responsibility**: Each class has one clear purpose
 2. **Testability**: Smaller classes easier to unit test
 3. **Maintainability**: Changes isolated to specific domain
-4. **Reusability**: Components can be Used Leaves independently
+4. **Reusability**: Components can be Total Used Leaves independently
 5. **Readability**: Smaller, focUsed Leaves classes
 
 ## Implementation Notes

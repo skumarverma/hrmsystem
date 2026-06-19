@@ -20,11 +20,11 @@ May Portion: May 1 + May 2 = 2 days (May 3 is Sunday, excluded)
 
 ### Step 3: Calculate Paid/Unpaid Per Month
 
-**Assumption:** Employee has already Used Leaves 1 day in April (previous leave)
+**Assumption:** Employee has already Total Used Leaves 1 day in April (previous leave)
 
 **April Calculation:**
 - April earned: 1.5 days
-- Already Used Leaves: 1 day (old leave)
+- Already Total Used Leaves: 1 day (old leave)
 - Remaining: 0.5 days
 - April leave portion: 1 day
 - Paid: 0.5 (max remaining)
@@ -51,6 +51,6 @@ The current code has a bug at line 193:
 double monthPaid = Math.min(daysInMonth, Math.max(0, monthBalance - paidDays));
 ```
 
-**Problem:** It subtracts `paidDays` which accumulates from previous months, reducing the available balance incorrectly for each subsequent month.
+**Problem:** It subtracts `paidDays` which accumulates from previous months, reducing the Total Earned incorrectly for each subsequent month.
 
 **Fix:** Track remaining balance separately, don't subtract accumulated paid days.

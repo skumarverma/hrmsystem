@@ -1,5 +1,6 @@
 package com.hrm.hrmsystem.service;
 
+import com.hrm.hrmsystem.config.PayrollPolicy;
 import com.hrm.hrmsystem.dto.PayrollDTO;
 import com.hrm.hrmsystem.dto.PayslipDTO;
 import com.hrm.hrmsystem.engine.AttendanceSummary;
@@ -16,12 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-// ✅ REMOVED: YearMonth - Use AttendanceEngine for all calculations
-// import java.time.YearMonth;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import com.hrm.hrmsystem.util.EmailUtil;
+import com.hrm.hrmsystem.model.User;
 
 @Service
 public class PayrollService {
@@ -36,6 +37,13 @@ public class PayrollService {
     private final UnifiedCalculationService unifiedCalculationService;
     private final AttendanceEngine attendanceEngine;
     private final EmailUtil emailUtil;
+    private final PayrollLockService payrollLockService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.hrm.hrmsystem.repository.PayrollApprovalRepository payrollApprovalRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.hrm.hrmsystem.repository.UserRepository userRepository;
 
     public PayrollService(PayrollRepository payrollRepository,
                           EmployeeRepository employeeRepository,
@@ -44,7 +52,8 @@ public class PayrollService {
                           LeaveService leaveService,
                           UnifiedCalculationService unifiedCalculationService,
                           AttendanceEngine attendanceEngine,
-                          EmailUtil emailUtil) {
+                          EmailUtil emailUtil,
+                          PayrollLockService payrollLockService) {
         this.payrollRepository = payrollRepository;
         this.employeeRepository = employeeRepository;
         this.leaveRepository = leaveRepository;
@@ -53,19 +62,35 @@ public class PayrollService {
         this.unifiedCalculationService = unifiedCalculationService;
         this.attendanceEngine = attendanceEngine;
         this.emailUtil = emailUtil;
+        this.payrollLockService = payrollLockService;
     }
 
     @Transactional
     public PayrollDTO generatePayroll(Long employeeId, Integer month, Integer year) {
-        Employee employee = employeeRepository.findById(employeeId)
+        if (payrollLockService.isPayrollLocked(month, year)) {
+            throw new RuntimeException("Cannot generate or update payroll: Payroll is locked for " + year + "-" + month);
+        }
+
+        // Validation: Payroll can be generated for any past month, current month, or next month
+        java.time.LocalDate now = java.time.LocalDate.now();
+        java.time.YearMonth currentMonth = java.time.YearMonth.from(now);
+        java.time.YearMonth nextMonth = currentMonth.plusMonths(1);
+        java.time.YearMonth requestedMonth = java.time.YearMonth.of(year, month);
+        
+        if (requestedMonth.isAfter(nextMonth)) {
+            throw new RuntimeException("Payroll cannot be generated for future months beyond next month.");
+        }
+
+        Employee employee = employeeRepository.findByIdentifier(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         if (isSystemUser(employee)) {
-            throw new RuntimeException("Cannot generate payroll for System Users");
+            // Previously we threw an exception here, but HR/Directors also get salaries.
+            // Keeping the method for future role-based checks if needed, but not blocking generation.
         }
 
         Optional<Payroll> existing = payrollRepository
-                .findFirstByEmployeeIdAndMonthAndYearOrderByIdDesc(employeeId, month, year);
+                .findFirstByEmployeeIdAndMonthAndYearOrderByIdDesc(employee.getId(), month, year);
         Payroll payroll = existing.orElseGet(Payroll::new);
         Payroll.PayrollStatus statusToUse = existing.map(Payroll::getStatus).orElse(Payroll.PayrollStatus.PENDING);
         java.time.LocalDate paymentDateToUse = existing.map(Payroll::getPaymentDate).orElse(null);
@@ -79,8 +104,9 @@ public class PayrollService {
         // ✅ Use calculateLeaveBalance for leave data (same source as dashboard and other services)
         // ✅ FIXED: Use summary from AttendanceEngine for THIS MONTH'S values
         // leaveBalance.usedLeaves is the CUMULATIVE total for the 6-month cycle
-        double paidLeaveDays = summary.paidLeave;
-        double unpaidLeaveDays = summary.unpaidLeave;
+        UnifiedCalculationService.LeaveBalanceResult leaveSummary = unifiedCalculationService.getLeaveSummary(employeeId, java.time.YearMonth.of(year, month));
+        double paidLeaveDays = leaveSummary.usedThisMonth;
+        double unpaidLeaveDays = leaveSummary.unpaidThisMonth;
         
         log.info("🔥 AttendanceEngine Result for Employee {}: {}", employeeId, summary);
 
@@ -89,9 +115,6 @@ public class PayrollService {
                 : BigDecimal.ZERO;
         BigDecimal hra = employee.getHra() != null
                 ? employee.getHra()
-                : BigDecimal.ZERO;
-        BigDecimal da = employee.getDa() != null
-                ? employee.getDa()
                 : BigDecimal.ZERO;
         BigDecimal otherAllowance = employee.getOtherAllowance() != null
                 ? employee.getOtherAllowance()
@@ -103,11 +126,12 @@ public class PayrollService {
         BigDecimal grossSalaryBase = employee.getTotalGrossSalary();
 
         // Use AttendanceEngine for ALL salary calculations (single source of truth)
-        // Daily Rate = grossSalaryBase / 26 working days
+        // Daily Rate = grossSalaryBase / 30 working days
         // Unpaid deduction = Daily Rate × unpaid days × 1
-        // Absent deduction = Daily Rate × absent days × 2 (penalty)
+        // Absent deduction = Daily Rate × absent days × 1 (penalty)
+        AttendanceEngine.LeaveBalanceSummary engineLeaveSummary = attendanceEngine.calculateLeaveBalance(employeeId, YearMonth.of(year, month));
         AttendanceEngine.SalarySummary salarySummary = attendanceEngine.calculateSalary(
-                employee, summary, !attendanceEngine.isProbationCompleted(employee));
+                employee, summary, !attendanceEngine.isProbationCompleted(employee, YearMonth.of(year, month).atEndOfMonth()), engineLeaveSummary);
 
         log.info("💰 PayrollService - GrossBase: {}, UnpaidDeduction: {}, AbsentDeduction: {}",
                  grossSalaryBase,
@@ -115,21 +139,21 @@ public class PayrollService {
                  salarySummary.getAbsentLeaveDeduction());
 
         BigDecimal ta = BigDecimal.ZERO;
-        BigDecimal totalAttendanceDeduction = salarySummary.getAbsentLeaveDeduction().add(salarySummary.getUnpaidLeaveDeduction());
+        BigDecimal totalAttendanceDeduction = salarySummary.getUnpaidLeaveDeduction().add(salarySummary.getAbsentLeaveDeduction());
         BigDecimal providentFund = salarySummary.getPf();
         BigDecimal tax = salarySummary.getTax();
         BigDecimal insurance = salarySummary.getInsurance();
         BigDecimal grossSalary = salarySummary.getGrossSalary();
         BigDecimal totalDeductions = salarySummary.getTotalDeductions();
         BigDecimal netSalary = salarySummary.getNetSalary();
-        BigDecimal otherDeductions = totalAttendanceDeduction;
+        // otherDeductions is for miscellaneous deductions only — attendance deductions are stored separately
+        BigDecimal otherDeductions = BigDecimal.ZERO;
 
         payroll.setEmployee(employee);
         payroll.setMonth(month);
         payroll.setYear(year);
         payroll.setBasicSalary(basicSalary);
         payroll.setHra(hra.setScale(2, java.math.RoundingMode.HALF_UP));
-        payroll.setDa(da.setScale(2, java.math.RoundingMode.HALF_UP));
         payroll.setTa(ta.setScale(2, java.math.RoundingMode.HALF_UP));
         payroll.setOtherAllowances(otherAllowance);
         payroll.setProvidentFund(providentFund.setScale(2, java.math.RoundingMode.HALF_UP));
@@ -141,8 +165,7 @@ public class PayrollService {
         payroll.setNetSalary(netSalary.setScale(2, java.math.RoundingMode.HALF_UP));
         payroll.setUnpaidLeaveDeduction(salarySummary.getUnpaidLeaveDeduction());
         payroll.setAbsentDeduction(salarySummary.getAbsentLeaveDeduction());
-        // STORE attendance values from AttendanceEngine (single source of truth)
-        payroll.setPresentDays(workedDays); // ✅ FIXED: Use workedDays instead of presentDays
+        payroll.setPresentDays(summary.getPresentDays());
         payroll.setAbsentDays(absentDays);
         payroll.setPaidLeaveDays(paidLeaveDays);
         payroll.setUnpaidLeaveDays(unpaidLeaveDays);
@@ -153,8 +176,11 @@ public class PayrollService {
         return convertToDTO(payroll);
     }
 
-    @Transactional
     public List<PayrollDTO> generatePayrollForAll(Integer month, Integer year) {
+        if (payrollLockService.isPayrollLocked(month, year)) {
+            throw new RuntimeException("Cannot generate payroll for all: Payroll is locked for " + year + "-" + month);
+        }
+
         List<Employee> employees = employeeRepository.findByStatus(Employee.EmployeeStatus.ACTIVE)
             .stream()
             .filter(emp -> !isSystemUser(emp))
@@ -190,6 +216,37 @@ public class PayrollService {
         payroll = payrollRepository.save(payroll);
 
         generatePayslipWithStatus(payroll, "DRAFT", approvedBy);
+
+        // Send email notification to all Accountants
+        try {
+            List<User> accountants = userRepository.findByRole(User.Role.ROLE_ACCOUNTANT);
+            if (accountants != null && !accountants.isEmpty()) {
+                String monthName = java.time.Month.of(payroll.getMonth()).getDisplayName(
+                        java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
+                String employeeName = payroll.getEmployee().getFirstName() + " " + payroll.getEmployee().getLastName();
+                String subject = "Payroll Pending Approval: " + employeeName + " - " + monthName + " " + payroll.getYear();
+                String body = String.format(
+                        "Dear Accountant,\n\n" +
+                        "A new payroll record has been submitted and is pending your approval.\n\n" +
+                        "Employee: %s\n" +
+                        "Month/Year: %s %d\n" +
+                        "Net Salary: %s\n\n" +
+                        "Please login to the HRM system to review and approve/reject the payroll.\n\n" +
+                        "Best Regards,\n" +
+                        "HRM System Support",
+                        employeeName, monthName, payroll.getYear(), 
+                        "Rs. " + String.format("%,.2f", payroll.getNetSalary())
+                );
+
+                for (User accountant : accountants) {
+                    if (accountant.getEmail() != null && !accountant.getEmail().trim().isEmpty()) {
+                        emailUtil.sendSimpleEmail(accountant.getEmail(), subject, body);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to send email notification to accountant: {}", e.getMessage());
+        }
 
         return convertToDTO(payroll);
     }
@@ -326,6 +383,12 @@ public class PayrollService {
 
         updatePayslipStatusToPaid(payroll);
 
+        // Lock the payroll for this month and year if not already locked
+        if (!payrollLockService.isPayrollLocked(payroll.getMonth(), payroll.getYear())) {
+            payrollLockService.lockPayroll(payroll.getMonth(), payroll.getYear(), 
+                "Locked automatically after marking payroll ID " + payrollId + " as PAID");
+        }
+
         return convertToDTO(payroll);
     }
 
@@ -344,6 +407,10 @@ public class PayrollService {
             );
             
             log.info("Updated payslip status to {} for employee {} month {}", status, payroll.getEmployee().getId(), monthYear);
+
+            if ("SENT".equals(status)) {
+                payslipService.sendPaidPayslipEmail(payroll.getEmployee().getId(), monthYear);
+            }
         } catch (Exception e) {
             log.warn("Could not update payslip status: {}", e.getMessage());
         }
@@ -364,6 +431,9 @@ public class PayrollService {
             );
             
             log.info("Updated payslip status to SENT for employee {} month {}", payroll.getEmployee().getId(), monthYear);
+
+            // Automatically email final payslip PDF to employee
+            payslipService.sendPaidPayslipEmail(payroll.getEmployee().getId(), monthYear);
         } catch (Exception e) {
             log.warn("Could not update payslip to paid status: {}", e.getMessage());
         }
@@ -385,32 +455,21 @@ public class PayrollService {
     }
 
     public List<PayrollDTO> getPayrollByEmployee(Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId).orElse(null);
-        if (employee != null && isSystemUser(employee)) {
+        Employee employee = employeeRepository.findByIdentifier(employeeId).orElse(null);
+        if (employee == null) {
             return new java.util.ArrayList<>();
         }
-        return payrollRepository.findByEmployeeId(employeeId)
+        if (isSystemUser(employee)) {
+            return new java.util.ArrayList<>();
+        }
+        return payrollRepository.findByEmployeeId(employee.getId())
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PayrollDTO> getPayrollByMonth(Integer month, Integer year) {
-        List<Employee> allActive = employeeRepository.findByStatus(Employee.EmployeeStatus.ACTIVE)
-            .stream()
-            .filter(emp -> !isSystemUser(emp))
-            .collect(Collectors.toList());
-
-        for (Employee emp : allActive) {
-            try {
-                leaveService.initializeLeaveBalance(emp.getId());
-                generatePayroll(emp.getId(), month, year);
-            } catch (Exception e) {
-                log.warn("Could not regenerate payroll for employee {}: {}", emp.getId(), e.getMessage());
-            }
-        }
-
         return payrollRepository.findByMonthAndYear(month, year)
                 .stream()
                 .filter(p -> p.getEmployee() != null && !isSystemUser(p.getEmployee()))
@@ -430,17 +489,8 @@ public class PayrollService {
                     if (yearCompare != 0) return yearCompare;
                     return p2.getMonth().compareTo(p1.getMonth());
                 })
-                .collect(Collectors.collectingAndThen(
-                        java.util.stream.Collectors.toMap(
-                                p -> p.getEmployee().getId(),
-                                p -> p,
-                                (p1, p2) -> p1,
-                                java.util.LinkedHashMap::new
-                        ),
-                        map -> map.values().stream()
-                                .map(this::convertToDTO)
-                                .collect(Collectors.toList())
-                ));
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -448,7 +498,7 @@ public class PayrollService {
         Payroll payroll = payrollRepository.findById(payrollId)
                 .orElseThrow(() -> new RuntimeException("Payroll not found with id: " + payrollId));
         if (payroll.getEmployee() != null && isSystemUser(payroll.getEmployee())) {
-            throw new RuntimeException("Access denied: Cannot retrieve payroll for System Users");
+            // allow
         }
         return convertToDTO(payroll);
     }
@@ -458,9 +508,12 @@ public class PayrollService {
         Payroll payroll = payrollRepository.findById(payrollId)
                 .orElseThrow(() -> new RuntimeException("Payroll not found with id: " + payrollId));
 
+        if (payrollLockService.isPayrollLocked(payroll.getMonth(), payroll.getYear())) {
+            throw new RuntimeException("Cannot update payroll: Payroll is locked for " + payroll.getYear() + "-" + payroll.getMonth());
+        }
+
         payroll.setBasicSalary(payrollDTO.getBasicSalary());
         payroll.setHra(payrollDTO.getHra());
-        payroll.setDa(payrollDTO.getDa());
         payroll.setOtherAllowances(payrollDTO.getOtherAllowances());
         payroll.setProvidentFund(payrollDTO.getProvidentFund());
         payroll.setTax(payrollDTO.getTax());
@@ -469,24 +522,40 @@ public class PayrollService {
 
         BigDecimal grossSalary = payrollDTO.getBasicSalary()
                 .add(payrollDTO.getHra())
-                .add(payrollDTO.getDa())
                 .add(payrollDTO.getOtherAllowances());
         payroll.setGrossSalary(grossSalary);
 
-        BigDecimal totalDeductions = payrollDTO.getProvidentFund()
-                .add(payrollDTO.getTax())
-                .add(payrollDTO.getInsurance())
-                .add(payrollDTO.getOtherDeductions());
+        Employee employee = payroll.getEmployee();
+        BigDecimal pfAmt = payroll.getProvidentFund() != null ? payroll.getProvidentFund() : BigDecimal.ZERO;
+        BigDecimal taxAmt = payroll.getTax() != null ? payroll.getTax() : BigDecimal.ZERO;
+        BigDecimal insAmt = payroll.getInsurance() != null ? payroll.getInsurance() : BigDecimal.ZERO;
+        BigDecimal otherDed = payroll.getOtherDeductions() != null ? payroll.getOtherDeductions() : BigDecimal.ZERO;
+
+        BigDecimal esicAmt = employee.getEsic() != null ? employee.getEsic() : BigDecimal.ZERO;
+        BigDecimal profTaxAmt = employee.getProfessionalTax() != null ? employee.getProfessionalTax() : BigDecimal.ZERO;
+        BigDecimal tdsAmt = employee.getTds() != null ? employee.getTds() : BigDecimal.ZERO;
+        BigDecimal loanAmt = employee.getLoanDeduction() != null ? employee.getLoanDeduction() : BigDecimal.ZERO;
+        BigDecimal lwfAmt = employee.getLwf() != null ? employee.getLwf() : BigDecimal.ZERO;
+
+        BigDecimal unpaidDed = payroll.getUnpaidLeaveDeduction() != null ? payroll.getUnpaidLeaveDeduction() : BigDecimal.ZERO;
+        BigDecimal absentDed = payroll.getAbsentDeduction() != null ? payroll.getAbsentDeduction() : BigDecimal.ZERO;
+
+        BigDecimal totalDeductions = pfAmt.add(taxAmt).add(insAmt).add(otherDed)
+                .add(esicAmt).add(profTaxAmt).add(tdsAmt).add(loanAmt).add(lwfAmt)
+                .add(unpaidDed).add(absentDed);
         payroll.setTotalDeductions(totalDeductions);
 
         BigDecimal netSalary = grossSalary.subtract(totalDeductions);
+        if (netSalary.compareTo(BigDecimal.ZERO) < 0) {
+            netSalary = BigDecimal.ZERO;
+        }
         payroll.setNetSalary(netSalary);
 
         payroll = payrollRepository.save(payroll);
 
         try {
             String monthYear = payroll.getYear() + "-" + String.format("%02d", payroll.getMonth());
-            payslipService.updatePayslipFromPayroll(payroll.getEmployee().getId(), monthYear, payrollDTO);
+            payslipService.updatePayslipFromPayroll(payroll.getEmployee().getId(), monthYear, convertToDTO(payroll));
         } catch (Exception e) {
             log.warn("Could not update payslip for payroll {}: {}", payrollId, e.getMessage());
         }
@@ -496,6 +565,15 @@ public class PayrollService {
 
     @Transactional
     public void deleteAllPayrolls() {
+        List<Payroll> allPayrolls = payrollRepository.findAll();
+        for (Payroll p : allPayrolls) {
+            if (payrollLockService.isPayrollLocked(p.getMonth(), p.getYear())) {
+                throw new RuntimeException("Cannot delete payroll records: Payroll is locked for " + p.getYear() + "-" + p.getMonth());
+            }
+        }
+        log.info("Deleting unlocked payslips before clearing payrolls");
+        payslipService.deleteUnlockedPayslips();
+        
         log.info("Deleting all payroll records");
         payrollRepository.deleteAll();
         log.info("All payroll records deleted successfully");
@@ -511,25 +589,36 @@ public class PayrollService {
     private PayrollDTO convertToDTO(Payroll payroll) {
         Employee employee = payroll.getEmployee();
 
-        // Dynamically compute attendance to handle stale or legacy DB records where days were saved as 0
-        AttendanceSummary attSummary = unifiedCalculationService.calculateForPayroll(employee.getId(), payroll.getYear(), payroll.getMonth());
-        double presentDays = attSummary.workedDays;
-        double absentDays = attSummary.absent;
-        double paidLeaveDays = attSummary.paidLeave;
-        double unpaidLeaveDays = attSummary.unpaidLeave;
-        double leaveDays = paidLeaveDays + unpaidLeaveDays; // Total leave days
-        // ✅ FIXED: Remove duplicate calculation - use engine values directly
-        // leaveDays should come from AttendanceEngine if needed
-        int halfDays = 0; // Half days are already accounted for in present/absent counts
-        
-        double absentLeaveDeduction = payroll.getOtherDeductions() != null 
-                ? payroll.getOtherDeductions().doubleValue() 
-                : 0.0;
+        double presentDays = payroll.getPresentDays() != null ? payroll.getPresentDays() : 0.0;
+        double absentDays = payroll.getAbsentDays() != null ? payroll.getAbsentDays() : 0.0;
+        double paidLeaveDays = payroll.getPaidLeaveDays() != null ? payroll.getPaidLeaveDays() : 0.0;
+        double unpaidLeaveDays = payroll.getUnpaidLeaveDays() != null ? payroll.getUnpaidLeaveDays() : 0.0;
+        double leaveDays = paidLeaveDays + unpaidLeaveDays;
+        int halfDays = 0;
 
-        // Get leave balance
-        PayrollDTO.LeaveBalanceInfo leaveBalanceInfo;
-        // ✅ FIXED: Use centralized probation method from AttendanceEngine
-        Boolean inProbation = !attendanceEngine.isProbationCompleted(employee);
+        BigDecimal pfAmt = payroll.getProvidentFund() != null ? payroll.getProvidentFund() : BigDecimal.ZERO;
+        BigDecimal esicAmt = employee.getEsic() != null ? employee.getEsic() : BigDecimal.ZERO;
+        BigDecimal profTaxAmt = employee.getProfessionalTax() != null ? employee.getProfessionalTax() : BigDecimal.ZERO;
+        BigDecimal tdsAmt = employee.getTds() != null ? employee.getTds() : BigDecimal.ZERO;
+        BigDecimal employeeTax = employee.getTax() != null ? employee.getTax() : tdsAmt;
+        BigDecimal taxAmt = payroll.getTax() != null ? payroll.getTax() : employeeTax;
+        BigDecimal loanAmt = employee.getLoanDeduction() != null ? employee.getLoanDeduction() : BigDecimal.ZERO;
+        BigDecimal lwfAmt = employee.getLwf() != null ? employee.getLwf() : BigDecimal.ZERO;
+        BigDecimal insAmt = payroll.getInsurance() != null ? payroll.getInsurance() : BigDecimal.ZERO;
+        BigDecimal otherDeductionsAmt = payroll.getOtherDeductions() != null ? payroll.getOtherDeductions() : BigDecimal.ZERO;
+
+        BigDecimal freshTotalDeductions = payroll.getTotalDeductions() != null ? payroll.getTotalDeductions() : BigDecimal.ZERO;
+        BigDecimal grossForNet = payroll.getGrossSalary() != null ? payroll.getGrossSalary() : BigDecimal.ZERO;
+        BigDecimal freshNetSalary = grossForNet.subtract(freshTotalDeductions);
+        if (freshNetSalary.compareTo(BigDecimal.ZERO) < 0) {
+            freshNetSalary = BigDecimal.ZERO;
+        }
+
+        BigDecimal freshUnpaidLeaveDeduction = payroll.getUnpaidLeaveDeduction() != null ? payroll.getUnpaidLeaveDeduction() : BigDecimal.ZERO;
+        BigDecimal freshAbsentDeduction = payroll.getAbsentDeduction() != null ? payroll.getAbsentDeduction() : BigDecimal.ZERO;
+        double absentLeaveDeduction = freshAbsentDeduction.doubleValue();
+
+        Boolean inProbation = !attendanceEngine.isProbationCompleted(employee, YearMonth.of(payroll.getYear(), payroll.getMonth()).atEndOfMonth());
         String probationStatus = inProbation ? "In Progress" : "Completed";
         Integer probationMonths = employee.getProbationPeriodMonths() != null ? employee.getProbationPeriodMonths() : 3;
         
@@ -537,27 +626,15 @@ public class PayrollService {
         if (employee.getJoiningDate() != null) {
             probationCompletionDate = employee.getJoiningDate().plusMonths(probationMonths);
         }
-        
-        try {
-            // ✅ Use AttendanceEngine ONLY - no duplicate services
-            AttendanceEngine.LeaveBalanceSummary summary = attendanceEngine.calculateLeaveBalance(
-                employee.getId(), payroll.getYear(), payroll.getMonth()
-            );
-            int currentCycle = payroll.getMonth() <= 6 ? 1 : 2;
-            leaveBalanceInfo = PayrollDTO.LeaveBalanceInfo.builder()
-                    .totalEarnedLeaves(summary.earnedLeaves)
-                    .usedLeaves(summary.totalUsedLeaves) // ✅ FIXED: Total = Paid + Unpaid
-                    .availableLeaves(summary.getAvailableLeaves())
-                    .carriedForwardLeaves(0.0)
-                    .unpaidLeaves(summary.unpaidLeaves) // ✅ FIXED: was 0.0
-                    .cycle(currentCycle)
-                    .build();
-        } catch (Exception e) {
-            log.error("Error fetching leave statistics for employee {}: {}", employee.getId(), e.getMessage());
-            leaveBalanceInfo = PayrollDTO.LeaveBalanceInfo.builder()
-                    .totalEarnedLeaves(0.0).usedLeaves(0.0).availableLeaves(0.0)
-                    .carriedForwardLeaves(0.0).unpaidLeaves(0.0).cycle(payroll.getMonth() <= 6 ? 1 : 2).build();
-        }
+
+        PayrollDTO.LeaveBalanceInfo leaveBalanceInfo = PayrollDTO.LeaveBalanceInfo.builder()
+                .totalEarnedLeaves(0.0)
+                .usedLeaves(paidLeaveDays)
+                .availableLeaves(0.0)
+                .carriedForwardLeaves(0.0)
+                .unpaidLeaves(unpaidLeaveDays)
+                .cycle(payroll.getMonth() <= 6 ? 1 : 2)
+                .build();
 
         return PayrollDTO.builder()
                 .id(payroll.getId())
@@ -569,17 +646,23 @@ public class PayrollService {
                 .year(payroll.getYear())
                 .basicSalary(payroll.getBasicSalary())
                 .hra(payroll.getHra())
-                .da(payroll.getDa())
                 .ta(payroll.getTa())
+                .specialAllowance(employee.getSpecialAllowance())
+                .bonus(employee.getBonus())
+                .incentive(employee.getIncentive())
                 .otherAllowances(payroll.getOtherAllowances())
                 .providentFund(payroll.getProvidentFund())
-                .tax(payroll.getTax())
-                .insuranceName(employee.getInsuranceName())
-                .insurance(payroll.getInsurance())
-                .otherDeductions(payroll.getOtherDeductions())
+                .esic(employee.getEsic())
+                .professionalTax(employee.getProfessionalTax())
+                .tds(taxAmt)
+                .loanDeduction(employee.getLoanDeduction())
+                .lwf(employee.getLwf())
+                .tax(taxAmt)
+                .insurance(insAmt)
+                .otherDeductions(otherDeductionsAmt)
                 .grossSalary(payroll.getGrossSalary())
-                .totalDeductions(payroll.getTotalDeductions())
-                .netSalary(payroll.getNetSalary())
+                .totalDeductions(freshTotalDeductions)
+                .netSalary(freshNetSalary)
                 .paymentDate(payroll.getPaymentDate())
                 .status(payroll.getStatus().name())
                 .accountantApproved(payroll.getAccountantApproved())
@@ -591,8 +674,8 @@ public class PayrollService {
                 .unpaidLeaveDays(unpaidLeaveDays)
                 .halfDays(halfDays)
                 .absentLeaveDeduction(absentLeaveDeduction)
-                .unpaidLeaveDeduction(payroll.getUnpaidLeaveDeduction())
-                .absentPenaltyDeduction(payroll.getAbsentDeduction())
+                .unpaidLeaveDeduction(freshUnpaidLeaveDeduction)
+                .absentPenaltyDeduction(freshAbsentDeduction)
                 .leaveBalance(leaveBalanceInfo)
                 .inProbation(inProbation)
                 .probationStatus(probationStatus)
@@ -606,5 +689,35 @@ public class PayrollService {
         return payslipService.generatePayslip(employeeId, monthYear);
     }
 
+    /**
+     * Unlock a payroll record and reset its status/approvals
+     */
+    @Transactional
+    public PayrollDTO unlockPayroll(Long payrollId) {
+        Payroll payroll = payrollRepository.findById(payrollId)
+                .orElseThrow(() -> new RuntimeException("Payroll not found"));
+        
+        log.info("Unlocking payroll {} for employee {} for month {}/{}", payrollId, payroll.getEmployee().getId(), payroll.getMonth(), payroll.getYear());
 
+        // Revert status to PENDING and clear approvals
+        payroll.setStatus(Payroll.PayrollStatus.PENDING);
+        payroll.setAccountantApproved(false);
+        payroll.setDirectorApproved(false);
+        payroll.setPayslipGenerated(false);
+        payroll.setFinalApprovalDate(null);
+        payroll = payrollRepository.save(payroll);
+
+        // Delete any dual approval records
+        payrollApprovalRepository.deleteByPayrollId(payrollId);
+
+        // Reset/Unlock matching payslip as well
+        String monthYear = payroll.getYear() + "-" + String.format("%02d", payroll.getMonth());
+        try {
+            payslipService.unlockPayslip(payroll.getEmployee().getId(), monthYear);
+        } catch (Exception e) {
+            log.warn("Could not unlock payslip for employee {} month {}: {}", payroll.getEmployee().getId(), monthYear, e.getMessage());
+        }
+
+        return convertToDTO(payroll);
+    }
 }

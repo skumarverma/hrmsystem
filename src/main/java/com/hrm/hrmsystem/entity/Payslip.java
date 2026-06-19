@@ -31,11 +31,19 @@ public class Payslip {
     @Column(name = "basic_salary", precision = 10, scale = 2)
     private BigDecimal basicSalary;
 
-    @Column(name = "da", precision = 10, scale = 2)
-    private BigDecimal da;
+
 
     @Column(name = "hra", precision = 10, scale = 2)
     private BigDecimal hra;
+
+    @Column(name = "special_allowance", precision = 10, scale = 2)
+    private BigDecimal specialAllowance;
+
+    @Column(name = "bonus", precision = 10, scale = 2)
+    private BigDecimal bonus;
+
+    @Column(name = "incentive", precision = 10, scale = 2)
+    private BigDecimal incentive;
 
     @Column(name = "other_allowance", precision = 10, scale = 2)
     private BigDecimal otherAllowance;
@@ -49,8 +57,23 @@ public class Payslip {
     @Column(name = "esi", precision = 10, scale = 2)
     private BigDecimal esi;
 
+    @Column(name = "esic", precision = 10, scale = 2)
+    private BigDecimal esic;
+
+    @Column(name = "professional_tax", precision = 10, scale = 2)
+    private BigDecimal professionalTax;
+
+    @Column(name = "tds", precision = 10, scale = 2)
+    private BigDecimal tds;
+
     @Column(name = "income_tax", precision = 10, scale = 2)
     private BigDecimal incomeTax;
+
+    @Column(name = "loan_deduction", precision = 10, scale = 2)
+    private BigDecimal loanDeduction;
+
+    @Column(name = "lwf", precision = 10, scale = 2)
+    private BigDecimal lwf;
 
     @Column(name = "other_deduction", precision = 10, scale = 2)
     private BigDecimal otherDeduction;
@@ -68,7 +91,7 @@ public class Payslip {
     private Integer totalDays = 30;
 
     @Column(name = "working_days")
-    private Integer workingDays = 26;
+    private Integer workingDays = 30;
 
     @Column(name = "present_days")
     private Double presentDays;
@@ -158,13 +181,20 @@ public class Payslip {
     public Integer getSalaryMonth() { return salaryMonth; }
     public Integer getSalaryYear() { return salaryYear; }
     public BigDecimal getBasicSalary() { return basicSalary; }
-    public BigDecimal getDa() { return da; }
     public BigDecimal getHra() { return hra; }
+    public BigDecimal getSpecialAllowance() { return specialAllowance; }
+    public BigDecimal getBonus() { return bonus; }
+    public BigDecimal getIncentive() { return incentive; }
     public BigDecimal getOtherAllowance() { return otherAllowance; }
     public BigDecimal getGrossSalary() { return grossSalary; }
     public BigDecimal getPf() { return pf; }
     public BigDecimal getEsi() { return esi; }
+    public BigDecimal getEsic() { return esic; }
+    public BigDecimal getProfessionalTax() { return professionalTax; }
+    public BigDecimal getTds() { return tds; }
     public BigDecimal getIncomeTax() { return incomeTax; }
+    public BigDecimal getLoanDeduction() { return loanDeduction; }
+    public BigDecimal getLwf() { return lwf; }
     public BigDecimal getOtherDeduction() { return otherDeduction; }
     public BigDecimal getInsurance() { return insurance; }
     public BigDecimal getTotalDeduction() { return totalDeduction; }
@@ -200,13 +230,20 @@ public class Payslip {
     public void setSalaryMonth(Integer salaryMonth) { this.salaryMonth = salaryMonth; }
     public void setSalaryYear(Integer salaryYear) { this.salaryYear = salaryYear; }
     public void setBasicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; }
-    public void setDa(BigDecimal da) { this.da = da; }
     public void setHra(BigDecimal hra) { this.hra = hra; }
+    public void setSpecialAllowance(BigDecimal specialAllowance) { this.specialAllowance = specialAllowance; }
+    public void setBonus(BigDecimal bonus) { this.bonus = bonus; }
+    public void setIncentive(BigDecimal incentive) { this.incentive = incentive; }
     public void setOtherAllowance(BigDecimal otherAllowance) { this.otherAllowance = otherAllowance; }
     public void setGrossSalary(BigDecimal grossSalary) { this.grossSalary = grossSalary; }
     public void setPf(BigDecimal pf) { this.pf = pf; }
     public void setEsi(BigDecimal esi) { this.esi = esi; }
+    public void setEsic(BigDecimal esic) { this.esic = esic; }
+    public void setProfessionalTax(BigDecimal professionalTax) { this.professionalTax = professionalTax; }
+    public void setTds(BigDecimal tds) { this.tds = tds; }
     public void setIncomeTax(BigDecimal incomeTax) { this.incomeTax = incomeTax; }
+    public void setLoanDeduction(BigDecimal loanDeduction) { this.loanDeduction = loanDeduction; }
+    public void setLwf(BigDecimal lwf) { this.lwf = lwf; }
     public void setOtherDeduction(BigDecimal otherDeduction) { this.otherDeduction = otherDeduction; }
     public void setInsurance(BigDecimal insurance) { this.insurance = insurance; }
     public void setTotalDeduction(BigDecimal totalDeduction) { this.totalDeduction = totalDeduction; }

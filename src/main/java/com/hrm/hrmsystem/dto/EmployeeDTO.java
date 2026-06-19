@@ -69,26 +69,33 @@ public class EmployeeDTO {
     
     private BigDecimal basicSalary;
     
-    private BigDecimal da;
-    
     private BigDecimal hra;
+    
+    private BigDecimal specialAllowance;
+    private BigDecimal bonus;
+    private BigDecimal incentive;
     
     private BigDecimal otherAllowance;
     
     private BigDecimal pf;
-    
+    private BigDecimal esic;
+    private BigDecimal professionalTax;
+    private BigDecimal tds;
     private BigDecimal tax;
+    private BigDecimal loanDeduction;
+    private BigDecimal lwf;
+    // Removed insuranceName
     
-    private String insuranceName;
-    
-    private Double insurancePercentage;
+    private String uanNo;
 
     // Constructors
+    public EmployeeDTO() {}
+
     public EmployeeDTO(Long id, String employeeId, String firstName, String lastName, 
                        String email, String phone, String designation, LocalDate joiningDate,
                        BigDecimal salary, String status, String address, Long departmentId, String departmentName,
                        Long shiftId, String gender, Integer probationPeriodMonths,
-                       BigDecimal basicSalary, BigDecimal da, BigDecimal hra, BigDecimal otherAllowance,
+                       BigDecimal basicSalary, BigDecimal hra, BigDecimal otherAllowance,
                        BigDecimal pf, BigDecimal tax) {
         this.id = id;
         this.employeeId = employeeId;
@@ -107,7 +114,6 @@ public class EmployeeDTO {
         this.gender = gender;
         this.probationPeriodMonths = probationPeriodMonths;
         this.basicSalary = basicSalary;
-        this.da = da;
         this.hra = hra;
         this.otherAllowance = otherAllowance;
         this.pf = pf;
@@ -183,12 +189,20 @@ public class EmployeeDTO {
         return basicSalary;
     }
 
-    public BigDecimal getDa() {
-        return da;
-    }
-
     public BigDecimal getHra() {
         return hra;
+    }
+
+    public BigDecimal getSpecialAllowance() {
+        return specialAllowance;
+    }
+
+    public BigDecimal getBonus() {
+        return bonus;
+    }
+
+    public BigDecimal getIncentive() {
+        return incentive;
     }
 
     public BigDecimal getOtherAllowance() {
@@ -199,16 +213,32 @@ public class EmployeeDTO {
         return pf;
     }
 
+    public BigDecimal getEsic() {
+        return esic;
+    }
+
+    public BigDecimal getProfessionalTax() {
+        return professionalTax;
+    }
+
+    public BigDecimal getTds() {
+        return tds;
+    }
+
     public BigDecimal getTax() {
         return tax;
     }
 
-    public String getInsuranceName() {
-        return insuranceName;
+    public BigDecimal getLoanDeduction() {
+        return loanDeduction;
     }
 
-    public Double getInsurancePercentage() {
-        return insurancePercentage;
+    public BigDecimal getLwf() {
+        return lwf;
+    }
+
+    public String getUanNo() {
+        return uanNo;
     }
 
     // Setters
@@ -280,12 +310,20 @@ public class EmployeeDTO {
         this.basicSalary = basicSalary;
     }
 
-    public void setDa(BigDecimal da) {
-        this.da = da;
-    }
-
     public void setHra(BigDecimal hra) {
         this.hra = hra;
+    }
+
+    public void setSpecialAllowance(BigDecimal specialAllowance) {
+        this.specialAllowance = specialAllowance;
+    }
+
+    public void setBonus(BigDecimal bonus) {
+        this.bonus = bonus;
+    }
+
+    public void setIncentive(BigDecimal incentive) {
+        this.incentive = incentive;
     }
 
     public void setOtherAllowance(BigDecimal otherAllowance) {
@@ -296,16 +334,32 @@ public class EmployeeDTO {
         this.pf = pf;
     }
 
+    public void setEsic(BigDecimal esic) {
+        this.esic = esic;
+    }
+
+    public void setProfessionalTax(BigDecimal professionalTax) {
+        this.professionalTax = professionalTax;
+    }
+
+    public void setTds(BigDecimal tds) {
+        this.tds = tds;
+    }
+
     public void setTax(BigDecimal tax) {
         this.tax = tax;
     }
 
-    public void setInsuranceName(String insuranceName) {
-        this.insuranceName = insuranceName;
+    public void setLoanDeduction(BigDecimal loanDeduction) {
+        this.loanDeduction = loanDeduction;
     }
 
-    public void setInsurancePercentage(Double insurancePercentage) {
-        this.insurancePercentage = insurancePercentage;
+    public void setLwf(BigDecimal lwf) {
+        this.lwf = lwf;
+    }
+
+    public void setUanNo(String uanNo) {
+        this.uanNo = uanNo;
     }
 
     @Override
@@ -318,21 +372,9 @@ public class EmployeeDTO {
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", designation='" + designation + '\'' +
-                ", joiningDate=" + joiningDate +
-                ", salary=" + salary +
-                ", status='" + status + '\'' +
-                ", address='" + address + '\'' +
-                ", departmentId=" + departmentId +
-                ", departmentName='" + departmentName + '\'' +
-                ", shiftId=" + shiftId +
-                ", gender='" + gender + '\'' +
-                ", probationPeriodMonths=" + probationPeriodMonths +
                 ", basicSalary=" + basicSalary +
-                ", da=" + da +
                 ", hra=" + hra +
-                ", otherAllowance=" + otherAllowance +
                 ", pf=" + pf +
-                ", tax=" + tax +
                 '}';
     }
 
@@ -359,143 +401,86 @@ public class EmployeeDTO {
         private String gender;
         private Integer probationPeriodMonths;
         private BigDecimal basicSalary;
-        private BigDecimal da;
         private BigDecimal hra;
+        private BigDecimal specialAllowance;
+        private BigDecimal bonus;
+        private BigDecimal incentive;
         private BigDecimal otherAllowance;
         private BigDecimal pf;
+        private BigDecimal esic;
+        private BigDecimal professionalTax;
+        private BigDecimal tds;
         private BigDecimal tax;
-        private String insuranceName;
-        private Double insurancePercentage;
+        private BigDecimal loanDeduction;
+        private BigDecimal lwf;
+        private String uanNo;
 
-        public Builder id(Long id) {
-            this.id = id;
-            return this;
-        }
+        public Builder id(Long id) { this.id = id; return this; }
+        public Builder employeeId(String employeeId) { this.employeeId = employeeId; return this; }
+        public Builder firstName(String firstName) { this.firstName = firstName; return this; }
+        public Builder lastName(String lastName) { this.lastName = lastName; return this; }
+        public Builder email(String email) { this.email = email; return this; }
+        public Builder phone(String phone) { this.phone = phone; return this; }
+        public Builder designation(String designation) { this.designation = designation; return this; }
+        public Builder joiningDate(LocalDate joiningDate) { this.joiningDate = joiningDate; return this; }
+        public Builder salary(BigDecimal salary) { this.salary = salary; return this; }
+        public Builder status(String status) { this.status = status; return this; }
+        public Builder address(String address) { this.address = address; return this; }
+        public Builder departmentId(Long departmentId) { this.departmentId = departmentId; return this; }
+        public Builder departmentName(String departmentName) { this.departmentName = departmentName; return this; }
+        public Builder shiftId(Long shiftId) { this.shiftId = shiftId; return this; }
+        public Builder gender(String gender) { this.gender = gender; return this; }
+        public Builder probationPeriodMonths(Integer probationPeriodMonths) { this.probationPeriodMonths = probationPeriodMonths; return this; }
+        public Builder basicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; return this; }
 
-        public Builder employeeId(String employeeId) {
-            this.employeeId = employeeId;
-            return this;
-        }
-
-        public Builder firstName(String firstName) {
-            this.firstName = firstName;
-            return this;
-        }
-
-        public Builder lastName(String lastName) {
-            this.lastName = lastName;
-            return this;
-        }
-
-        public Builder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder phone(String phone) {
-            this.phone = phone;
-            return this;
-        }
-
-        public Builder designation(String designation) {
-            this.designation = designation;
-            return this;
-        }
-
-        public Builder joiningDate(LocalDate joiningDate) {
-            this.joiningDate = joiningDate;
-            return this;
-        }
-
-        public Builder salary(BigDecimal salary) {
-            this.salary = salary;
-            return this;
-        }
-
-        public Builder status(String status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder address(String address) {
-            this.address = address;
-            return this;
-        }
-
-        public Builder departmentId(Long departmentId) {
-            this.departmentId = departmentId;
-            return this;
-        }
-
-        public Builder departmentName(String departmentName) {
-            this.departmentName = departmentName;
-            return this;
-        }
-
-        public Builder shiftId(Long shiftId) {
-            this.shiftId = shiftId;
-            return this;
-        }
-
-        public Builder gender(String gender) {
-            this.gender = gender;
-            return this;
-        }
-
-        public Builder probationPeriodMonths(Integer probationPeriodMonths) {
-            this.probationPeriodMonths = probationPeriodMonths;
-            return this;
-        }
-
-        public Builder basicSalary(BigDecimal basicSalary) {
-            this.basicSalary = basicSalary;
-            return this;
-        }
-
-        public Builder da(BigDecimal da) {
-            this.da = da;
-            return this;
-        }
-
-        public Builder hra(BigDecimal hra) {
-            this.hra = hra;
-            return this;
-        }
-
-        public Builder otherAllowance(BigDecimal otherAllowance) {
-            this.otherAllowance = otherAllowance;
-            return this;
-        }
-
-        public Builder pf(BigDecimal pf) {
-            this.pf = pf;
-            return this;
-        }
-
-        public Builder tax(BigDecimal tax) {
-            this.tax = tax;
-            return this;
-        }
-
-        public Builder insuranceName(String insuranceName) {
-            this.insuranceName = insuranceName;
-            return this;
-        }
-
-        public Builder insurancePercentage(Double insurancePercentage) {
-            this.insurancePercentage = insurancePercentage;
-            return this;
-        }
+        public Builder hra(BigDecimal hra) { this.hra = hra; return this; }
+        public Builder specialAllowance(BigDecimal specialAllowance) { this.specialAllowance = specialAllowance; return this; }
+        public Builder bonus(BigDecimal bonus) { this.bonus = bonus; return this; }
+        public Builder incentive(BigDecimal incentive) { this.incentive = incentive; return this; }
+        public Builder otherAllowance(BigDecimal otherAllowance) { this.otherAllowance = otherAllowance; return this; }
+        public Builder pf(BigDecimal pf) { this.pf = pf; return this; }
+        public Builder esic(BigDecimal esic) { this.esic = esic; return this; }
+        public Builder professionalTax(BigDecimal professionalTax) { this.professionalTax = professionalTax; return this; }
+        public Builder tds(BigDecimal tds) { this.tds = tds; return this; }
+        public Builder tax(BigDecimal tax) { this.tax = tax; return this; }
+        public Builder loanDeduction(BigDecimal loanDeduction) { this.loanDeduction = loanDeduction; return this; }
+        public Builder lwf(BigDecimal lwf) { this.lwf = lwf; return this; }
+        public Builder uanNo(String uanNo) { this.uanNo = uanNo; return this; }
 
         public EmployeeDTO build() {
-            EmployeeDTO dto = new EmployeeDTO(id, employeeId, firstName, lastName, email, phone, designation,
-                    joiningDate, salary, status, address, departmentId, departmentName,
-                    shiftId, gender, probationPeriodMonths, basicSalary, da, hra, otherAllowance, pf, tax);
-            dto.setInsuranceName(insuranceName);
-            dto.setInsurancePercentage(insurancePercentage);
+            EmployeeDTO dto = new EmployeeDTO();
+            dto.setId(id);
+            dto.setEmployeeId(employeeId);
+            dto.setFirstName(firstName);
+            dto.setLastName(lastName);
+            dto.setEmail(email);
+            dto.setPhone(phone);
+            dto.setDesignation(designation);
+            dto.setJoiningDate(joiningDate);
+            dto.setSalary(salary);
+            dto.setStatus(status);
+            dto.setAddress(address);
+            dto.setDepartmentId(departmentId);
+            dto.setDepartmentName(departmentName);
+            dto.setShiftId(shiftId);
+            dto.setGender(gender);
+            dto.setProbationPeriodMonths(probationPeriodMonths);
+            dto.setBasicSalary(basicSalary);
+            dto.setHra(hra);
+            dto.setSpecialAllowance(specialAllowance);
+            dto.setBonus(bonus);
+            dto.setIncentive(incentive);
+            dto.setOtherAllowance(otherAllowance);
+            dto.setPf(pf);
+            dto.setEsic(esic);
+            dto.setProfessionalTax(professionalTax);
+            dto.setTds(tds);
+            dto.setTax(tax);
+            dto.setLoanDeduction(loanDeduction);
+            dto.setLwf(lwf);
+            dto.setUanNo(uanNo);
             return dto;
         }
-
     }
 
     // Custom deserializers to handle string inputs from frontend

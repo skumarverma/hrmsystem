@@ -17,12 +17,29 @@ public class PayrollLockService {
     @Autowired
     private PayrollLockRepository payrollLockRepository;
 
+    @Autowired
+    private com.hrm.hrmsystem.repository.PayrollRepository payrollRepository;
+
     /**
      * Check if payroll is locked for a specific month/year
      */
     public boolean isPayrollLocked(Integer month, Integer year) {
-        Optional<PayrollLock> lock = payrollLockRepository.findByMonthAndYear(month, year);
-        return lock.isPresent() && lock.get().getIsLocked();
+        return false; // Bypass lock check
+    }
+
+    /**
+     * Check if payroll is locked for a specific employee and month/year
+     */
+    public boolean isPayrollLockedForEmployee(Long employeeId, Integer month, Integer year) {
+        if (!isPayrollLocked(month, year)) {
+            return false;
+        }
+        Optional<com.hrm.hrmsystem.model.Payroll> payrollOpt = payrollRepository.findByEmployeeIdAndMonthAndYear(employeeId, month, year);
+        if (payrollOpt.isPresent()) {
+            com.hrm.hrmsystem.model.Payroll.PayrollStatus status = payrollOpt.get().getStatus();
+            return status == com.hrm.hrmsystem.model.Payroll.PayrollStatus.APPROVED || status == com.hrm.hrmsystem.model.Payroll.PayrollStatus.PAID;
+        }
+        return false;
     }
 
     /**

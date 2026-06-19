@@ -9,115 +9,385 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1e3a5f; --primary-light: #2c5282;
-            --success: #059669; --success-bg: #d1fae5; --success-border: #6ee7b7;
-            --danger: #dc2626;  --danger-bg: #fee2e2;  --danger-border: #fca5a5;
-            --warning: #d97706; --warning-bg: #fef3c7;
-            --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
-            --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563;
-            --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
-            --radius-md: 0.75rem; --radius-lg: 1rem; --radius-xl: 1.25rem;
-            --shadow: 0 4px 6px -1px rgba(0,0,0,.06), 0 2px 4px -1px rgba(0,0,0,.04);
-            --shadow-md: 0 10px 15px -3px rgba(0,0,0,.08);
-            --transition: all 0.22s cubic-bezier(.4,0,.2,1);
+            --primary: #1e3a5f;
+            --primary-light: #2c5282;
+            --success: #059669;
+            --success-bg: #d1fae5;
+            --success-border: #6ee7b7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --danger-border: #fca5a5;
+            --warning: #d97706;
+            --warning-bg: #fef3c7;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.25rem;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, .06), 0 2px 4px -1px rgba(0, 0, 0, .04);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, .08);
+            --transition: all 0.22s cubic-bezier(.4, 0, .2, 1);
         }
-        .page-content { animation: fadeIn .35s ease-out; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
-        /* Header bar */
-        .payslips-header-controls { display:flex; align-items:center; gap:.625rem; flex-wrap:wrap; }
-        .payslips-header-controls .form-control {
-            padding:.575rem .875rem !important; border-radius:var(--radius-md) !important;
-            font-size:.875rem !important; border-color:var(--gray-200) !important;
-            box-shadow:0 1px 2px rgba(0,0,0,.04) !important;
+        .page-content {
+            animation: fadeIn .35s ease-out;
         }
-        .header-btn {
-            display:inline-flex; align-items:center; gap:.45rem;
-            padding:.575rem 1rem; font-size:.8rem; font-weight:600;
-            border-radius:var(--radius-md); border:none; cursor:pointer;
-            transition:var(--transition); box-shadow:0 1px 2px rgba(0,0,0,.06);
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .header-btn-secondary { background:#fff; color:var(--gray-700); border:1px solid var(--gray-200); }
-        .header-btn-secondary:hover { background:var(--gray-50); border-color:var(--gray-300); transform:translateY(-1px); }
-        .header-btn-warning { background:linear-gradient(135deg,#d97706,#f59e0b); color:#fff; }
-        .header-btn-warning:hover { background:linear-gradient(135deg,#b45309,#d97706); transform:translateY(-1px); box-shadow:var(--shadow); }
-        .header-btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; }
-        .header-btn-primary:hover { transform:translateY(-1px); box-shadow:var(--shadow); }
+
+        .welcome-banner .banner-select {
+            width: auto !important;
+            background: white !important;
+            color: var(--gray-800) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1.5rem 0.5rem 0.75rem !important;
+            height: 38px !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-select:hover {
+            border-color: var(--gray-300) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .welcome-banner .banner-input {
+            width: 180px !important;
+            background: white !important;
+            color: var(--gray-800) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 0.75rem !important;
+            height: 38px !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-input:focus {
+            border-color: var(--primary-light) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.15) !important;
+        }
+
+        .welcome-banner .banner-btn-secondary {
+            background: white !important;
+            color: var(--gray-700) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-btn-secondary:hover {
+            background: var(--gray-50) !important;
+            border-color: var(--gray-300) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .welcome-banner .banner-btn-warning {
+            background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+            color: white !important;
+            border: 1.5px solid #d97706 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-btn-warning:hover {
+            background: linear-gradient(135deg, #b45309, #d97706) !important;
+            border-color: #b45309 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3) !important;
+        }
+
+        .welcome-banner .banner-btn-generate {
+            background: var(--accent) !important;
+            color: var(--primary-dark) !important;
+            border: 1.5px solid var(--accent) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 700 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-btn-generate:hover {
+            background: var(--accent-light) !important;
+            border-color: var(--accent-light) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
+        }
+
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .header .page-title,
+            .header .payslips-header-controls {
+                display: none !important;
+            }
+        }
 
         /* Payslip grid */
         .payslips-grid {
-            display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-            gap:1.25rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
         }
 
         /* Payslip card */
         .payslip-card {
-            background:#fff; border-radius:var(--radius-xl);
-            border:1px solid var(--gray-200); box-shadow:var(--shadow);
-            overflow:hidden; transition:var(--transition);
-            display:flex; flex-direction:column;
+            background: #fff;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
         }
-        .payslip-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+
+        .payslip-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
 
         .payslip-card-header {
-            padding:1rem 1.25rem; background:var(--gray-50);
-            border-bottom:1px solid var(--gray-100);
-            display:flex; align-items:center; gap:.875rem;
+            padding: 1rem 1.25rem;
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: .875rem;
         }
-        .payslip-avatar {
-            width:42px; height:42px; border-radius:50%;
-            display:flex; align-items:center; justify-content:center;
-            color:#fff; font-weight:700; font-size:1rem; flex-shrink:0;
-        }
-        .payslip-emp-name { font-weight:700; font-size:.9rem; color:var(--gray-900); margin-bottom:2px; }
-        .payslip-month { font-size:.75rem; color:var(--gray-500); }
 
-        .payslip-card-body { padding:1rem 1.25rem; flex:1; }
-        .payslip-salary-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.625rem; }
-        .payslip-net-label { font-size:.75rem; color:var(--gray-500); text-transform:uppercase; letter-spacing:.04em; font-weight:600; }
-        .payslip-net-amount { font-size:1.35rem; font-weight:800; color:var(--success); }
-        .payslip-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; padding-top:.625rem; border-top:1px solid var(--gray-100); }
-        .payslip-meta-item { }
-        .payslip-meta-label { font-size:.68rem; color:var(--gray-400); text-transform:uppercase; letter-spacing:.04em; }
-        .payslip-meta-value { font-size:.82rem; font-weight:600; color:var(--gray-700); }
-        .payslip-meta-value.danger { color:var(--danger); }
+        .payslip-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .payslip-emp-name {
+            font-weight: 700;
+            font-size: .9rem;
+            color: var(--gray-900);
+            margin-bottom: 2px;
+        }
+
+        .payslip-month {
+            font-size: .75rem;
+            color: var(--gray-500);
+        }
+
+        .payslip-card-body {
+            padding: 1rem 1.25rem;
+            flex: 1;
+        }
+
+        .payslip-salary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: .625rem;
+        }
+
+        .payslip-net-label {
+            font-size: .75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 600;
+        }
+
+        .payslip-net-amount {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        .payslip-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .5rem;
+            padding-top: .625rem;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .payslip-meta-item {}
+
+        .payslip-meta-label {
+            font-size: .68rem;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .payslip-meta-value {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .payslip-meta-value.danger {
+            color: var(--danger);
+        }
 
         .payslip-leave-info {
-            margin-top:.625rem; padding:.5rem .75rem;
-            background:#eff6ff; border-radius:.5rem;
-            font-size:.75rem; color:#1d4ed8;
-            display:flex; align-items:center; gap:.375rem;
+            margin-top: .625rem;
+            padding: .5rem .75rem;
+            background: #eff6ff;
+            border-radius: .5rem;
+            font-size: .75rem;
+            color: #1d4ed8;
+            display: flex;
+            align-items: center;
+            gap: .375rem;
         }
 
         /* Card action footer */
         .payslip-card-footer {
-            padding:.875rem 1.25rem; background:var(--gray-50);
-            border-top:1px solid var(--gray-100);
-            display:flex; gap:.5rem; justify-content:flex-end;
-            align-items:center;
+            padding: .875rem 1.25rem;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-100);
+            display: flex;
+            gap: .5rem;
+            justify-content: flex-end;
+            align-items: center;
         }
+
         .ps-btn {
-            display:inline-flex; align-items:center; gap:.375rem;
-            padding:.5rem .875rem; font-size:.78rem; font-weight:600;
-            border-radius:var(--radius-md); border:1px solid transparent;
-            cursor:pointer; transition:var(--transition); white-space:nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: .375rem;
+            padding: .5rem .875rem;
+            font-size: .78rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
         }
-        .ps-btn svg { width:14px; height:14px; flex-shrink:0; }
-        .ps-btn-view   { background:#fff; color:var(--gray-700); border-color:var(--gray-200); }
-        .ps-btn-view:hover   { background:var(--gray-100); border-color:var(--gray-300); }
-        .ps-btn-download { background:var(--primary); color:#fff; }
-        .ps-btn-download:hover { background:var(--primary-light); box-shadow:0 2px 6px rgba(30,58,95,.25); }
-        .ps-btn-delete { background:var(--danger-bg); color:var(--danger); border-color:var(--danger-border); }
-        .ps-btn-delete:hover { background:#fecaca; }
+
+        .ps-btn svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .ps-btn-view {
+            background: #fff;
+            color: var(--gray-700);
+            border-color: var(--gray-200);
+        }
+
+        .ps-btn-view:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-300);
+        }
+
+        .ps-btn-download {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .ps-btn-download:hover {
+            background: var(--primary-light);
+            box-shadow: 0 2px 6px rgba(30, 58, 95, .25);
+        }
+
+        .ps-btn-delete {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: var(--danger-border);
+        }
+
+        .ps-btn-delete:hover {
+            background: #fecaca;
+        }
 
         /* Status section heading */
         .status-section-heading {
-            display:flex; align-items:center; gap:.5rem;
-            font-size:.75rem; font-weight:800; text-transform:uppercase;
-            letter-spacing:.06em; margin:1.5rem 0 .75rem;
-            grid-column:1/-1;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin: 1.5rem 0 .75rem;
+            grid-column: 1/-1;
         }
-        .status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -134,27 +404,66 @@
                     <h1>Payslips</h1>
                     <p>Manage and generate employee payslips</p>
                 </div>
-                <div class="payslips-header-controls">
-                    <select id="monthFilter" onchange="filterByMonth()" class="form-control" style="width:auto;">
-                        <option value="">All Months</option>
-                    </select>
-                    <input type="text" id="search-input" placeholder="Search employee..." class="form-control" style="width:180px;">
-                    <button onclick="loadPayslips()" class="header-btn header-btn-secondary">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
-                        Refresh
-                    </button>
-                    <button onclick="showRegenerateModal()" class="header-btn header-btn-warning">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
-                        Regenerate
-                    </button>
-                    <button onclick="showGeneratePayslipModal()" class="header-btn header-btn-primary">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        Generate
-                    </button>
-                </div>
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner"
+                    style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
+                    <div style="z-index: 1;">
+                        <h1
+                            style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                            Payslips</h1>
+                        <p
+                            style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                            Manage and generate employee payslips</p>
+                    </div>
+
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <select id="monthFilter" onchange="filterByMonth()" class="banner-select">
+                            <option value="">All Months</option>
+                        </select>
+                        <input type="text" id="search-input" placeholder="Search employee..." class="banner-input">
+
+                        <button onclick="refreshCurrentMonth()" class="banner-btn-secondary"
+                            title="Reset to current month">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            Refresh
+                        </button>
+                        <button onclick="showRegenerateModal()" class="banner-btn-warning">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            Regenerate
+                        </button>
+                        <button onclick="showGeneratePayslipModal()" class="banner-btn-generate">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Generate
+                        </button>
+
+
+                    </div>
+                </div>
+
                 <div id="payslips-grid" class="payslips-grid">
                     <!-- Payslip cards -->
                 </div>
@@ -193,10 +502,18 @@
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         let allPayslips = []; // Store all payslips for filtering
+        let isFirstLoad = true;
 
         function getCurrentMonthYear() {
             const now = new Date();
             return `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+        }
+
+        function getCurrentMonthYearValue() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
         }
 
         function populateMonthFilter(payslips) {
@@ -204,6 +521,12 @@
             if (!monthFilter) return;
 
             const months = [...new Set(payslips.map(p => p.monthYear).filter(m => m))].sort().reverse();
+            const currentMonth = getCurrentMonthYearValue();
+
+            if (!months.includes(currentMonth)) {
+                months.push(currentMonth);
+                months.sort().reverse();
+            }
 
             // Keep current selection
             const currentSelection = monthFilter.value;
@@ -213,12 +536,14 @@
                 monthFilter.innerHTML += `<option value="${month}">${month}</option>`;
             });
 
-            // If no selection and months available, select the latest one automatically
-            if (!currentSelection && months.length > 0) {
-                monthFilter.value = months[0];
+            if (isFirstLoad) {
+                monthFilter.value = currentMonth;
+                isFirstLoad = false;
             } else if (currentSelection && months.includes(currentSelection)) {
                 // Restore selection if still valid
                 monthFilter.value = currentSelection;
+            } else {
+                monthFilter.value = currentSelection || "";
             }
         }
 
@@ -239,16 +564,8 @@
                 filteredData = filteredData.filter(p => p.monthYear === selectedMonth);
             }
 
-            // Deduplicate - keep only one payslip per employee (latest by ID)
-            const uniqueEmployees = {};
-            filteredData.forEach(p => {
-                if (!p) return;
-                const empId = p.employeeId || (p.employee && p.employee.id);
-                if (empId && (!uniqueEmployees[empId] || p.id > uniqueEmployees[empId].id)) {
-                    uniqueEmployees[empId] = p;
-                }
-            });
-            filteredData = Object.values(uniqueEmployees);
+            // Removed deduplication to show history of all payslips
+            // filteredData will retain all records
 
             if (filteredData.length === 0) {
                 const message = selectedMonth
@@ -319,7 +636,7 @@
                                     ${p.paidLeaveDays > 0 || p.unpaidLeaveDays > 0 ? `
                                         <div class="payslip-leave-info">
                                             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
-                                            Leaves: ${((p.paidLeaveDays||0)+(p.unpaidLeaveDays||0)).toFixed(1)}d &nbsp;•&nbsp; Paid: ${(p.paidLeaveDays||0).toFixed(1)} &nbsp;•&nbsp; Unpaid: ${(p.unpaidLeaveDays||0).toFixed(1)}
+                                            Leaves: ${((p.paidLeaveDays || 0) + (p.unpaidLeaveDays || 0)).toFixed(1)}d &nbsp;•&nbsp; Paid: ${(p.paidLeaveDays || 0).toFixed(1)} &nbsp;•&nbsp; Unpaid: ${(p.unpaidLeaveDays || 0).toFixed(1)}
                                         </div>
                                     ` : ''}
                                 </div>
@@ -328,7 +645,7 @@
                                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         View
                                     </button>
-                                    <button onclick="downloadPayslipPDF(${p.id})" class="ps-btn ps-btn-download">
+                                    <button onclick="downloadPayslip(${p.id})" class="ps-btn ps-btn-download">
                                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                         Download
                                     </button>
@@ -374,10 +691,7 @@
                                     <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">HRA</label>
                                     <input type="number" name="hra" value="${p.hra || 0}" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.375rem;">
                                 </div>
-                                <div>
-                                    <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">DA</label>
-                                    <input type="number" name="da" value="${p.da || 0}" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.375rem;">
-                                </div>
+
                                 <div>
                                     <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">PF</label>
                                     <input type="number" name="pf" value="${p.pf || 0}" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.375rem;">
@@ -389,10 +703,6 @@
                                 <div>
                                     <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Income Tax</label>
                                     <input type="number" name="incomeTax" value="${p.incomeTax || 0}" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.375rem;">
-                                </div>
-                                <div>
-                                    <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Insurance</label>
-                                    <input type="number" name="insurance" value="${p.insurance || 0}" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.375rem;">
                                 </div>
                                 <div>
                                     <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Other Deduction</label>
@@ -414,7 +724,7 @@
                     const data = Object.fromEntries(formData);
 
                     // Convert to numbers
-                    ['basicSalary', 'hra', 'da', 'pf', 'esi', 'incomeTax', 'otherAllowance', 'insurance', 'otherDeduction'].forEach(key => {
+                    ['basicSalary', 'hra', 'pf', 'esi', 'incomeTax', 'otherAllowance', 'otherDeduction'].forEach(key => {
                         data[key] = parseFloat(data[key]) || 0;
                     });
 
@@ -447,228 +757,42 @@
 
         async function previewPayslip(id) {
             try {
-                const res = await auth.apiCall(`/api/payslips/${id}`);
-                if (!res || !res.ok) throw new Error('Failed to load payslip');
-                const p = await res.json();
-
                 const modal = document.getElementById('payslipModal');
                 const details = document.getElementById('payslipDetails');
                 const downloadBtn = document.getElementById('downloadPayslipBtn');
 
-                // ✅ REMOVED: Manual salary calculations - Use backend AttendanceEngine calculations only
-                // Calculate leave deductions based on 26 working days (NOT 30)
-                // const dailyRate = (p.basicSalary || 0) / 26;
-                // const halfDayDeduction = dailyRate / 2;
-                // const fullDayDeduction = dailyRate;
-                const dailyRate = 0; // Placeholder - will be calculated by backend AttendanceEngine
-                const absentDays = p.absentDays || 0;
-                const halfDays = p.halfDays || 0;
-                const leaveDays = p.leaveDays || 0;
-                const paidLeaveDays = p.paidLeaveDays || 0;
-                const unpaidLeaveDays = p.unpaidLeaveDays || 0;
-
-                // ✅ REMOVED: Manual attendance deductions - Use backend AttendanceEngine calculations only
-                // Calculate attendance deductions - use backend value or calculate from components
-                // const calculatedAbsentDeduction = absentDays * dailyRate;
-                // const calculatedHalfDayDeduction = halfDays * dailyRate * 0.5;
-                // const calculatedUnpaidDeduction = unpaidLeaveDays * dailyRate;
-                // ✅ Use backend-provided deduction values (calculated by AttendanceEngine)
-                // - unpaidLeaveDeduction = unpaidLeaveDays × dailyRate (1x)
-                // - absentDeduction      = absentDays × dailyRate × 2  (2x double penalty)
-                // ✅ Compute deductions on-the-fly from gross salary (handles stale DB records)
-                const _gross = p.grossSalary || 0;
-                const _dailyRate = _gross > 0 ? _gross / 26 : 0;
-                const unpaidLeaveDeduction = (_dailyRate * (p.unpaidLeaveDays || 0));
-                const absentPenaltyDeduction = (_dailyRate * (p.absentDays || 0));
-                const totalAttendanceDeduction = unpaidLeaveDeduction + absentPenaltyDeduction;
-                const ins = p.insurance || 0;
-                const generalOther = Math.max(0, (p.otherDeduction || 0) - ins);
-                const _otherDed = (p.pf || 0) + (p.esi || 0) + (p.incomeTax || 0) + ins + generalOther;
-                const _totalDed = _otherDed + totalAttendanceDeduction;
-                const _netSalary = Math.max(0, _gross - _totalDed);
-
+                // Show loading state inside modal
                 details.innerHTML = `
-                    <div style="padding: 1rem;">
-                        <!-- Employee Details Section -->
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                            <h4 style="margin: 0 0 1rem 0; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 0.5rem;">👤 Employee Details</h4>
-                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Name</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.employeeName || 'Unknown'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Employee ID</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.employeeId || '-'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Department</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.department || '-'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Designation</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.designation || '-'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Email</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.email || '-'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Phone</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.phone || '-'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Join Date</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${p.joinDate ? auth.formatDate(p.joinDate) : '-'}</p>
-                                </div>
-                                <div>
-                                    <p style="margin: 0; font-size: 0.75rem; opacity: 0.9;">Basic Salary</p>
-                                    <p style="margin: 0.25rem 0 0 0; font-weight: 600; font-size: 1rem;">${auth.formatCurrency(p.basicSalary || 0)}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem;">
-                            <h3 style="margin: 0; color: #1f2937;">Payslip - ${p.monthYear || 'N/A'}</h3>
-                            <span class="status-badge ${(p.status || 'draft').toLowerCase()}" style="margin-top: 0.5rem; display: inline-block;">${p.status || 'Draft'}</span>
-                        </div>
-
-                        <!-- Paid Leave Balance Section -->
-                        <div style="margin-bottom: 2rem; padding: 1rem; background: #f0fdf4; border-radius: 8px; border: 1px solid #86efac;">
-                            <h4 style="color: #166534; margin-bottom: 1rem; border-bottom: 1px solid #86efac; padding-bottom: 0.5rem;">💰 Paid Leave Balance</h4>
-                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
-                                <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #16a34a;">${((p.leaveBalance && typeof p.leaveBalance.totalEarnedLeaves === 'number') ? p.leaveBalance.totalEarnedLeaves : 0).toFixed(1)}</div>
-                                    <div style="font-size: 0.75rem; color: #6b7280;">Total Earned</div>
-                                </div>
-                                <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                    ${p.inProbation || p.probationStatus === 'In Progress' ?
-                        `<div style="font-size: 1.2rem; font-weight: bold; color: #dc2626;">⏳ In Progress (${p.probationMonths || 3} months)</div>
-                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Joined: ${p.joinDate ? new Date(p.joinDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}<br>Complete: ${p.joinDate ? new Date(new Date(p.joinDate).setMonth(new Date(p.joinDate).getMonth() + (p.probationMonths || 3))).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</div>` :
-                        `<div style="font-size: 1.2rem; font-weight: bold; color: #16a34a;">✅ Completed (${p.probationMonths || 3} months)</div>
-                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Joined: ${p.joinDate ? new Date(p.joinDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}<br>Completed: ${p.joinDate ? new Date(new Date(p.joinDate).setMonth(new Date(p.joinDate).getMonth() + (p.probationMonths || 3))).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</div>`
-                    }
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                                <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #d97706;">${((p.leaveBalance && typeof p.leaveBalance.usedLeaves === 'number') ?p.leaveBalance.usedLeaves: 0).toFixed(1)
-            }</div >
-                <div style="font-size: 0.75rem; color: #6b7280;">Used Leaves (Paid + Unpaid)</div>
-                                </div >
-                <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #16a34a;">${((p.leaveBalance && typeof p.leaveBalance.availableLeaves === 'number') ? p.leaveBalance.availableLeaves : 0).toFixed(1)}</div>
-                    <div style="font-size: 0.75rem; color: #6b7280;">Remaining</div>
-                </div>
-                            </div >
-                        </div >
-
-
-                        <div style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <h4 style="color: #3b82f6; margin-bottom: 1rem; border-bottom: 1px solid #d1d5db; padding-bottom: 0.5rem;">📊 Attendance & Leave Summary</h4>
-                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
-                                <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #059669;">${(p.presentDays || 0).toFixed(1)}</div>
-                                    <div style="font-size: 0.75rem; color: #6b7280;">Present Days</div>
-                                </div>
-                                <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #dc2626;">${(p.absentDays || 0).toFixed(1)}</div>
-                                    <div style="font-size: 0.75rem; color: #6b7280;">Absent Days</div>
-                                </div>
-                            </div>
-                            
-                            <div style="background: white; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                                <h5 style="margin: 0 0 0.5rem 0; color: #4b5563;">Leave Details</h5>
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-                                    <div style="text-align: center; padding: 0.5rem; background: #f0fdf4; border-radius: 6px;">
-                                        <p style="margin: 0; font-size: 0.75rem; color: #6b7280;">Paid Used Leaves</p>
-                                        <p style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #16a34a;">${(p.paidLeaveDays || 0).toFixed(1)}</p>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.5rem; background: #fef2f2; border-radius: 6px;">
-                                        <p style="margin: 0; font-size: 0.75rem; color: #6b7280;">Unpaid Used Leaves</p>
-                                        <p style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #dc2626;">${(p.unpaidLeaveDays || 0).toFixed(1)}</p>
-                                    </div>
-                                </div>
-                                ${p.probationStatus === 'In Progress' || p.inProbation ? `<div style="margin-top: 0.5rem; padding: 0.5rem; background: #fef3c7; border-radius: 4px; font-size: 0.75rem; color: #92400e;">⚠️ During probation: No paid leave allowed. All leaves are unpaid.</div>` : ''}
-                                ${unpaidLeaveDays > 0 && !p.inProbation ? `<div style="margin-top: 0.5rem; padding: 0.5rem; background: #fee2e2; border-radius: 4px; font-size: 0.75rem; color: #991b1b;">⚠️ ${unpaidLeaveDays} day(s) exceed your available balance and will be unpaid. Deduction: Rs. ${(unpaidLeaveDays * (p.employee?.salary || 0) / 26).toFixed(2)}</div>` : ''}
-                            </div>
-
-                            <div style="background: white; padding: 1rem; border-radius: 6px;">
-                                <h5 style="margin: 0 0 0.5rem 0; color: #4b5563;">Attendance Deductions (From Backend)</h5>
-                                ${unpaidLeaveDays > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;"><span>Unpaid Leaves (${unpaidLeaveDays} days × 1× daily rate):</span><span style="color: #dc2626;">-${auth.formatCurrency(unpaidLeaveDeduction)}</span></div>` : ''}
-                                ${absentDays > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;"><span style="color: #991b1b; font-weight: 500;">⚠️ Absent Days (${absentDays} days):</span><span style="color: #dc2626; font-weight: 600;">-${auth.formatCurrency(absentPenaltyDeduction)}</span></div>` : ''}
-                                ${totalAttendanceDeduction > 0 ? `<div style="display: flex; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e5e7eb; color: #dc2626;"><span><strong>Total Attendance Deduction:</strong></span><strong>-${auth.formatCurrency(totalAttendanceDeduction)}</strong></div>` : '<div style="color: #059669; text-align: center;">✓ No attendance deductions</div>'}
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                            <div>
-                                <h4 style="color: #059669; margin-bottom: 1rem; border-bottom: 1px solid #d1d5db; padding-bottom: 0.5rem;">Earnings</h4>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Basic Salary:</span><strong>${auth.formatCurrency(p.basicSalary || 0)}</strong></div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>HRA:</span><span>${auth.formatCurrency(p.hra || 0)}</span></div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>DA:</span><span>${auth.formatCurrency(p.da || 0)}</span></div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Other Allowances:</span><span>${auth.formatCurrency(p.otherAllowance || 0)}</span></div>
-                                <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 0.5rem; border-top: 2px solid #059669; color: #059669;"><span><strong>Gross Salary:</strong></span><strong>${auth.formatCurrency(p.grossSalary || 0)}</strong></div>
-                            </div>
-
-                            <div>
-                                <h4 style="color: #dc2626; margin-bottom: 1rem; border-bottom: 1px solid #d1d5db; padding-bottom: 0.5rem;">Deductions</h4>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Provident Fund:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.pf || 0)}</span></div>
-                                ${p.esi > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>ESI:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.esi || 0)}</span></div>` : ''}
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Income Tax:</span><span style="color: #dc2626;">-${auth.formatCurrency(p.incomeTax || 0)}</span></div>
-                                ${ins > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Insurance:</span><span style="color: #dc2626;">-${auth.formatCurrency(ins)}</span></div>` : ''}
-                                ${generalOther > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Other Deduction:</span><span style="color: #dc2626;">-${auth.formatCurrency(generalOther)}</span></div>` : ''}
-                                ${totalAttendanceDeduction > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Absent/Leave Deduction:</span><span style="color: #dc2626;">-${auth.formatCurrency(totalAttendanceDeduction)}</span></div>` : ''}
-                                <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 0.5rem; border-top: 2px solid #dc2626; color: #dc2626;"><span><strong>Total Deductions:</strong></span><strong>-${auth.formatCurrency(_totalDed)}</strong></div>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Net Salary</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: #16a34a;">${auth.formatCurrency(_netSalary)}</div>
-                            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">Calculation based on 26 working days</div>
-                        </div>
-
-                        ${ p.remarks ? `<div style="margin-top: 1rem; padding: 0.75rem; background: #e0f2fe; border-radius: 6px; font-size: 0.875rem; border-left: 4px solid #0ea5e9;"><strong style="color: #0369a1;">📋 Calculation Details:</strong><br><span style="color: #1e293b;">${p.remarks}</span></div>` : '' }
-
-            <div style="margin-top: 1rem; padding: 0.75rem; background: #f0fdf4; border-radius: 6px; font-size: 0.75rem; color: #166534; border: 1px solid #86efac;">
-                <strong>💡 Leave Policy:</strong> During probation, no paid leave is allowed. After probation, you get 1.5 paid leaves per month. Unused leaves carry forward to next month within the cycle (Jan-Jun, Jul-Dec). At cycle end, remaining leaves expire.
-            </div>
-                    </div >
+                    <div style="width: 100%; height: 600px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f3f4f6; border-radius: 4px; gap: 1rem;">
+                        <div class="loading-spinner"></div>
+                        <p style="color: #6b7280; font-size: 0.9rem;">Loading payslip PDF...</p>
+                    </div>
                 `;
-
-                // Show download button only if status is SENT or APPROVED
-                const canDownload = ['SENT', 'APPROVED', 'PAID'].includes((p.status || '').toUpperCase());
-                downloadBtn.style.display = canDownload ? 'inline-block' : 'none';
-                if (canDownload) {
-                    downloadBtn.onclick = () => downloadPayslip(id);
-                }
-
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
                 document.documentElement.style.overflow = 'hidden';
-                
-                // Fetch and display remaining paid leaves using centralized API
-                if (p.employeeId) {
-                    try {
-                        const now = new Date();
-                        const month = now.getMonth() + 1;
-                        const year = now.getFullYear();
-                        
-                        const calcRes = await auth.apiCall(`/api/leaves/calculation/employee/${p.employeeId}?month=${month}&year=${year}`);
-                        
-                        if (calcRes && calcRes.ok) {
-                            const stats = await calcRes.json();
-                            const remainingEl = document.getElementById(`payslip - remaining - ${ p.id } `);
-                            if (remainingEl) {
-                                remainingEl.textContent = stats.remainingPaidLeaves.toFixed(1);
-                            }
-                            console.log('Payslip remaining balance (centralized):', stats.remainingPaidLeaves);
-                        }
-                    } catch (e) {
-                        console.error('Failed to load leave balance for payslip:', e);
-                    }
+
+                // Fetch PDF as blob using auth.apiCall so Bearer token is sent in header
+                // This avoids X-Frame-Options issues with direct iframe src
+                const res = await auth.apiCall(`/api/payslips/${id}/download-pdf?inline=true`);
+                if (!res || !res.ok) {
+                    throw new Error('Failed to load PDF (status: ' + (res ? res.status : 'no response') + ')');
                 }
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
+                details.innerHTML = `
+                    <div style="width: 100%; height: 600px; display: flex; justify-content: center; align-items: center; background: #f3f4f6; border-radius: 4px; overflow: hidden;">
+                        <iframe id="pdf-preview-frame" src="${blobUrl}" style="width: 100%; height: 100%; border: none;" onload="this._blobUrl='${blobUrl}'"></iframe>
+                    </div>
+                `;
+
+                // Store blobUrl for cleanup on close
+                modal._currentBlobUrl = blobUrl;
+
+                downloadBtn.style.display = 'inline-block';
+                downloadBtn.onclick = () => downloadPayslip(id);
+
             } catch (e) {
                 console.error(e);
                 auth.showNotification('Failed to load payslip preview', 'error');
@@ -677,11 +801,20 @@
 
         function closePayslipModal() {
             const modal = document.getElementById('payslipModal');
-            if (modal) modal.style.display = 'none';
+            if (modal) {
+                // Revoke blob URL to free memory
+                if (modal._currentBlobUrl) {
+                    URL.revokeObjectURL(modal._currentBlobUrl);
+                    modal._currentBlobUrl = null;
+                }
+                modal.style.display = 'none';
+            }
+            const details = document.getElementById('payslipDetails');
+            if (details) details.innerHTML = '';
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
         }
-        
+
         function downloadPayslip(id) {
             const token = auth.getAuth().token;
             window.open(`/api/payslips/${id}/download-pdf?token=${token}`, '_blank');
@@ -732,7 +865,7 @@
                             <h1>PAYSLIP</h1>
                             <h2>${p.monthYear || 'N/A'}</h2>
                             <p style="margin: 15px 0 0 0; font-size: 18px; font-weight: bold;">${p.employeeName || 'Employee'}</p>
-                            <p style="margin: 5px 0 0 0; color: #6b7280;">Employee ID: ${p.employeeId || 'N/A'}</p>
+                            <p style="margin: 5px 0 0 0; color: #6b7280;">Employee Code: ${p.employeeId || 'N/A'}</p>
                             <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 12px;">Status: ${p.status || 'Generated'}</p>
                         </div>
                         
@@ -746,10 +879,7 @@
                                 <span class="label">House Rent Allowance (HRA)</span>
                                 <span class="value earning">Rs. ${(p.hra || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                             </div>
-                            <div class="row">
-                                <span class="label">Dearness Allowance (DA)</span>
-                                <span class="value earning">Rs. ${(p.da || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                            </div>
+
                             <div class="row">
                                 <span class="label">Other Allowances</span>
                                 <span class="value earning">Rs. ${(p.otherAllowance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
@@ -838,21 +968,22 @@
         }
 
         function showGeneratePayslipModal() {
+            const selectedMonth = document.getElementById('monthFilter')?.value || getCurrentMonthYearValue();
             const modalHtml = `
                 <div id="generate-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
                     <div style="background: white; padding: 2rem; border-radius: 12px; width: 400px; max-width: 90%;">
                         <h2 style="margin-bottom: 1.5rem;">Generate Payslip</h2>
                         <div style="margin-bottom: 1rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Employee ID:</label>
-                            <input type="number" id="gen-employee-id" placeholder="Enter employee ID" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Employee Code:</label>
+                            <input type="text" id="gen-employee-id" placeholder="Enter employee code" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px;">
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Month-Year (YYYY-MM):</label>
-                            <input type="text" id="gen-month-year" placeholder="2026-04" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <input type="text" id="gen-month-year" value="${selectedMonth}" placeholder="2026-04" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px;">
                         </div>
                         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                            <button onclick="closeGenerateModal()" style="padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer;">Cancel</button>
-                            <button onclick="generatePayslip()" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #10b981; color: white; cursor: pointer;">Generate</button>
+                            <button onclick="closeGenerateModal()" style="padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; background: white; color: black; cursor: pointer;">Cancel</button>
+                            <button onclick="generatePayslip()" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #10b981; color: black; cursor: pointer;">Generate</button>
                         </div>
                     </div>
                 </div>
@@ -870,6 +1001,7 @@
         }
 
         function showRegenerateModal() {
+            const selectedMonth = document.getElementById('monthFilter')?.value || getCurrentMonthYearValue();
             const modalHtml = `
                 <div id="regenerate-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
                     <div style="background: white; padding: 2rem; border-radius: 12px; width: 400px; max-width: 90%;">
@@ -877,11 +1009,11 @@
                         <p style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;">This will delete all existing payslips for the selected month and regenerate them with fresh attendance and leave data from the database.</p>
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Month-Year (YYYY-MM):</label>
-                            <input type="text" id="regen-month-year" placeholder="2026-04" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <input type="text" id="regen-month-year" value="${selectedMonth}" placeholder="2026-04" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px;">
                         </div>
                         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                            <button onclick="closeRegenerateModal()" style="padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer;">Cancel</button>
-                            <button onclick="regenerateMonth()" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #f59e0b; color: white; cursor: pointer;">Regenerate</button>
+                            <button onclick="closeRegenerateModal()" style="padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; background: white; color: black; cursor: pointer;">Cancel</button>
+                            <button onclick="regenerateMonth()" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #f59e0b; color: black; cursor: pointer;">Regenerate</button>
                         </div>
                     </div>
                 </div>
@@ -915,6 +1047,10 @@
                 if (res && res.ok) {
                     alert('Payslips regenerated successfully!');
                     closeRegenerateModal();
+                    const monthFilter = document.getElementById('monthFilter');
+                    if (monthFilter) {
+                        monthFilter.value = monthYear;
+                    }
                     loadPayslips();
                 } else {
                     const error = await res.text();
@@ -939,6 +1075,10 @@
                 if (res && res.ok) {
                     alert('Payslip generated successfully!');
                     closeGenerateModal();
+                    const monthFilter = document.getElementById('monthFilter');
+                    if (monthFilter) {
+                        monthFilter.value = monthYear;
+                    }
                     loadPayslips();
                 } else {
                     const error = await res.text();
@@ -955,6 +1095,14 @@
                 card.style.display = card.textContent.toLowerCase().includes(term) ? '' : 'none';
             });
         });
+
+        function refreshCurrentMonth() {
+            const monthFilter = document.getElementById('monthFilter');
+            if (monthFilter) {
+                monthFilter.value = getCurrentMonthYearValue();
+            }
+            loadPayslips();
+        }
 
         async function loadPayslips() {
             const grid = document.getElementById('payslips-grid');
@@ -978,6 +1126,8 @@
                 auth.showNotification('Failed to load payslips', 'error');
             }
         }
+
+
 
         loadPayslips();
     </script>
@@ -1067,5 +1217,3 @@
 </body>
 
 </html>
-
-

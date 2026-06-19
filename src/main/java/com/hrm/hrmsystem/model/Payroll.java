@@ -28,8 +28,7 @@ public class Payroll {
     @Column(precision = 12, scale = 2)
     private BigDecimal hra;
 
-    @Column(precision = 12, scale = 2)
-    private BigDecimal da;
+
 
     @Column(precision = 12, scale = 2)
     private BigDecimal ta;
@@ -96,7 +95,7 @@ public class Payroll {
 
     // All Args Constructor
     public Payroll(Long id, Employee employee, Integer month, Integer year,
-                   BigDecimal basicSalary, BigDecimal hra, BigDecimal da, BigDecimal ta, BigDecimal otherAllowances,
+                   BigDecimal basicSalary, BigDecimal hra, BigDecimal ta, BigDecimal otherAllowances,
                    BigDecimal providentFund, BigDecimal tax, BigDecimal insurance, BigDecimal otherDeductions,
                    BigDecimal grossSalary, BigDecimal totalDeductions, BigDecimal netSalary,
                    LocalDate paymentDate, PayrollStatus status) {
@@ -106,7 +105,6 @@ public class Payroll {
         this.year = year;
         this.basicSalary = basicSalary;
         this.hra = hra;
-        this.da = da;
         this.ta = ta;
         this.otherAllowances = otherAllowances;
         this.providentFund = providentFund;
@@ -127,7 +125,6 @@ public class Payroll {
     public Integer getYear() { return year; }
     public BigDecimal getBasicSalary() { return basicSalary; }
     public BigDecimal getHra() { return hra; }
-    public BigDecimal getDa() { return da; }
     public BigDecimal getTa() { return ta; }
     public BigDecimal getOtherAllowances() { return otherAllowances; }
     public BigDecimal getProvidentFund() { return providentFund; }
@@ -157,7 +154,6 @@ public class Payroll {
     public void setYear(Integer year) { this.year = year; }
     public void setBasicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; }
     public void setHra(BigDecimal hra) { this.hra = hra; }
-    public void setDa(BigDecimal da) { this.da = da; }
     public void setTa(BigDecimal ta) { this.ta = ta; }
     public void setOtherAllowances(BigDecimal otherAllowances) { this.otherAllowances = otherAllowances; }
     public void setProvidentFund(BigDecimal providentFund) { this.providentFund = providentFund; }
@@ -192,7 +188,6 @@ public class Payroll {
         private Integer year;
         private BigDecimal basicSalary;
         private BigDecimal hra;
-        private BigDecimal da;
         private BigDecimal ta;
         private BigDecimal otherAllowances;
         private BigDecimal providentFund;
@@ -213,7 +208,7 @@ public class Payroll {
         public Builder year(Integer year) { this.year = year; return this; }
         public Builder basicSalary(BigDecimal basicSalary) { this.basicSalary = basicSalary; return this; }
         public Builder hra(BigDecimal hra) { this.hra = hra; return this; }
-        public Builder da(BigDecimal da) { this.da = da; return this; }
+
         public Builder ta(BigDecimal ta) { this.ta = ta; return this; }
         public Builder otherAllowances(BigDecimal otherAllowances) { this.otherAllowances = otherAllowances; return this; }
         public Builder providentFund(BigDecimal providentFund) { this.providentFund = providentFund; return this; }
@@ -229,7 +224,7 @@ public class Payroll {
         public Builder status(PayrollStatus status) { this.status = status; return this; }
 
         public Payroll build() {
-            Payroll payroll = new Payroll(id, employee, month, year, basicSalary, hra, da, ta, otherAllowances,
+            Payroll payroll = new Payroll(id, employee, month, year, basicSalary, hra, ta, otherAllowances,
                     providentFund, tax, insurance, otherDeductions, grossSalary, totalDeductions, netSalary, paymentDate, status);
             payroll.setUnpaidLeaveDeduction(unpaidLeaveDeduction);
             payroll.setAbsentDeduction(absentDeduction);

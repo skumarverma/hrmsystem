@@ -1,12 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payroll - HRM System</title>
     <link rel="stylesheet" href="../css/hrm-design-system.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .welcome-banner #banner-generate-payroll {
+            background: var(--accent) !important;
+            color: var(--primary-dark) !important;
+            border: 1.5px solid var(--accent) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            height: 38px;
+            box-shadow: none !important;
+            transform: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner #banner-generate-payroll:hover {
+            background: var(--accent-light) !important;
+            border-color: var(--accent-light) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
+        }
+
+        .welcome-banner .banner-select {
+            width: auto !important;
+            background: white !important;
+            color: var(--gray-800) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1.5rem 0.5rem 0.75rem !important;
+            height: 38px !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-select:hover {
+            border-color: var(--gray-300) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .welcome-banner .banner-btn-secondary {
+            background: white !important;
+            color: var(--gray-700) !important;
+            border: 1.5px solid var(--gray-200) !important;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-btn-secondary:hover {
+            background: var(--gray-50) !important;
+            border-color: var(--gray-300) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .welcome-banner .banner-btn-danger {
+            background: var(--danger) !important;
+            color: white !important;
+            border: 1.5px solid var(--danger) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            height: 38px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .welcome-banner .banner-btn-danger:hover {
+            background: #b91c1c !important;
+            border-color: #b91c1c !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+        }
+
+        /* Layout overrides for header across desktop vs mobile */
+        @media (min-width: 1025px) {
+            .header {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-bottom: 1rem !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+
+            .header .page-title,
+            .header .header-actions,
+            .header div {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -20,37 +136,90 @@
                     <h1>Payroll Management</h1>
                     <p>Process salaries and manage employee compensation</p>
                 </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <button onclick="history.back()" class="icon-btn" title="Go Back">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="header-actions">
-                    <select id="month-filter" class="search-input" style="width: auto;">
-                        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
-                        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
-                        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
-                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-                    </select>
-                    <select id="year-filter" class="search-input" style="width: auto;">
-                        <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
-                    </select>
-                    <button onclick="clearAllPayrolls()" class="btn-danger" style="margin-right: 0.5rem;">Clear All Payroll</button>
-                    <button onclick="generatePayroll()" class="btn-primary">Generate Payroll</button>
-                </div>
             </header>
 
             <div class="page-content">
+                <!-- Professional Welcome Banner -->
+                <div class="welcome-banner"
+                    style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                    <!-- Ambient glows for aesthetic excellence -->
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
+                    <div style="z-index: 1;">
+                        <h1
+                            style="margin: 0; font-size: 2.5rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1;">
+                            Payroll Management</h1>
+                        <p
+                            style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.75); font-size: 0.95rem; font-weight: 500;">
+                            Process salaries and manage employee compensation</p>
+                    </div>
+
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <select id="month-filter" class="banner-select" onchange="loadPayroll()">
+                            <option value="">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="year-filter" class="banner-select" onchange="loadPayroll()">
+                            <option value="">All Years</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                        <input type="text" id="payroll-search" class="banner-select" placeholder="Search by name..." onkeyup="filterPayroll()" style="min-width: 200px;">
+
+                        <button onclick="refreshToCurrentMonth()" class="banner-btn-secondary"
+                            title="Reset to current month">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Refresh
+                        </button>
+                        <button onclick="clearAllPayrolls()" class="banner-btn-danger admin-only"
+                            style="margin-right: 0.5rem; display: none;">Clear All Payroll</button>
+                        <button onclick="generatePayroll()" id="banner-generate-payroll"
+                            class="btn-primary admin-only">Generate Payroll</button>
+
+
+                    </div>
+                </div>
                 <div class="card">
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
-                                <tr><th>Employee</th><th>Month</th><th>Basic</th><th>Gross</th><th>Deductions</th><th>Net</th><th>Status</th><th>Actions</th></tr>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Month</th>
+                                    <th>Basic</th>
+                                    <th>Gross</th>
+                                    <th>Deductions</th>
+                                    <th>Net</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
                             </thead>
                             <tbody id="payroll-table">
-                                <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 2rem;">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -60,11 +229,15 @@
     </div>
 
     <!-- Payslip Detail Modal -->
-    <div id="payslip-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 1rem;">
-        <div class="modal-content" style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb;">
+    <div id="payslip-modal" class="modal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 1rem;">
+        <div class="modal-content"
+            style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb;">
                 <h2 style="margin: 0; font-size: 1.25rem;">Payslip Details</h2>
-                <button onclick="closeModal()" class="close-btn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+                <button onclick="closeModal()" class="close-btn"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
             </div>
             <div id="modal-content-body" style="padding: 1.5rem;">
                 <!-- Content loaded dynamically -->
@@ -74,6 +247,13 @@
 
     <script src="../js/auth.js?v=4"></script>
     <script src="../js/sidebar.js?v=4"></script>
-    <script src="../js/payroll.js?v=7"></script>
+    <script src="../js/payroll.js?v=8"></script>
+    <script>
+        // Initialize dynamic welcome banner on load
+        document.addEventListener('DOMContentLoaded', () => {
+
+        });
+    </script>
 </body>
+
 </html>

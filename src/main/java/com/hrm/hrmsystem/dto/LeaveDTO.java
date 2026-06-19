@@ -6,6 +6,7 @@ public class LeaveDTO {
 
     private Long id;
     private Long employeeId;
+    private String employeeCode;
     private String employeeName;
     private String leaveType;
     private LocalDate startDate;
@@ -30,6 +31,7 @@ public class LeaveDTO {
     // Getters
     public Long getId() { return id; }
     public Long getEmployeeId() { return employeeId; }
+    public String getEmployeeCode() { return employeeCode; }
     public String getEmployeeName() { return employeeName; }
     public String getLeaveType() { return leaveType; }
     public LocalDate getStartDate() { return startDate; }
@@ -52,6 +54,7 @@ public class LeaveDTO {
     // Setters
     public void setId(Long id) { this.id = id; }
     public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public void setEmployeeCode(String employeeCode) { this.employeeCode = employeeCode; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
     public void setLeaveType(String leaveType) { this.leaveType = leaveType; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
@@ -78,6 +81,7 @@ public class LeaveDTO {
     public static class Builder {
         private Long id;
         private Long employeeId;
+        private String employeeCode;
         private String employeeName;
         private String leaveType;
         private LocalDate startDate;
@@ -99,6 +103,7 @@ public class LeaveDTO {
 
         public Builder id(Long id) { this.id = id; return this; }
         public Builder employeeId(Long employeeId) { this.employeeId = employeeId; return this; }
+        public Builder employeeCode(String employeeCode) { this.employeeCode = employeeCode; return this; }
         public Builder employeeName(String employeeName) { this.employeeName = employeeName; return this; }
         public Builder leaveType(String leaveType) { this.leaveType = leaveType; return this; }
         public Builder startDate(LocalDate startDate) { this.startDate = startDate; return this; }
@@ -122,6 +127,7 @@ public class LeaveDTO {
             LeaveDTO dto = new LeaveDTO();
             dto.id = this.id;
             dto.employeeId = this.employeeId;
+            dto.employeeCode = this.employeeCode;
             dto.employeeName = this.employeeName;
             dto.leaveType = this.leaveType;
             dto.startDate = this.startDate;
