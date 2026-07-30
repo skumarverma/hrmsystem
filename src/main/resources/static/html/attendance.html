@@ -924,15 +924,18 @@
             }
 
             try {
-                // First ensure we have all employees
-                if (allEmployees.length === 0) {
-                    await loadAllEmployees();
-                }
-
-                // Load attendance for selected date
                 const timestamp = new Date().getTime();
-                const res = await auth.apiCall(`/api/attendance/date/${selectedDate}?_t=${timestamp}`);
-                attendanceData = res && res.ok ? await res.json() : [];
+                if (allEmployees.length === 0) {
+                    const [empRes, attRes] = await Promise.all([
+                        auth.apiCall('/api/employees'),
+                        auth.apiCall(`/api/attendance/date/${selectedDate}?_t=${timestamp}`)
+                    ]);
+                    if (empRes && empRes.ok) allEmployees = await empRes.json();
+                    attendanceData = attRes && attRes.ok ? await attRes.json() : [];
+                } else {
+                    const res = await auth.apiCall(`/api/attendance/date/${selectedDate}?_t=${timestamp}`);
+                    attendanceData = res && res.ok ? await res.json() : [];
+                }
                 console.log('Loaded attendance data for date', selectedDate, ':', attendanceData);
                 console.log('Attendance data length:', attendanceData.length);
                 if (attendanceData.length > 0) {
@@ -1479,12 +1482,21 @@
                 return;
             }
 
-            // Mark all as present
-            for (const empId of empIds) {
-                await setAttendance(empId, 'PRESENT');
+            try {
+                const res = await auth.apiCall('/api/attendance/bulk-mark', {
+                    method: 'POST',
+                    body: JSON.stringify({ employeeIds: empIds, date: selectedDate, status: 'PRESENT' })
+                });
+                if (res && res.ok) {
+                    auth.showNotification(`Marked ${empIds.length} employees as present`, 'success');
+                    await loadAttendance();
+                } else {
+                    const err = await res.text();
+                    auth.showNotification(err || 'Failed to bulk mark present', 'error');
+                }
+            } catch (e) {
+                auth.showNotification('Failed to bulk mark present', 'error');
             }
-
-            auth.showNotification(`Marked ${empIds.length} employees as present`, 'success');
         }
 
         async function markAllAbsent() {
@@ -1523,11 +1535,21 @@
 
             if (!confirm(`Are you sure you want to mark ${empIds.length} unmarked employees as absent?`)) return;
 
-            for (const empId of empIds) {
-                await setAttendance(empId, 'ABSENT');
+            try {
+                const res = await auth.apiCall('/api/attendance/bulk-mark', {
+                    method: 'POST',
+                    body: JSON.stringify({ employeeIds: empIds, date: selectedDate, status: 'ABSENT' })
+                });
+                if (res && res.ok) {
+                    auth.showNotification(`Marked ${empIds.length} employees as absent`, 'success');
+                    await loadAttendance();
+                } else {
+                    const err = await res.text();
+                    auth.showNotification(err || 'Failed to bulk mark absent', 'error');
+                }
+            } catch (e) {
+                auth.showNotification('Failed to bulk mark absent', 'error');
             }
-
-            auth.showNotification(`Marked ${empIds.length} employees as absent`, 'success');
         }
 
         async function markAllUnmarked() {
@@ -1571,13 +1593,21 @@
 
             if (!confirm(`Are you sure you want to clear attendance for all ${markedEmpIds.length} marked employees to make them unmarked?`)) return;
 
-            // Clear attendance for each marked employee
-            for (const empId of markedEmpIds) {
-                await setUnmarked(empId, false);
+            try {
+                const res = await auth.apiCall('/api/attendance/bulk-mark', {
+                    method: 'POST',
+                    body: JSON.stringify({ employeeIds: markedEmpIds, date: selectedDate, status: 'UNMARKED' })
+                });
+                if (res && res.ok) {
+                    auth.showNotification(`Cleared attendance for ${markedEmpIds.length} employees`, 'success');
+                    await loadAttendance();
+                } else {
+                    const err = await res.text();
+                    auth.showNotification(err || 'Failed to clear attendance', 'error');
+                }
+            } catch (e) {
+                auth.showNotification('Failed to clear attendance', 'error');
             }
-
-            await loadAttendance();
-            auth.showNotification(`Cleared attendance for ${markedEmpIds.length} employees`, 'success');
         }
 
         async function clearAllAttendance() {

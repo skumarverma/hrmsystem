@@ -45,3 +45,8 @@ uploads/
 payslips/
 .env
 /*.sql
+data/
+*.zip
+*.txt
+*.class
+QueryDatabase.java

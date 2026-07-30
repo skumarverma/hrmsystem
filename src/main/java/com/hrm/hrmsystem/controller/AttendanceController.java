@@ -34,6 +34,19 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class AttendanceController {
     
+    public static class BulkAttendanceRequest {
+        private List<Long> employeeIds;
+        private LocalDate date;
+        private String status; // "PRESENT", "ABSENT", "UNMARKED"
+
+        public List<Long> getEmployeeIds() { return employeeIds; }
+        public void setEmployeeIds(List<Long> employeeIds) { this.employeeIds = employeeIds; }
+        public LocalDate getDate() { return date; }
+        public void setDate(LocalDate date) { this.date = date; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+    }
+    
     private final AttendanceService attendanceService;
     private final AttendanceEngine attendanceEngine;
     private final EmployeeService employeeService;
@@ -145,6 +158,17 @@ public class AttendanceController {
             } else {
                 return ResponseEntity.ok(attendanceService.markPresent(employeeId, date));
             }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_HR','ROLE_ADMIN')")
+    @PostMapping("/bulk-mark")
+    public ResponseEntity<?> bulkMarkAttendance(@RequestBody BulkAttendanceRequest request) {
+        try {
+            int count = attendanceService.bulkMarkAttendance(request.getEmployeeIds(), request.getDate(), request.getStatus());
+            return ResponseEntity.ok(java.util.Map.of("message", "Successfully marked " + count + " records as " + request.getStatus()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -22,12 +22,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     boolean existsByEmail(String email);
 
-    // Eagerly load department to avoid N+1 and lazy loading issues
-    @Query("SELECT e FROM Employee e LEFT JOIN FETCH e.department")
+    // Eagerly load department and shift to avoid N+1 and lazy loading issues
+    @Query("SELECT e FROM Employee e LEFT JOIN FETCH e.department LEFT JOIN FETCH e.shift")
     List<Employee> findAllWithDepartment();
 
-    // Eagerly load department for single employee
-    @Query("SELECT e FROM Employee e LEFT JOIN FETCH e.department WHERE e.id = :id")
+    // Eagerly load department and shift for single employee
+    @Query("SELECT e FROM Employee e LEFT JOIN FETCH e.department LEFT JOIN FETCH e.shift WHERE e.id = :id")
     Optional<Employee> findByIdWithDepartment(Long id);
 
     boolean existsByShiftId(Long shiftId);

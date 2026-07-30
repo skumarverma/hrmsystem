@@ -5,6 +5,7 @@ import com.hrm.hrmsystem.model.Leave;
 import com.hrm.hrmsystem.repository.AttendanceRepository;
 import com.hrm.hrmsystem.repository.EmployeeRepository;
 import com.hrm.hrmsystem.repository.LeaveRepository;
+import com.hrm.hrmsystem.repository.LeaveLedgerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,9 @@ class AttendanceEngineFutureLeaveTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
+
+    @Mock
+    private LeaveLedgerRepository leaveLedgerRepository;
 
     @InjectMocks
     private AttendanceEngine attendanceEngine;
@@ -72,6 +76,8 @@ class AttendanceEngineFutureLeaveTest {
         when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(futureLeave));
         // No attendance records for May
         when(attendanceRepository.findByEmployeeIdAndDateBetween(1L, YearMonth.of(2024, 5).atDay(1), YearMonth.of(2024, 5).atEndOfMonth()))
+                .thenReturn(List.of());
+        org.mockito.Mockito.lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
                 .thenReturn(List.of());
 
         AttendanceSummary summary = attendanceEngine.calculate(1L, YearMonth.of(2024, 5));

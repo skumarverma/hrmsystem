@@ -96,7 +96,7 @@ public class EmailUtil {
             mailSender.send(message);
             log.info("Simple email sent to: {}", toEmail.trim());
         } catch (Exception e) {
-            log.error("Error sending email to {}: {}", toEmail.trim(), e.getMessage());
+            log.error("Error sending email to " + toEmail.trim() + " failed", e);
             System.out.println("\n================================================================");
             System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL TO CONSOLE:");
             System.out.println("TO: " + toEmail.trim());
@@ -147,7 +147,7 @@ public class EmailUtil {
                     System.out.println("================================================================\n");
                 }
             } catch (Exception e) {
-                log.error("Error sending HTML email via Brevo REST API to {}: {}", toEmail.trim(), e.getMessage());
+                log.error("Error sending HTML email via Brevo REST API to " + toEmail.trim() + " failed", e);
                 System.out.println("\n================================================================");
                 System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING HTML EMAIL TO CONSOLE:");
                 System.out.println("TO: " + toEmail.trim());
@@ -170,7 +170,7 @@ public class EmailUtil {
             mailSender.send(message);
             log.info("HTML email sent to: {}", toEmail.trim());
         } catch (Exception e) {
-            log.error("Error sending HTML email to {}: {}", toEmail.trim(), e.getMessage());
+            log.error("Error sending HTML email to " + toEmail.trim() + " failed", e);
             System.out.println("\n================================================================");
             System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING HTML EMAIL TO CONSOLE:");
             System.out.println("TO: " + toEmail.trim());
@@ -227,7 +227,7 @@ public class EmailUtil {
                     System.out.println("================================================================\n");
                 }
             } catch (Exception e) {
-                log.error("Error sending email with attachment via Brevo REST API to {}: {}", toEmail.trim(), e.getMessage());
+                log.error("Error sending email with attachment via Brevo REST API to " + toEmail.trim() + " failed", e);
                 System.out.println("\n================================================================");
                 System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL WITH ATTACHMENT TO CONSOLE:");
                 System.out.println("TO: " + toEmail.trim());
@@ -252,7 +252,7 @@ public class EmailUtil {
             mailSender.send(message);
             log.info("Email with attachment sent to: {}", toEmail.trim());
         } catch (Exception e) {
-            log.error("Error sending email with attachment to {}: {}", toEmail.trim(), e.getMessage());
+            log.error("Error sending email with attachment to " + toEmail.trim() + " failed", e);
             System.out.println("\n================================================================");
             System.out.println("📢 [SMTP FAILURE FALLBACK] PRINTING EMAIL WITH ATTACHMENT TO CONSOLE:");
             System.out.println("TO: " + toEmail.trim());
@@ -409,7 +409,7 @@ public class EmailUtil {
             
             log.info("Payslip email sent to: {} for month: {}", employeeEmail, payslip.getMonthYear());
         } catch (Exception e) {
-            log.error("Error sending payslip email: {}", e.getMessage());
+            log.error("Error sending payslip email failed", e);
         }
     }
 

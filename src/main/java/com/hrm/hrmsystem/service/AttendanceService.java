@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+
+import com.hrm.hrmsystem.repository.LeaveLedgerRepository;
 
 @Service
 public class AttendanceService {
@@ -37,12 +40,14 @@ public class AttendanceService {
     private final PayrollLockService payrollLockService;
     private final AttendanceEngine attendanceEngine;
     private final LeaveRecalculationService leaveRecalculationService;
+    private final LeaveLedgerRepository leaveLedgerRepository;
 
     public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
             @Lazy PayslipService payslipService, LeaveRepository leaveRepository,
             AuditLogService auditLogService, PayrollLockService payrollLockService,
             AttendanceEngine attendanceEngine,
-            @Lazy LeaveRecalculationService leaveRecalculationService) {
+            @Lazy LeaveRecalculationService leaveRecalculationService,
+            LeaveLedgerRepository leaveLedgerRepository) {
         this.attendanceRepository = attendanceRepository;
         this.employeeRepository = employeeRepository;
         this.payslipService = payslipService;
@@ -51,35 +56,50 @@ public class AttendanceService {
         this.payrollLockService = payrollLockService;
         this.attendanceEngine = attendanceEngine;
         this.leaveRecalculationService = leaveRecalculationService;
+        this.leaveLedgerRepository = leaveLedgerRepository;
     }
 
     private static final LocalTime STANDARD_CHECK_IN = LocalTime.of(9, 0);
     private static final double STANDARD_WORKING_HOURS = 8.0;
 
     /**
-     * Helper method to regenerate payslip after attendance changes
-     * Frontend displays payslip data, so we must regenerate payslip when attendance changes
+     * ✅ NEW: Asynchronous method to trigger all recalculations.
+     * We run this in a background thread with a small delay to ensure the database
+     * transaction has fully committed before we read the data again.
+     * This fixes the extreme UI slowness when marking attendance.
      */
-    private void regeneratePayrollForAttendanceChange(Long employeeId, LocalDate date) {
-        try {
-            int month = date.getMonthValue();
-            int year = date.getYear();
-
-            // Check if payroll is locked for this employee
-            if (payrollLockService.isPayrollLockedForEmployee(employeeId, month, year)) {
-                System.out.println("Payroll is locked for employee " + employeeId + " for " + year + "-" + month + ". Skipping payslip regeneration.");
-                return;
+    private void triggerAsyncRecalculation(Long employeeId, LocalDate date) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                // Wait 500ms to allow parent transaction to commit
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
+            
+            // 1. Recalculate Leave Ledger
+            try {
+                leaveRecalculationService.recalculateFromDate(employeeId, date);
+            } catch (Exception e) {
+                System.err.println("Async leave recalculation failed for employee " + employeeId + ": " + e.getMessage());
+            }
+            
+            // 2. Regenerate Payroll/Payslip
+            try {
+                int month = date.getMonthValue();
+                int year = date.getYear();
 
-            String monthYear = year + "-" + String.format("%02d", month);
-            System.out.println("Regenerating payslip for employee " + employeeId + " for " + monthYear);
-            payslipService.generatePayslip(employeeId, monthYear);
-            System.out.println("Successfully regenerated payslip for employee " + employeeId + " for " + monthYear);
-        } catch (Exception e) {
-            System.err.println("Failed to regenerate payslip after attendance change: " + e.getMessage());
-            e.printStackTrace();
-            // Don't throw exception - attendance should still be saved even if payslip regeneration fails
-        }
+                if (payrollLockService.isPayrollLockedForEmployee(employeeId, month, year)) {
+                    return;
+                }
+
+                String monthYear = year + "-" + String.format("%02d", month);
+                payslipService.generatePayslip(employeeId, monthYear);
+                System.out.println("Async payslip generated for " + employeeId + " for " + monthYear);
+            } catch (Exception e) {
+                System.err.println("Async payslip regeneration failed: " + e.getMessage());
+            }
+        });
     }
 
     public AttendanceDTO checkIn(Long employeeId) {
@@ -166,58 +186,63 @@ public class AttendanceService {
     }
 
     public List<AttendanceDTO> getAttendanceByDate(LocalDate date) {
-        // SUNDAY CHECK: Still show approved leaves on Sundays (leaves apply even on non-working days)
-        // Get all employees who have attendance or leave records for this date
+        // 1. Batch query: Attendance records for target date
         List<Attendance> attendances = attendanceRepository.findByDate(date);
-        Set<Long> employeeIds = new HashSet<>();
-        
-        // Add employees with attendance records
-        attendances.forEach(att -> employeeIds.add(att.getEmployee().getId()));
-        
-        // Add employees with approved leave records for this date
-        // Get all employees first, then check for leaves for each
+        java.util.Map<Long, Attendance> attendanceMap = attendances.stream()
+                .filter(a -> a.getEmployee() != null)
+                .collect(Collectors.toMap(a -> a.getEmployee().getId(), a -> a, (a1, a2) -> a1));
+
+        // 2. Batch query: All employees
         List<Employee> allEmployees = employeeRepository.findAll();
-        Set<Long> allEmployeeIds = allEmployees.stream().map(Employee::getId).collect(Collectors.toSet());
-        
-        // Add all employees to the list (we'll check leaves for each)
-        employeeIds.addAll(allEmployeeIds);
-        
-        // For each employee, calculate professional attendance using AttendanceEngine
+
+        // 3. Batch query: Approved leaves overlapping target date
+        List<Leave> approvedLeavesForDate = leaveRepository.findByStatusAndDateOverlapping(Leave.LeaveStatus.APPROVED, date);
+        java.util.Map<Long, Leave> leaveMap = approvedLeavesForDate.stream()
+                .filter(l -> l.getEmployee() != null)
+                .collect(Collectors.toMap(l -> l.getEmployee().getId(), l -> l, (l1, l2) -> l1));
+
+        // 4. Batch query: Ledger entries for the current 6-month cycle across all employees
+        YearMonth currentMonth = YearMonth.from(date);
+        YearMonth cycleStart = (currentMonth.getMonthValue() <= 6) 
+            ? YearMonth.of(currentMonth.getYear(), 1) 
+            : YearMonth.of(currentMonth.getYear(), 7);
+        LocalDate cycleStartDate = cycleStart.atDay(1);
+        LocalDate cycleEndDate = (currentMonth.getMonthValue() <= 6)
+            ? LocalDate.of(currentMonth.getYear(), 6, 30)
+            : LocalDate.of(currentMonth.getYear(), 12, 31);
+
+        List<com.hrm.hrmsystem.model.LeaveLedger> cycleLedgers = leaveLedgerRepository
+                .findByEventDateBetweenOrderByEventDateAsc(cycleStartDate, cycleEndDate);
+        java.util.Map<Long, List<com.hrm.hrmsystem.model.LeaveLedger>> ledgerMap = cycleLedgers.stream()
+                .collect(Collectors.groupingBy(com.hrm.hrmsystem.model.LeaveLedger::getEmployeeId));
+
         List<AttendanceDTO> result = new ArrayList<>();
-        
-        for (Long employeeId : employeeIds) {
-            Employee employee = allEmployees.stream().filter(e -> e.getId().equals(employeeId)).findFirst().orElse(null);
-            if (employee == null || isSystemUser(employee)) continue;
 
-            // 1. Get balance for correct paid/unpaid resolution
-            AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(employeeId, YearMonth.from(date), date);
-            
-            // 2. Get records
-            Attendance attendance = attendances.stream()
-                    .filter(att -> att.getEmployee().getId().equals(employeeId))
-                    .findFirst()
-                    .orElse(null);
-            
-            List<Leave> employeeLeaves = leaveRepository.findByEmployeeIdAndStatus(employeeId, Leave.LeaveStatus.APPROVED);
-            Leave leaveForDate = employeeLeaves.stream()
-                    .filter(l -> l.getStartDate() != null && l.getEndDate() != null)
-                    .filter(l -> !date.isBefore(l.getStartDate()) && !date.isAfter(l.getEndDate()))
-                    .findFirst()
-                    .orElse(null);
+        for (Employee employee : allEmployees) {
+            if (isSystemUser(employee)) continue;
+            Long employeeId = employee.getId();
 
-            // 3. Resolve using SINGLE SOURCE OF TRUTH
+            List<com.hrm.hrmsystem.model.LeaveLedger> empLedgers = ledgerMap.getOrDefault(employeeId, java.util.Collections.emptyList());
+
+            // 1. Get balance in-memory without DB queries
+            AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(employee, currentMonth, date, null, empLedgers);
+
+            // 2. Get records from pre-fetched maps
+            Attendance attendance = attendanceMap.get(employeeId);
+            Leave leaveForDate = leaveMap.get(employeeId);
+
+            // 3. Resolve day using single source of truth
             AttendanceEngine.DayResult dayResult = attendanceEngine.resolveDay(employee, date, attendance, leaveForDate, balance.remaining);
-            
+
             // 4. Map to DTO
             AttendanceDTO dto = new AttendanceDTO();
             dto.setEmployeeId(employeeId);
-            dto.setEmployeeName(employee.getFirstName() + " " + employee.getLastName());
+            dto.setEmployeeName((employee.getFirstName() != null ? employee.getFirstName() : "") + " " + (employee.getLastName() != null ? employee.getLastName() : ""));
             dto.setDate(date);
             if (attendance != null && attendance.getHalfType() != null) {
                 dto.setHalfType(attendance.getHalfType().toString());
             }
-            
-            // Map DayResult status back to DTO status strings (Single Source of Truth)
+
             if (date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
                 dto.setStatus("WEEK_OFF");
                 dto.setWorkingHours(0.0);
@@ -249,25 +274,23 @@ public class AttendanceService {
                 dto.setStatus("NOT_MARKED");
                 dto.setWorkingHours(0.0);
             }
-            
+
             if (attendance != null) {
                 dto.setFullStatus(dayResult.status + ", DB_STATUS:" + attendance.getStatus() + ", DB_HALFTYPE:" + attendance.getHalfType());
             } else {
                 dto.setFullStatus(dayResult.status);
             }
-            
+
             dto.setPaidAbsent(dayResult.paidAbsent);
             dto.setUnpaidAbsent(dayResult.unpaidAbsent);
             dto.setWorked(dayResult.worked);
             dto.setPaidLeave(dayResult.paidLeave);
             dto.setUnpaidLeave(dayResult.unpaidLeave);
-            
-            // Set remarks for leaves
+
             if (leaveForDate != null) {
-                dto.setRemarks(leaveForDate.getLeaveType().toString() + " (" + (leaveForDate.getIsHalfDay() ? "0.5" : "Full") + ")");
+                dto.setRemarks(leaveForDate.getLeaveType().toString() + " (" + ((leaveForDate.getIsHalfDay() != null && leaveForDate.getIsHalfDay()) ? "0.5" : "Full") + ")");
             }
-    
-            // Professional label for half-day leaves
+
             if (leaveForDate != null && leaveForDate.getIsHalfDay() != null && leaveForDate.getIsHalfDay()) {
                 String halfLabel = leaveForDate.getHalfType() == Leave.HalfType.SECOND_HALF ? "Second Half" : "First Half";
                 dto.setRemarks(halfLabel + " " + leaveForDate.getLeaveType() + " Leave");
@@ -276,10 +299,10 @@ public class AttendanceService {
             } else if (dto.getRemarks() == null) {
                 dto.setRemarks(date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY ? "Sunday" : "No record");
             }
-            
+
             result.add(dto);
         }
-        
+
         return result;
     }
 
@@ -313,7 +336,7 @@ public class AttendanceService {
         List<Attendance> existing = attendanceRepository.findAllByEmployeeIdAndDate(employee.getId(), date);
         if (existing != null && !existing.isEmpty()) {
             attendanceRepository.deleteAll(existing);
-            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            triggerAsyncRecalculation(employee.getId(), date);
             System.out.println("Deleted attendance record(s) to mark as UNMARKED for employee " + employee.getId() + " on date " + date);
         }
     }
@@ -358,10 +381,7 @@ public class AttendanceService {
             attendance.setStatus(Attendance.AttendanceStatus.ABSENT);
             attendance.setRemarks(remarks);
             attendance = attendanceRepository.save(attendance);
-            // ✅ Trigger leave ledger recalculation after ABSENT mark
-            triggerLeaveRecalculation(employee.getId(), date);
-            // Regenerate payroll after attendance change
-            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            triggerAsyncRecalculation(employee.getId(), date);
             
             // Delete duplicate records
             if (existingAttendances.size() > 1) {
@@ -382,10 +402,7 @@ public class AttendanceService {
                     .build();
 
             attendance = attendanceRepository.save(attendance);
-            // ✅ Trigger leave ledger recalculation after ABSENT mark
-            triggerLeaveRecalculation(employee.getId(), date);
-            // Regenerate payroll after creating/updating attendance
-            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            triggerAsyncRecalculation(employee.getId(), date);
             System.out.println("Created new ABSENT record for employee " + employee.getId() + " on date " + date);
             return convertToDTO(attendance);
         }
@@ -393,6 +410,31 @@ public class AttendanceService {
 
     public AttendanceDTO markPresent(Long employeeId, LocalDate date) {
         return markPresentWithOptions(employeeId, date, "PRESENT", 8.0, null);
+    }
+
+    @Transactional
+    public int bulkMarkAttendance(List<Long> employeeIds, LocalDate date, String status) {
+        if (date.isAfter(LocalDate.now())) {
+            throw new RuntimeException("Cannot mark attendance for future dates");
+        }
+        if (employeeIds == null || employeeIds.isEmpty()) return 0;
+        
+        int count = 0;
+        for (Long empId : employeeIds) {
+            try {
+                if ("PRESENT".equalsIgnoreCase(status)) {
+                    markPresent(empId, date);
+                } else if ("ABSENT".equalsIgnoreCase(status)) {
+                    markAbsent(empId, date, "Bulk Marked Absent");
+                } else if ("UNMARKED".equalsIgnoreCase(status)) {
+                    markUnmarked(empId, date);
+                }
+                count++;
+            } catch (Exception e) {
+                System.err.println("Failed to bulk mark " + status + " for employee " + empId + ": " + e.getMessage());
+            }
+        }
+        return count;
     }
 
     public AttendanceDTO markHalfDay(Long employeeId, LocalDate date, String halfType, String status) {
@@ -515,11 +557,6 @@ public class AttendanceService {
                 attendance.setHalfType(null);
             }
             attendance = attendanceRepository.save(attendance);
-            // ✅ Trigger leave recalculation if status is ABSENT or HALF_DAY
-            if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
-                    attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
-                triggerLeaveRecalculation(employee.getId(), date);
-            }
             
             // Delete duplicate records
             if (existingAttendances.size() > 1) {
@@ -528,8 +565,7 @@ public class AttendanceService {
                 }
             }
             
-            // Regenerate payroll after attendance update
-            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            triggerAsyncRecalculation(employee.getId(), date);
 
             System.out.println("Marked " + status + " for employee " + employee.getId() + " on date " + date + " with " + workingHours + " hours");
             return convertToDTO(attendance);
@@ -562,13 +598,7 @@ public class AttendanceService {
             }
 
             attendance = attendanceRepository.save(attendance);
-            // ✅ Trigger leave recalculation if status is ABSENT or HALF_DAY
-            if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
-                    attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
-                triggerLeaveRecalculation(employee.getId(), date);
-            }
-            // Regenerate payroll after attendance creation
-            regeneratePayrollForAttendanceChange(employee.getId(), date);
+            triggerAsyncRecalculation(employee.getId(), date);
             System.out.println("Created new " + status + " record for employee " + employee.getId() + " on date " + date);
             return convertToDTO(attendance);
         }
@@ -595,29 +625,11 @@ public class AttendanceService {
         }
 
         attendance = attendanceRepository.save(attendance);
-        // ✅ Trigger leave recalculation if status is ABSENT or HALF_DAY
-        if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
-                attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
-            triggerLeaveRecalculation(attendance.getEmployee().getId(), attendance.getDate());
-        }
-        // Regenerate payroll after attendance update
-        regeneratePayrollForAttendanceChange(attendance.getEmployee().getId(), attendance.getDate());
+        triggerAsyncRecalculation(attendance.getEmployee().getId(), attendance.getDate());
         return convertToDTO(attendance);
     }
 
-    /**
-     * ✅ Trigger leave ledger recalculation after any absence/half-day attendance change.
-     * Runs synchronously so the dashboard shows updated balances immediately.
-     */
-    private void triggerLeaveRecalculation(Long employeeId, LocalDate date) {
-        try {
-            leaveRecalculationService.recalculateFromDate(employeeId, date);
-        } catch (Exception e) {
-            System.err.println("Leave recalculation failed for employee " + employeeId
-                    + " on " + date + ": " + e.getMessage());
-            // Non-fatal: attendance is already saved; recalculation can be retried
-        }
-    }
+
 
     private AttendanceDTO convertToDTO(Attendance attendance) {
         return AttendanceDTO.builder()
@@ -706,12 +718,7 @@ public class AttendanceService {
             remarks != null ? remarks : "Resolved from PENDING to " + newStatus + resolutionType
         );
 
-        // ✅ Trigger recalculation if resolved to ABSENT or HALF_DAY
-        if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT ||
-                attendance.getStatus() == Attendance.AttendanceStatus.HALF_DAY) {
-            triggerLeaveRecalculation(attendance.getEmployee().getId(), attendance.getDate());
-        }
-        regeneratePayrollForAttendanceChange(attendance.getEmployee().getId(), attendance.getDate());
+        triggerAsyncRecalculation(attendance.getEmployee().getId(), attendance.getDate());
         return convertToDTO(attendance);
     }
 

@@ -628,6 +628,17 @@ function renderSidebar() {
     navItem.classList.add('active');
   }
 
+  // Restore scroll position to prevent jumping to top
+  const savedScrollPosition = sessionStorage.getItem('sidebarScrollPos');
+  if (savedScrollPosition) {
+    sidebar.scrollTop = parseInt(savedScrollPosition, 10);
+  }
+
+  // Save scroll position when user scrolls the sidebar
+  sidebar.addEventListener('scroll', () => {
+    sessionStorage.setItem('sidebarScrollPos', sidebar.scrollTop);
+  });
+
   // Add mobile toggle if header exists
   const header = document.querySelector('.header');
   if (header && !document.querySelector('.mobile-toggle')) {

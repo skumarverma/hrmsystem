@@ -25,6 +25,9 @@ public interface LeaveLedgerRepository extends JpaRepository<LeaveLedger, Long> 
     List<LeaveLedger> findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(
             Long employeeId, LocalDate startDate, LocalDate endDate);
 
+    /** Entries in a date range for all employees */
+    List<LeaveLedger> findByEventDateBetweenOrderByEventDateAsc(LocalDate startDate, LocalDate endDate);
+
     /** Latest ledger entry for an employee before a given date (for opening balance) */
     @Query("SELECT l FROM LeaveLedger l WHERE l.employeeId = :empId AND l.eventDate < :date ORDER BY l.eventDate DESC")
     List<LeaveLedger> findLatestBeforeDate(@Param("empId") Long empId, @Param("date") LocalDate date);

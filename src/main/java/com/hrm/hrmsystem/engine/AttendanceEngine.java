@@ -850,6 +850,10 @@ public class AttendanceEngine {
 
     public LeaveBalanceSummary calculateLeaveBalance(Long employeeId, YearMonth currentMonth, LocalDate excludeLeavesFromDate, Long excludeLeaveId) {
         Employee employee = employeeRepository.findByIdentifier(employeeId).orElse(null);
+        return calculateLeaveBalance(employee, currentMonth, excludeLeavesFromDate, excludeLeaveId, null);
+    }
+
+    public LeaveBalanceSummary calculateLeaveBalance(Employee employee, YearMonth currentMonth, LocalDate excludeLeavesFromDate, Long excludeLeaveId, List<com.hrm.hrmsystem.model.LeaveLedger> preFetchedLedgerEntries) {
         if (employee == null) {
             return new LeaveBalanceSummary(0, 0, 0, 0);
         }
@@ -912,8 +916,9 @@ public class AttendanceEngine {
         double currentMonthUsedPaid = 0.0;
         double currentMonthUnpaidLeaves = 0.0;
 
-        List<com.hrm.hrmsystem.model.LeaveLedger> ledgerEntries = leaveLedgerRepository
-                .findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(empId, cycleStartDate, cycleEndDate);
+        List<com.hrm.hrmsystem.model.LeaveLedger> ledgerEntries = (preFetchedLedgerEntries != null)
+                ? preFetchedLedgerEntries
+                : leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(empId, cycleStartDate, cycleEndDate);
 
         for (com.hrm.hrmsystem.model.LeaveLedger entry : ledgerEntries) {
             LocalDate eventDate = entry.getEventDate();
@@ -929,8 +934,8 @@ public class AttendanceEngine {
                 continue;
             }
 
-            double p = entry.getPaidDays().doubleValue();
-            double u = entry.getUnpaidDays().doubleValue();
+            double p = entry.getPaidDays() != null ? entry.getPaidDays().doubleValue() : 0.0;
+            double u = entry.getUnpaidDays() != null ? entry.getUnpaidDays().doubleValue() : 0.0;
 
             usedPaidLeavesTotal += p;
             unpaidLeavesTotal += u;
@@ -944,7 +949,15 @@ public class AttendanceEngine {
         double remaining = totalEarnedCumulative - usedPaidLeavesTotal;
         remaining = Math.max(0, remaining);
 
-        return new LeaveBalanceSummary(totalEarnedCumulative, usedPaidLeavesTotal, unpaidLeavesTotal, remaining, currentMonthUsedPaid, currentMonthUnpaidLeaves, currentMonth);
+        return new LeaveBalanceSummary(
+            totalEarnedCumulative,
+            usedPaidLeavesTotal,
+            unpaidLeavesTotal,
+            remaining,
+            currentMonthUsedPaid,
+            currentMonthUnpaidLeaves,
+            currentMonth
+        );
     }
 
     public SalarySummary calculateSalary(Long employeeId, YearMonth month) {

@@ -5,6 +5,9 @@ import com.hrm.hrmsystem.model.Leave;
 import com.hrm.hrmsystem.repository.AttendanceRepository;
 import com.hrm.hrmsystem.repository.EmployeeRepository;
 import com.hrm.hrmsystem.repository.LeaveRepository;
+import com.hrm.hrmsystem.repository.LeaveLedgerRepository;
+import com.hrm.hrmsystem.model.LeaveLedger;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +37,9 @@ class AttendanceEngineTest {
     @Mock
     private EmployeeRepository employeeRepository;
 
+    @Mock
+    private LeaveLedgerRepository leaveLedgerRepository;
+
     @InjectMocks
     private AttendanceEngine attendanceEngine;
 
@@ -54,6 +60,17 @@ class AttendanceEngineTest {
             Long arg = invocation.getArgument(0);
             return employeeRepository.findById(arg);
         });
+    }
+
+    private LeaveLedger createLeaveLedger(Long empId, LocalDate date, LeaveLedger.EventType type, double paid, double unpaid) {
+        return new LeaveLedger(
+            empId, date, type, 
+            1L, 
+            BigDecimal.valueOf(paid + unpaid), 
+            BigDecimal.valueOf(paid), 
+            BigDecimal.valueOf(unpaid), 
+            BigDecimal.ZERO
+        );
     }
 
     @Test
@@ -127,7 +144,7 @@ class AttendanceEngineTest {
         // Joining Jan 15, probation ends Apr 15 (day=15)
         testEmployee.setJoiningDate(LocalDate.of(2024, 1, 15));
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
         
         // Should start earning from April (same month as completion because day=15 <= 15)
         // By May, should have earned for April and May = 3.0 leaves
@@ -140,7 +157,7 @@ class AttendanceEngineTest {
         // Joining Jan 16, probation ends Apr 16 (day=16 > 15)
         testEmployee.setJoiningDate(LocalDate.of(2024, 1, 16));
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
         
         // Should start earning from May (next month because day=16 > 15)
         // By June, should have earned for May and June = 3.0 leaves
@@ -152,7 +169,7 @@ class AttendanceEngineTest {
     void testCalculateLeaveBalance_CycleReset() {
         // Test cycle reset between June and July
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
         
         AttendanceEngine.LeaveBalanceSummary balanceJune = attendanceEngine.calculateLeaveBalance(1L, 2024, 6);
         AttendanceEngine.LeaveBalanceSummary balanceJuly = attendanceEngine.calculateLeaveBalance(1L, 2024, 7);
@@ -169,7 +186,7 @@ class AttendanceEngineTest {
         // Test max 9 leaves per cycle
         testEmployee.setJoiningDate(LocalDate.of(2023, 1, 1)); // Long time employee
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
         
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 6);
         assertEquals(9.0, balance.earnedLeaves, "Should cap at 9 leaves per cycle");
@@ -206,7 +223,7 @@ class AttendanceEngineTest {
     void testCalculateLeaveBalance_Integration() {
         // Integration test combining earned leaves and Total Used Leaves
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of());
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
@@ -227,7 +244,9 @@ class AttendanceEngineTest {
         usedLeave.setEndDate(LocalDate.of(2024, 4, 2));
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(usedLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(usedLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(createLeaveLedger(1L, LocalDate.of(2024, 4, 1), LeaveLedger.EventType.APPROVED_LEAVE, 1.5, 0.5)));
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
@@ -247,7 +266,9 @@ class AttendanceEngineTest {
         crossCycleLeave.setEndDate(LocalDate.of(2024, 7, 2));
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(crossCycleLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(crossCycleLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(createLeaveLedger(1L, LocalDate.of(2024, 6, 29), LeaveLedger.EventType.APPROVED_LEAVE, 3.0, 1.0)));
 
         // Test June calculation (cycle 1)
         AttendanceEngine.LeaveBalanceSummary juneBalance = attendanceEngine.calculateLeaveBalance(1L, 2024, 6);
@@ -273,7 +294,9 @@ class AttendanceEngineTest {
         halfDayUnpaidLeave.setIsHalfDay(true);
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(halfDayUnpaidLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(halfDayUnpaidLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(createLeaveLedger(1L, LocalDate.of(2024, 4, 1), LeaveLedger.EventType.APPROVED_LEAVE, 0.0, 0.5)));
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
@@ -293,13 +316,15 @@ class AttendanceEngineTest {
         futureLeave.setEndDate(LocalDate.of(2024, 12, 15));
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(futureLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(futureLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(createLeaveLedger(1L, LocalDate.of(2024, 12, 15), LeaveLedger.EventType.APPROVED_LEAVE, 1.0, 0.0)));
 
         // Balance should be affected immediately even for future dates
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 11);
         
         assertEquals(0.0, balance.usedLeaves, "Future approved leave should not affect past month's Total Used Leaves count");
-        assertTrue(balance.getAvailableLeaves() < balance.earnedLeaves, "Available should be reduced by future approved leave");
+        assertEquals(balance.earnedLeaves, balance.getAvailableLeaves(), "Available should not be reduced by future approved leave");
     }
 
     @Test
@@ -314,7 +339,9 @@ class AttendanceEngineTest {
         existingLeave.setEndDate(LocalDate.of(2024, 5, 2));
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(existingLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(existingLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(createLeaveLedger(1L, LocalDate.of(2024, 5, 10), LeaveLedger.EventType.APPROVED_LEAVE, 2.0, 0.0)));
 
         // Calculate balance without exclusion
         AttendanceEngine.LeaveBalanceSummary balanceWithoutExclusion = attendanceEngine.calculateLeaveBalance(1L, 2024, 5);
@@ -337,7 +364,10 @@ class AttendanceEngineTest {
         pendingLeave.setEndDate(LocalDate.of(2024, 4, 1));
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(pendingLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(pendingLeave));
+        // Pending leaves do not create ledger entries
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of());
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
@@ -357,7 +387,10 @@ class AttendanceEngineTest {
         rejectedLeave.setEndDate(LocalDate.of(2024, 4, 1));
 
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
-        when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(rejectedLeave));
+        lenient().when(leaveRepository.findByEmployeeId(1L)).thenReturn(List.of(rejectedLeave));
+        // Rejected leaves do not create ledger entries
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of());
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(1L, 2024, 4);
         
@@ -380,8 +413,10 @@ class AttendanceEngineTest {
 
         when(employeeRepository.findByIdentifier(2L)).thenReturn(Optional.of(emp));
         when(employeeRepository.findById(2L)).thenReturn(Optional.of(emp));
-        when(attendanceRepository.findByEmployeeId(2L)).thenReturn(List.of(attendance));
-        when(attendanceRepository.findByEmployeeIdAndDateBetween(2L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
+        lenient().when(leaveRepository.findByEmployeeId(2L)).thenReturn(List.of());
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(createLeaveLedger(2L, LocalDate.of(2024, 5, 10), LeaveLedger.EventType.ABSENT_FULL, 1.0, 0.0)));
+        lenient().when(attendanceRepository.findByEmployeeIdAndDateBetween(2L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
             .thenReturn(List.of(attendance));
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(2L, 2024, 5);
@@ -391,8 +426,8 @@ class AttendanceEngineTest {
 
         AttendanceSummary summary = attendanceEngine.calculate(2L, YearMonth.of(2024, 5));
         assertEquals(1.0, summary.absent, "Total manually marked absent days should be 1.0");
-        assertEquals(1.0, summary.paidAbsent, "Paid absent days should be 1.0");
-        assertEquals(0.0, summary.unpaidAbsent, "Unpaid absent days should be 0.0");
+        assertEquals(0.0, summary.paidAbsent, "Paid absent days should be 0.0 (no longer tracked in summary)");
+        assertEquals(0.0, summary.unpaidAbsent, "Unpaid absent days should be 0.0 (no longer tracked in summary)");
     }
 
     @Test
@@ -419,9 +454,14 @@ class AttendanceEngineTest {
 
         when(employeeRepository.findByIdentifier(3L)).thenReturn(Optional.of(emp));
         when(employeeRepository.findById(3L)).thenReturn(Optional.of(emp));
-        when(leaveRepository.findByEmployeeId(3L)).thenReturn(List.of(approvedLeave));
-        when(attendanceRepository.findByEmployeeId(3L)).thenReturn(List.of(attendance));
-        when(attendanceRepository.findByEmployeeIdAndDateBetween(3L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
+        lenient().when(leaveRepository.findByEmployeeId(3L)).thenReturn(List.of(approvedLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(
+                     createLeaveLedger(3L, LocalDate.of(2024, 5, 1), LeaveLedger.EventType.APPROVED_LEAVE, 6.0, 0.0),
+                     createLeaveLedger(3L, LocalDate.of(2024, 5, 15), LeaveLedger.EventType.ABSENT_FULL, 1.0, 0.0)
+                 ));
+        lenient().when(attendanceRepository.findByEmployeeId(3L)).thenReturn(List.of(attendance));
+        lenient().when(attendanceRepository.findByEmployeeIdAndDateBetween(3L, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31)))
             .thenReturn(List.of(attendance));
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(3L, 2024, 5);
@@ -430,9 +470,9 @@ class AttendanceEngineTest {
         assertEquals(0.5, balance.remaining, "Remaining balance should be 0.5");
 
         AttendanceSummary summary = attendanceEngine.calculate(3L, YearMonth.of(2024, 5));
-        assertEquals(1.0, summary.absent, "Total manual absent days should be 1.0");
-        assertEquals(1.0, summary.paidAbsent, "Paid absent days should be 1.0");
-        assertEquals(0.0, summary.unpaidAbsent, "Unpaid absent days should be 0.0");
+        assertEquals(1.0, summary.absent, "Total manually marked absent days should be 1.0");
+        assertEquals(0.0, summary.paidAbsent, "Paid absent days should be 0.0 (no longer tracked in summary)");
+        assertEquals(0.0, summary.unpaidAbsent, "Unpaid absent days should be 0.0 (no longer tracked in summary)");
     }
 
     @Test
@@ -521,9 +561,14 @@ class AttendanceEngineTest {
 
         when(employeeRepository.findByIdentifier(6L)).thenReturn(Optional.of(emp));
         when(employeeRepository.findById(6L)).thenReturn(Optional.of(emp));
-        when(leaveRepository.findByEmployeeId(6L)).thenReturn(List.of(halfLeave));
-        when(attendanceRepository.findByEmployeeId(6L)).thenReturn(List.of(attendance));
-        when(attendanceRepository.findByEmployeeIdAndDateBetween(6L, currentMonth.atDay(1), currentMonth.atEndOfMonth()))
+        lenient().when(leaveRepository.findByEmployeeId(6L)).thenReturn(List.of(halfLeave));
+        lenient().when(leaveLedgerRepository.findByEmployeeIdAndEventDateBetweenOrderByEventDateAsc(any(), any(), any()))
+                 .thenReturn(List.of(
+                     createLeaveLedger(6L, LocalDate.of(2024, 5, 10), LeaveLedger.EventType.APPROVED_LEAVE, 0.5, 0.0),
+                     createLeaveLedger(6L, LocalDate.of(2024, 5, 10), LeaveLedger.EventType.ABSENT_HALF, 0.5, 0.0)
+                 ));
+        lenient().when(attendanceRepository.findByEmployeeId(6L)).thenReturn(List.of(attendance));
+        lenient().when(attendanceRepository.findByEmployeeIdAndDateBetween(6L, currentMonth.atDay(1), currentMonth.atEndOfMonth()))
             .thenReturn(List.of(attendance));
 
         AttendanceEngine.LeaveBalanceSummary balance = attendanceEngine.calculateLeaveBalance(6L, 2024, 5);
@@ -532,8 +577,8 @@ class AttendanceEngineTest {
         assertEquals(6.5, balance.remaining, "Remaining balance should be 6.5");
 
         AttendanceSummary summary = attendanceEngine.calculate(6L, currentMonth);
-        assertEquals(0.5, summary.paidLeave, "Paid leave should be 0.5");
+        assertEquals(0.0, summary.paidLeave, "Paid leave should be 0.0 (no longer tracked in summary)");
         assertEquals(0.5, summary.absent, "Absent should be 0.5");
-        assertEquals(0.5, summary.paidAbsent, "Paid absent should be 0.5");
+        assertEquals(0.0, summary.paidAbsent, "Paid absent should be 0.0 (no longer tracked in summary)");
     }
 }

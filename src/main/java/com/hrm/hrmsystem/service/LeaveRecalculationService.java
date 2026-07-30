@@ -236,7 +236,7 @@ public class LeaveRecalculationService {
      * Priority 1 = attendance (processed before leaves on same date)
      * Priority 2 = approved leave
      */
-    static class LeaveEvent {
+    public static class LeaveEvent {
         private final LocalDate date;
         private final LeaveLedger.EventType type;
         private final double days; // 0.5 for half-day, 1.0 for full-day

@@ -26,7 +26,7 @@ spring:
     hikari:
       transaction-isolation: TRANSACTION_READ_COMMITTED
       minimum-idle: 5
-      maximum-pool-size: 5
+      maximum-pool-size: 30
       idle-timeout: 300000
       max-lifetime: 450000
       connection-timeout: 20000

@@ -486,26 +486,34 @@ public class LeaveCalculationController {
             return;
         }
         
-        Long employeeId = leaveDTO.getEmployeeId();
-        LocalDate current = leaveDTO.getStartDate();
-        LocalDate end = leaveDTO.getEndDate();
-        
-        java.util.Set<YearMonth> affectedMonths = new java.util.HashSet<>();
-        while (!current.isAfter(end)) {
-            affectedMonths.add(YearMonth.from(current));
-            current = current.plusDays(1);
-        }
-        
-        for (YearMonth ym : affectedMonths) {
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
             try {
-                log.info("Triggering payroll/payslip recalculation for employee {} in month {}", employeeId, ym);
-                payrollService.generatePayroll(employeeId, ym.getMonthValue(), ym.getYear());
-                
-                String monthYear = ym.getYear() + "-" + String.format("%02d", ym.getMonthValue());
-                payslipService.generatePayslip(employeeId, monthYear);
-            } catch (Exception e) {
-                log.error("Failed to recalculate payroll/payslip for employee {} in month {}: {}", employeeId, ym, e.getMessage());
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        }
+            
+            Long employeeId = leaveDTO.getEmployeeId();
+            LocalDate current = leaveDTO.getStartDate();
+            LocalDate end = leaveDTO.getEndDate();
+            
+            java.util.Set<YearMonth> affectedMonths = new java.util.HashSet<>();
+            while (!current.isAfter(end)) {
+                affectedMonths.add(YearMonth.from(current));
+                current = current.plusDays(1);
+            }
+            
+            for (YearMonth ym : affectedMonths) {
+                try {
+                    log.info("Triggering async payroll/payslip recalculation for employee {} in month {}", employeeId, ym);
+                    payrollService.generatePayroll(employeeId, ym.getMonthValue(), ym.getYear());
+                    
+                    String monthYear = ym.getYear() + "-" + String.format("%02d", ym.getMonthValue());
+                    payslipService.generatePayslip(employeeId, monthYear);
+                } catch (Exception e) {
+                    log.error("Failed to recalculate payroll/payslip for employee {} in month {}: {}", employeeId, ym, e.getMessage());
+                }
+            }
+        });
     }
 }

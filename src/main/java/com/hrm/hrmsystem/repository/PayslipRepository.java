@@ -12,6 +12,9 @@ import java.util.Optional;
 @Repository
 public interface PayslipRepository extends JpaRepository<Payslip, Long> {
     
+    @Query("SELECT p FROM Payslip p JOIN FETCH p.employee e LEFT JOIN FETCH e.department")
+    List<Payslip> findAll();
+    
     // Find payslip by employee and month
     Optional<Payslip> findByEmployeeIdAndMonthYear(Long employeeId, String monthYear);
     

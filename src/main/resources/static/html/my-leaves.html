@@ -191,7 +191,7 @@
                         ? `<span class="text-danger font-bold">${l.unpaidDays || 0}</span>`
                         : (l.unpaidDays || 0);
 
-                    const actionsCell = l.status === 'CANCELLED'
+                    const actionsCell = (l.status === 'CANCELLED' || l.status === 'REJECTED')
                         ? `<td class="text-center">
                             <button onclick="viewCancellationReason(${l.id})" class="btn-secondary" style="padding: 4px 12px; font-size: 0.75rem;">View Reason</button>
                            </td>`
@@ -220,10 +220,22 @@
 
         async function viewCancellationReason(leaveId) {
             try {
-                const res = await auth.apiCall(`/api/leaves/${leaveId}`);
-                if (res && res.ok) {
-                    const leave = await res.json();
-                    const reason = leave.cancellationReason || 'No reason provided by admin';
+                let leave = typeof dataLeaves !== 'undefined' ? dataLeaves.find(l => l.id === leaveId) : null;
+                if (!leave) {
+                    const res = await auth.apiCall(`/api/leaves/${leaveId}`);
+                    if (res && res.ok) leave = await res.json();
+                }
+
+                if (leave) {
+                    const isRejected = leave.status === 'REJECTED';
+                    
+                    const modalTitle = document.querySelector('#cancellation-modal .modal-title');
+                    if (modalTitle) modalTitle.textContent = isRejected ? 'Leave Rejection' : 'Leave Cancellation';
+                    
+                    const reasonTitle = document.querySelector('#cancellation-modal h4');
+                    if (reasonTitle) reasonTitle.textContent = isRejected ? 'Rejection Reason' : 'Cancellation Reason';
+                    
+                    const reason = leave.rejectionReason || leave.cancellationReason || 'No reason provided by admin';
                     document.getElementById('cancellation-reason-text').textContent = reason;
                     document.getElementById('cancellation-modal').classList.add('active');
                     document.body.style.overflow = 'hidden';

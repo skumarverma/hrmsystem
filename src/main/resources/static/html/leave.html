@@ -62,6 +62,75 @@
                 display: none !important;
             }
         }
+
+        /* Professional Search Box */
+        .search-container-prof {
+            position: relative;
+            width: 320px;
+        }
+        .search-container-prof .form-control {
+            width: 100%;
+            padding: 0.55rem 1rem 0.55rem 2.4rem;
+            font-size: 0.875rem;
+            border-radius: 9999px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: #111827;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .search-container-prof .form-control:focus {
+            background: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        .search-container-prof svg {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+        .search-container-prof .form-control:focus + svg {
+            color: #4f46e5;
+        }
+
+        /* Modal Search Box */
+        .modal-search-box {
+            position: relative;
+            width: 100%;
+        }
+        .modal-search-box .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            color: #111827;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .modal-search-box .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+        .modal-search-box svg.search-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+        .modal-search-box .form-control:focus + svg.search-icon {
+            color: #4f46e5;
+        }
     </style>
 </head>
 
@@ -145,13 +214,13 @@
                     <div class="card-header border-b flex justify-between items-center p-4">
                         <h3 class="card-title">Leave Applications</h3>
                         <div class="flex gap-2 items-center">
-                            <div style="position: relative;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af;">
+                            <div class="search-container-prof">
+                                <input type="text" id="employee-search-filter" class="form-control"
+                                    placeholder="Search name or code...">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
-                                <input type="text" id="employee-search-filter" class="form-control" style="width: 350px; padding-left: 2.25rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;"
-                                    placeholder="Search name or code...">
                             </div>
                             <select id="status-filter" class="form-control" style="width: auto; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.875rem; background: white;">
                                 <option value="ALL">All Status</option>
@@ -233,17 +302,14 @@
                     <div
                         style="background: #f8fafc; border-right: 1px solid #e5e7eb; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;">
 
-                        <!-- Employee Search -->
                         <div style="flex-shrink: 0;">
                             <label
                                 style="display: block; font-size: 0.75rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Select
                                 Employee <span style="color: #ef4444;">*</span></label>
-                            <div style="position: relative;">
+                            <div class="modal-search-box">
                                 <input type="text" id="employee-search" class="form-control"
-                                    placeholder="Search by name or ID..." autocomplete="off"
-                                    style="padding-left: 2.25rem;">
-                                <svg style="position: absolute; left: 0.625rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"
-                                    width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    placeholder="Search by name or ID..." autocomplete="off">
+                                <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <circle cx="11" cy="11" r="8" />
                                     <path d="m21 21-4.35-4.35" />
                                 </svg>
@@ -1172,16 +1238,12 @@
             // Store all leaves data for view modal (Moved to top)
 
             async function viewLeaveDetails(id) {
-                // Fetch fresh leave data from server - backend is single source of truth
-                let leave;
-                try {
-                    const res = await auth.apiCall(`/api/leaves/${id}`);
-                    if (res && res.ok) {
-                        leave = await res.json();
-                    }
-                } catch (e) {
-                    console.error('Failed to fetch leave data', e);
-                    leave = allLeavesData.find(l => l.id === id);
+                let leave = allLeavesData.find(l => l.id === id);
+                if (!leave) {
+                    try {
+                        const res = await auth.apiCall(`/api/leaves/${id}`);
+                        if (res && res.ok) leave = await res.json();
+                    } catch (e) { console.error('Failed to fetch leave data', e); }
                 }
 
                 if (!leave) {
@@ -1189,26 +1251,11 @@
                     return;
                 }
 
-                // Display values from server - backend handles all calculation
+                // Display values from server
                 const displayPaidDays = leave.paidDays || 0;
                 const displayUnpaidDays = leave.unpaidDays || 0;
-                let balanceNote = '';
 
-                // Only for PENDING: show warning if not enough balance
-                if (leave.status === 'PENDING' && leave.employeeId) {
-                    try {
-                        const balanceRes = await auth.apiCall(`/api/leaves/balance/${leave.employeeId}`);
-                        if (balanceRes && balanceRes.ok) {
-                            const balanceData = await balanceRes.json();
-                            const availableBalance = balanceData.availableLeaves || 0;
-                            if (availableBalance < (leave.totalDays || 0)) {
-                                balanceNote = `⚠️ Only ${availableBalance.toFixed(1)} days available - ${(leave.totalDays - availableBalance).toFixed(1)} days will be unpaid`;
-                            }
-                        }
-                    } catch (e) { console.error('Failed to fetch balance', e); }
-                }
-
-                // Populate modal with leave data
+                // Populate modal with leave data immediately
                 document.getElementById('view-status-badge').textContent = leave.status || 'PENDING';
                 document.getElementById('view-status-badge').className = 'status-badge ' + (leave.status || 'PENDING').toLowerCase();
 
@@ -1225,26 +1272,25 @@
 
                 // Contact number — style differently if provided vs not
                 const contactEl = document.getElementById('view-contact-number');
-                const contactSection = contactEl ? contactEl.closest('div[style*="background"]') : null;
-                if (leave.contactNumber && leave.contactNumber.trim()) {
-                    contactEl.innerHTML = `<a href="tel:${leave.contactNumber.trim()}" style="color: #059669; text-decoration: none; font-size: 1.1rem; font-weight: 700;">${leave.contactNumber.trim()}</a>`;
-                    // Make section green when number is provided
-                    const outerSection = contactEl.closest('[style*="fef3c7"]') || contactEl.closest('[style*="background: #fef3c7"]');
-                    if (outerSection) {
-                        outerSection.style.background = '#f0fdf4';
-                        outerSection.style.borderColor = '#86efac';
-                        const h4 = outerSection.querySelector('h4');
-                        if (h4) { h4.style.color = '#166534'; h4.style.borderBottomColor = '#86efac'; }
-                    }
-                } else {
-                    contactEl.innerHTML = '<span style="color: #9ca3af; font-style: italic; font-size: 0.95rem; font-weight: 400;">Not provided</span>';
-                    // Restore default amber colour
-                    const outerSection = contactEl.closest('[style*="f0fdf4"]') || contactEl.closest('div');
-                    if (outerSection && outerSection.style) {
-                        outerSection.style.background = '#fef3c7';
-                        outerSection.style.borderColor = '#fcd34d';
-                        const h4 = outerSection.querySelector('h4');
-                        if (h4) { h4.style.color = '#92400e'; h4.style.borderBottomColor = '#fcd34d'; }
+                if (contactEl) {
+                    if (leave.contactNumber && leave.contactNumber.trim()) {
+                        contactEl.innerHTML = `<a href="tel:${leave.contactNumber.trim()}" style="color: #059669; text-decoration: none; font-size: 1.1rem; font-weight: 700;">${leave.contactNumber.trim()}</a>`;
+                        const outerSection = contactEl.closest('[style*="fef3c7"]') || contactEl.closest('[style*="background: #fef3c7"]');
+                        if (outerSection) {
+                            outerSection.style.background = '#f0fdf4';
+                            outerSection.style.borderColor = '#86efac';
+                            const h4 = outerSection.querySelector('h4');
+                            if (h4) { h4.style.color = '#166534'; h4.style.borderBottomColor = '#86efac'; }
+                        }
+                    } else {
+                        contactEl.innerHTML = '<span style="color: #9ca3af; font-style: italic; font-size: 0.95rem; font-weight: 400;">Not provided</span>';
+                        const outerSection = contactEl.closest('[style*="f0fdf4"]') || contactEl.closest('div');
+                        if (outerSection && outerSection.style) {
+                            outerSection.style.background = '#fef3c7';
+                            outerSection.style.borderColor = '#fcd34d';
+                            const h4 = outerSection.querySelector('h4');
+                            if (h4) { h4.style.color = '#92400e'; h4.style.borderBottomColor = '#fcd34d'; }
+                        }
                     }
                 }
 
@@ -1257,19 +1303,11 @@
                     const startYear = startDate.getFullYear();
                     const endYear = endDate.getFullYear();
 
-                    // Check if multi-month leave
                     if (startMonth !== endMonth || startYear !== endYear) {
-                        // Calculate days in each month
                         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-                        // Days in start month
                         const lastDayOfStartMonth = new Date(startYear, startMonth + 1, 0).getDate();
                         const daysInStartMonth = lastDayOfStartMonth - startDate.getDate() + 1;
-
-                        // Days in end month
                         const daysInEndMonth = endDate.getDate();
-
-                        // Update the split display
                         const firstMonthName = monthNames[startMonth];
                         const secondMonthName = monthNames[endMonth];
 
@@ -1283,57 +1321,10 @@
                         document.getElementById('view-may-days').parentElement.querySelector('p:last-child').textContent =
                             secondMonthName + ' 1-' + daysInEndMonth;
 
-                        // Show the monthly split section
                         document.getElementById('monthly-split-section').style.display = 'block';
                     } else {
-                        // Single month leave - hide split section
                         document.getElementById('monthly-split-section').style.display = 'none';
                     }
-                }
-
-                // Fetch and display attendance summary for the employee using AttendanceEngine API
-                if (leave.employeeId) {
-                    try {
-                        // FIXED: Use AttendanceEngine API for consistent calculation with payroll
-                        const leaveMonth = new Date(leave.startDate).getMonth() + 1;
-                        const leaveYear = new Date(leave.startDate).getFullYear();
-                        const res = await auth.apiCall(`/api/dashboard/attendance/${leave.employeeId}?month=${leaveMonth}&year=${leaveYear}`);
-
-                        if (res && res.ok) {
-                            const data = await res.json();
-
-                            console.log('AttendanceEngine data (view modal):', data);
-
-                            // Show and populate attendance summary
-                            document.getElementById('view-attendance-summary').style.display = 'block';
-                            document.getElementById('view-att-present').textContent = (data.presentDays || 0).toFixed(1);
-                            document.getElementById('view-att-absent').textContent = (data.absentDays || 0).toFixed(1);
-                            document.getElementById('view-att-paid').textContent = (data.paidUsedLeaves || 0).toFixed(1);
-                            document.getElementById('view-att-unpaid').textContent = (data.unpaidUsedLeaves || 0).toFixed(1);
-                            // Fetch remaining balance separately from leave balance API
-                            try {
-                                const balRes = await auth.apiCall(`/api/leaves/balance/${leave.employeeId}`);
-                                if (balRes && balRes.ok) {
-                                    const balData = await balRes.json();
-                                    document.getElementById('view-att-remaining').textContent = (balData.availableLeaves || 0).toFixed(1);
-                                } else {
-                                    document.getElementById('view-att-remaining').textContent = '-';
-                                }
-                            } catch (balE) {
-                                document.getElementById('view-att-remaining').textContent = '-';
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Failed to load attendance summary from AttendanceEngine', e);
-                        document.getElementById('view-attendance-summary').style.display = 'none';
-                    }
-                }
-
-                // Show balance calculation note for pending leaves
-                const balanceNoteEl = document.getElementById('view-balance-note');
-                if (balanceNoteEl) {
-                    balanceNoteEl.textContent = balanceNote;
-                    balanceNoteEl.style.display = balanceNote ? 'block' : 'none';
                 }
 
                 // Show/hide approval info section
@@ -1353,10 +1344,47 @@
                     approvalInfo.style.display = 'none';
                 }
 
-                // Show modal
+                // Show modal INSTANTLY
                 document.getElementById('view-leave-modal').classList.add('active');
                 document.body.style.overflow = 'hidden';
                 document.documentElement.style.overflow = 'hidden';
+
+                // Fetch metrics concurrently in background
+                if (leave.employeeId) {
+                    try {
+                        const leaveMonth = new Date(leave.startDate).getMonth() + 1;
+                        const leaveYear = new Date(leave.startDate).getFullYear();
+
+                        const [attRes, balRes] = await Promise.all([
+                            auth.apiCall(`/api/dashboard/attendance/${leave.employeeId}?month=${leaveMonth}&year=${leaveYear}`),
+                            auth.apiCall(`/api/leaves/balance/${leave.employeeId}`)
+                        ]);
+
+                        if (attRes && attRes.ok) {
+                            const data = await attRes.json();
+                            document.getElementById('view-attendance-summary').style.display = 'block';
+                            document.getElementById('view-att-present').textContent = (data.presentDays || 0).toFixed(1);
+                            document.getElementById('view-att-absent').textContent = (data.absentDays || 0).toFixed(1);
+                            document.getElementById('view-att-paid').textContent = (data.paidUsedLeaves || 0).toFixed(1);
+                            document.getElementById('view-att-unpaid').textContent = (data.unpaidUsedLeaves || 0).toFixed(1);
+                        }
+                        if (balRes && balRes.ok) {
+                            const balData = await balRes.json();
+                            const availableBalance = balData.availableLeaves || 0;
+                            document.getElementById('view-att-remaining').textContent = availableBalance.toFixed(1);
+
+                            if (leave.status === 'PENDING' && availableBalance < (leave.totalDays || 0)) {
+                                const balanceNoteEl = document.getElementById('view-balance-note');
+                                if (balanceNoteEl) {
+                                    balanceNoteEl.textContent = `⚠️ Only ${availableBalance.toFixed(1)} days available - ${(leave.totalDays - availableBalance).toFixed(1)} days will be unpaid`;
+                                    balanceNoteEl.style.display = 'block';
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to load metrics for view modal:', e);
+                    }
+                }
             }
 
             function closeViewModal() {
@@ -1971,12 +1999,15 @@
 
             async function openModifyModal(id) {
                 try {
-                    const res = await auth.apiCall(`/api/leaves/${id}`);
-                    if (!res || !res.ok) {
+                    let leave = allLeavesData.find(l => l.id === id);
+                    if (!leave) {
+                        const res = await auth.apiCall(`/api/leaves/${id}`);
+                        if (res && res.ok) leave = await res.json();
+                    }
+                    if (!leave) {
                         auth.showNotification('Failed to fetch leave details', 'error');
                         return;
                     }
-                    const leave = await res.json();
 
                     // Populate modify modal with current leave data
                     document.getElementById('modify-leave-id').value = leave.id;

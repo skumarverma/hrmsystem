@@ -14,8 +14,10 @@
         /* Aesthetic styling for elements when moved inside the welcome banner */
         .welcome-banner .notification-container {
             margin-right: 0.5rem;
-            position: static !important; /* Forces dropdown to position relative to welcome-banner instead of container */
+            position: static !important;
+            /* Forces dropdown to position relative to welcome-banner instead of container */
         }
+
         .welcome-banner .notification-container #notif-bell-btn {
             color: rgba(255, 255, 255, 0.9) !important;
             background: rgba(255, 255, 255, 0.1) !important;
@@ -23,17 +25,21 @@
             width: 40px !important;
             height: 40px !important;
         }
+
         .welcome-banner .notification-container #notif-bell-btn:hover {
             background: rgba(255, 255, 255, 0.2) !important;
             color: #f0d878 !important;
             transform: translateY(-1px) !important;
         }
+
         .welcome-banner .notification-container #notif-badge {
             background: #dc2626 !important;
-            border: 2px solid #1a365d !important; /* matches banner primary-dark background */
+            border: 2px solid #1a365d !important;
+            /* matches banner primary-dark background */
             top: -2px !important;
             right: -2px !important;
         }
+
         .welcome-banner .notification-container #notif-dropdown {
             position: absolute !important;
             top: 1rem !important;
@@ -50,12 +56,13 @@
             background: white !important;
             overflow: hidden !important;
         }
+
         .welcome-banner .notification-container #notif-list {
             height: calc(100% - 48px) !important;
             max-height: none !important;
             overflow-y: auto !important;
         }
-        
+
         .welcome-banner #dashboard-logout-btn {
             background: rgba(239, 68, 68, 0.15) !important;
             color: #fee2e2 !important;
@@ -70,6 +77,7 @@
             transform: none !important;
             height: 40px;
         }
+
         .welcome-banner #dashboard-logout-btn:hover {
             background: #ef4444 !important;
             color: white !important;
@@ -77,13 +85,14 @@
             transform: translateY(-1px) !important;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
         }
-        
+
         /* Layout overrides for header across desktop vs mobile */
         @media (min-width: 1025px) {
             .header {
                 display: none !important;
             }
         }
+
         @media (max-width: 1024px) {
             .header {
                 margin-bottom: 1rem !important;
@@ -97,6 +106,7 @@
                 height: auto !important;
                 min-height: auto !important;
             }
+
             .header #welcome-message {
                 display: none !important;
             }
@@ -114,7 +124,9 @@
             <!-- Header -->
             <header class="header flex justify-between items-center mb-6">
                 <div class="page-title">
-                    <h1 id="welcome-message" style="margin: 0; font-size: 2rem; font-weight: 800; color: var(--primary-dark); letter-spacing: -0.5px;">Dashboard</h1>
+                    <h1 id="welcome-message"
+                        style="margin: 0; font-size: 2rem; font-weight: 800; color: var(--primary-dark); letter-spacing: -0.5px;">
+                        Dashboard</h1>
                 </div>
                 <!-- Hidden action container where sidebar.js will first mount the notification container -->
                 <div class="flex gap-2 items-center" id="header-actions-container" style="display: none !important;">
@@ -123,34 +135,49 @@
 
             <div class="page-content">
                 <!-- Professional Welcome Banner -->
-                 <div class="welcome-banner" style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
+                <div class="welcome-banner"
+                    style="background: #1e3a5f !important; color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; transition: transform 0.3s ease; flex-wrap: wrap;">
                     <!-- Ambient glows for aesthetic excellence -->
-                    <div style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;"></div>
-                    <div style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
-                    
+                    <div
+                        style="position: absolute; right: -50px; bottom: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+                    <div
+                        style="position: absolute; left: -30px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%); border-radius: 50%;">
+                    </div>
+
                     <div style="z-index: 1; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-                        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; border: 1.5px solid rgba(255, 255, 255, 0.25); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); color: #f0d878; text-shadow: 0 2px 4px rgba(0,0,0,0.1);" id="welcome-user-avatar">
+                        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; border: 1.5px solid rgba(255, 255, 255, 0.25); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); color: #f0d878; text-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                            id="welcome-user-avatar">
                             U
                         </div>
                         <div>
                             <!-- Bold white Dashboard title on the banner -->
-                            <h1 style="margin: 0 0 0.25rem 0; font-size: 2.25rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1.1;">Dashboard</h1>
-                            <h2 style="margin: 0; font-size: 1.6rem; font-weight: 600; color: rgba(255,255,255,0.95); display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.5px;">
-                                Welcome back, <span id="welcome-user-name" style="color: #f0d878;">User</span>! 👋
+                            <h1
+                                style="margin: 0 0 0.25rem 0; font-size: 2.25rem; font-weight: 800; color: white; letter-spacing: -0.03em; text-shadow: 0 2px 4px rgba(0,0,0,0.15); line-height: 1.1;">
+                                Dashboard</h1>
+                            <h2
+                                style="margin: 0; font-size: 1.6rem; font-weight: 600; color: rgba(255,255,255,0.95); display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.5px;">
+                                Welcome back, <span id="welcome-user-name" style="color: #f0d878;">User</span>!
                             </h2>
-                            <p style="margin: 0.35rem 0 0 0; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
-                                You are signed in as <strong id="welcome-user-role" style="text-transform: uppercase; letter-spacing: 0.05em; background: rgba(212, 175, 55, 0.25); color: #f0d878; padding: 2px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(212, 175, 55, 0.35);">GUEST</strong>
+                            <p
+                                style="margin: 0.35rem 0 0 0; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                                You are signed in as <strong id="welcome-user-role"
+                                    style="text-transform: uppercase; letter-spacing: 0.05em; background: rgba(212, 175, 55, 0.25); color: #f0d878; padding: 2px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(212, 175, 55, 0.35);">GUEST</strong>
                             </p>
                         </div>
                     </div>
-                    
-                    <!-- Integrated Action Area on the Banner -->
-                    <div id="banner-actions" style="z-index: 1; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
 
-                        
-                        <button class="flex items-center gap-2" id="dashboard-logout-btn" onclick="auth.logout()" title="Logout">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    <!-- Integrated Action Area on the Banner -->
+                    <div id="banner-actions"
+                        style="z-index: 1; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+
+
+                        <button class="flex items-center gap-2" id="dashboard-logout-btn" onclick="auth.logout()"
+                            title="Logout">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                             Logout
                         </button>
@@ -336,7 +363,8 @@
                                     <div
                                         class="w-10 h-10 rounded bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-100">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <path d="M6 3h12"></path>
                                             <path d="M6 8h12"></path>
                                             <path d="M6 13h8.5a4.5 4.5 0 0 0 0-9"></path>
@@ -387,7 +415,7 @@
                 const welcomeNameEl = document.getElementById('welcome-user-name');
                 const welcomeRoleEl = document.getElementById('welcome-user-role');
                 const welcomeAvatarEl = document.getElementById('welcome-user-avatar');
-                
+
                 const displayName = user.employeeName || user.username || 'User';
                 if (welcomeNameEl) welcomeNameEl.textContent = displayName;
                 if (welcomeRoleEl) welcomeRoleEl.textContent = auth.getRoleDisplayName() || user.role;
@@ -401,13 +429,13 @@
                 const dateEl = document.getElementById('welcome-current-date');
                 const timeEl = document.getElementById('welcome-current-time');
                 if (!dateEl || !timeEl) return;
-                
+
                 const now = new Date();
-                
+
                 // Format: "Saturday, June 13, 2026"
                 const dateOptions = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
                 dateEl.textContent = now.toLocaleDateString('en-US', dateOptions);
-                
+
                 // Format: "04:33:12 PM"
                 const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
                 timeEl.textContent = now.toLocaleTimeString('en-US', timeOptions);

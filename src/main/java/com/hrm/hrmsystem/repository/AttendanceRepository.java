@@ -18,6 +18,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     List<Attendance> findByEmployeeId(Long employeeId);
 
+    @Query("SELECT a FROM Attendance a JOIN FETCH a.employee e LEFT JOIN FETCH e.department WHERE a.date = :date")
     List<Attendance> findByDate(LocalDate date);
 
     Optional<Attendance> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
@@ -27,6 +28,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     List<Attendance> findByEmployeeIdAndDateBetween(Long employeeId, LocalDate startDate, LocalDate endDate);
 
+    @Query("SELECT a FROM Attendance a JOIN FETCH a.employee e LEFT JOIN FETCH e.department WHERE a.date BETWEEN :startDate AND :endDate")
     List<Attendance> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
     // Find attendance by employee and month/year

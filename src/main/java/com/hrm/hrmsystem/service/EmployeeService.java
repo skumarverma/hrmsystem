@@ -57,8 +57,6 @@ public class EmployeeService {
     @Autowired
     private NotificationPreferenceRepository notificationPreferenceRepository;
 
-    @Autowired
-    private PasswordResetOTPRepository passwordResetOTPRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository, 
                           DepartmentRepository departmentRepository, 

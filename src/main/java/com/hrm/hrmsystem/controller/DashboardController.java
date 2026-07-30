@@ -164,7 +164,7 @@ public class DashboardController {
             LocalDate today = LocalDate.now();
             
             // Employee stats
-            List<Employee> nonSystemEmployees = employeeRepository.findAll().stream()
+            List<Employee> nonSystemEmployees = employeeRepository.findAllWithDepartment().stream()
                     .filter(e -> !employeeService.isSystemUser(e))
                     .toList();
             long totalEmployees = nonSystemEmployees.size();
@@ -174,7 +174,7 @@ public class DashboardController {
             long activeEmployees = activeEmployeesList.size();
             
             // Leave stats for today
-            List<Leave> approvedLeaves = leaveRepository.findByStatus(Leave.LeaveStatus.APPROVED);
+            List<Leave> approvedLeaves = leaveRepository.findByStatusWithEmployee(Leave.LeaveStatus.APPROVED);
             long onLeaveToday = approvedLeaves.stream()
                     .filter(l -> l.getEmployee() != null && !employeeService.isSystemUser(l.getEmployee()))
                     .filter(l -> !today.isBefore(l.getStartDate()) && !today.isAfter(l.getEndDate()))
@@ -564,7 +564,7 @@ public class DashboardController {
                         .mapToDouble(Double::doubleValue)
                         .sum();
             } else {
-                netPayroll = employeeRepository.findAll().stream()
+                netPayroll = employeeRepository.findAllWithDepartment().stream()
                         .filter(e -> e.getStatus() == Employee.EmployeeStatus.ACTIVE && !employeeService.isSystemUser(e))
                         .map(Employee::getTotalNetSalary)
                         .filter(java.util.Objects::nonNull)
