@@ -91,7 +91,7 @@ function renderPayrollTable(data) {
 
         if (isHRorAdmin) {
             if (p.status === 'PENDING') {
-                actions = `<button onclick="sendForApproval(${p.id})" class="btn-small" style="background: #dbeafe; color: #1e40af;">Send for Approval</button>`;
+                actions = `<button onclick="sendForApproval(${p.id}, this)" class="btn-small" style="background: #dbeafe; color: #1e40af;">Send for Approval</button>`;
             } else if (p.status === 'PENDING_APPROVAL') {
                 actions = `<span style="color: #f59e0b; font-size: 0.875rem; margin-right: 0.25rem;">⏳ Waiting for Accountant</span>
                            <button onclick="unlockPayroll(${p.id})" class="btn-small" style="background: #ef4444; color: white; font-weight: 600;">🔓 Unlock</button>`;
@@ -215,7 +215,12 @@ async function clearAllPayrolls() {
     } catch (e) { auth.showNotification(e.message, 'error'); }
 }
 
-async function sendForApproval(id) {
+async function sendForApproval(id, btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        btn.style.opacity = '0.6';
+    }
     try {
         const res = await auth.apiCall(`/api/payroll/send-for-approval/${id}`, {
             method: 'POST',
@@ -224,8 +229,21 @@ async function sendForApproval(id) {
         if (res && res.ok) {
             auth.showNotification('Payroll sent for approval', 'success');
             loadPayroll();
+        } else {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Send for Approval';
+                btn.style.opacity = '1';
+            }
         }
-    } catch (e) { auth.showNotification(e.message, 'error'); }
+    } catch (e) {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Send for Approval';
+            btn.style.opacity = '1';
+        }
+        auth.showNotification(e.message, 'error');
+    }
 }
 
 async function payPayroll(id) {

@@ -217,36 +217,39 @@ public class PayrollService {
 
         generatePayslipWithStatus(payroll, "DRAFT", approvedBy);
 
-        // Send email notification to all Accountants
-        try {
-            List<User> accountants = userRepository.findByRole(User.Role.ROLE_ACCOUNTANT);
-            if (accountants != null && !accountants.isEmpty()) {
-                String monthName = java.time.Month.of(payroll.getMonth()).getDisplayName(
-                        java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
-                String employeeName = payroll.getEmployee().getFirstName() + " " + payroll.getEmployee().getLastName();
-                String subject = "Payroll Pending Approval: " + employeeName + " - " + monthName + " " + payroll.getYear();
-                String body = String.format(
-                        "Dear Accountant,\n\n" +
-                        "A new payroll record has been submitted and is pending your approval.\n\n" +
-                        "Employee: %s\n" +
-                        "Month/Year: %s %d\n" +
-                        "Net Salary: %s\n\n" +
-                        "Please login to the HRM system to review and approve/reject the payroll.\n\n" +
-                        "Best Regards,\n" +
-                        "HRM System Support",
-                        employeeName, monthName, payroll.getYear(), 
-                        "Rs. " + String.format("%,.2f", payroll.getNetSalary())
-                );
+        // Send email notification to all Accountants asynchronously
+        final Payroll finalPayroll = payroll;
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                List<User> accountants = userRepository.findByRole(User.Role.ROLE_ACCOUNTANT);
+                if (accountants != null && !accountants.isEmpty()) {
+                    String monthName = java.time.Month.of(finalPayroll.getMonth()).getDisplayName(
+                            java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
+                    String employeeName = finalPayroll.getEmployee().getFirstName() + " " + finalPayroll.getEmployee().getLastName();
+                    String subject = "Payroll Pending Approval: " + employeeName + " - " + monthName + " " + finalPayroll.getYear();
+                    String body = String.format(
+                            "Dear Accountant,\n\n" +
+                            "A new payroll record has been submitted and is pending your approval.\n\n" +
+                            "Employee: %s\n" +
+                            "Month/Year: %s %d\n" +
+                            "Net Salary: %s\n\n" +
+                            "Please login to the HRM system to review and approve/reject the payroll.\n\n" +
+                            "Best Regards,\n" +
+                            "HRM System Support",
+                            employeeName, monthName, finalPayroll.getYear(), 
+                            "Rs. " + String.format("%,.2f", finalPayroll.getNetSalary())
+                    );
 
-                for (User accountant : accountants) {
-                    if (accountant.getEmail() != null && !accountant.getEmail().trim().isEmpty()) {
-                        emailUtil.sendSimpleEmail(accountant.getEmail(), subject, body);
+                    for (User accountant : accountants) {
+                        if (accountant.getEmail() != null && !accountant.getEmail().trim().isEmpty()) {
+                            emailUtil.sendSimpleEmail(accountant.getEmail(), subject, body);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                log.error("Failed to send email notification to accountant: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("Failed to send email notification to accountant: {}", e.getMessage());
-        }
+        });
 
         return convertToDTO(payroll);
     }
@@ -275,31 +278,34 @@ public class PayrollService {
             log.warn("Could not update payslip status, but payroll was approved: {}", e.getMessage());
         }
 
-        // Send approval notification email to employee
-        if (payroll.getEmployee().getEmail() != null && !payroll.getEmployee().getEmail().isEmpty()) {
-            try {
-                String subject = "Your Salary Slip has been Approved - " + String.format("%02d", payroll.getMonth()) + "/" + payroll.getYear();
-                String htmlBody = String.format(
-                        "<html><body style='font-family: Arial, sans-serif;'>" +
-                        "<h2 style='color: #4CAF50;'>Payroll Approved</h2>" +
-                        "<p>Dear <strong>%s %s</strong>,</p>" +
-                        "<p>Your payroll for the month of <strong>%02d/%d</strong> has been successfully approved by the accountant.</p>" +
-                        "<p>Your net salary of <strong>₹%,.2f</strong> will be processed shortly.</p>" +
-                        "<br>" +
-                        "<p>You can view and download your detailed payslip by logging into the HRM Portal.</p>" +
-                        "<br>" +
-                        "<p>Best Regards,</p>" +
-                        "<p><strong>HR Department</strong></p>" +
-                        "<p style='color: #888; font-size: 12px;'>This is an automated email. Please do not reply.</p>" +
-                        "</body></html>",
-                        payroll.getEmployee().getFirstName(), payroll.getEmployee().getLastName(),
-                        payroll.getMonth(), payroll.getYear(), payroll.getNetSalary()
-                );
-                emailUtil.sendHtmlEmail(payroll.getEmployee().getEmail(), subject, htmlBody);
-                log.info("Approval email sent to employee: {}", payroll.getEmployee().getEmail());
-            } catch (Exception e) {
-                log.warn("Failed to send approval email to employee {}: {}", payroll.getEmployee().getEmail(), e.getMessage());
-            }
+        // Send approval notification email to employee asynchronously
+        final Payroll approvedPayroll = payroll;
+        if (approvedPayroll.getEmployee() != null && approvedPayroll.getEmployee().getEmail() != null && !approvedPayroll.getEmployee().getEmail().isEmpty()) {
+            java.util.concurrent.CompletableFuture.runAsync(() -> {
+                try {
+                    String subject = "Your Salary Slip has been Approved - " + String.format("%02d", approvedPayroll.getMonth()) + "/" + approvedPayroll.getYear();
+                    String htmlBody = String.format(
+                            "<html><body style='font-family: Arial, sans-serif;'>" +
+                            "<h2 style='color: #4CAF50;'>Payroll Approved</h2>" +
+                            "<p>Dear <strong>%s %s</strong>,</p>" +
+                            "<p>Your payroll for the month of <strong>%02d/%d</strong> has been successfully approved by the accountant.</p>" +
+                            "<p>Your net salary of <strong>₹%,.2f</strong> will be processed shortly.</p>" +
+                            "<br>" +
+                            "<p>You can view and download your detailed payslip by logging into the HRM Portal.</p>" +
+                            "<br>" +
+                            "<p>Best Regards,</p>" +
+                            "<p><strong>HR Department</strong></p>" +
+                            "<p style='color: #888; font-size: 12px;'>This is an automated email. Please do not reply.</p>" +
+                            "</body></html>",
+                            approvedPayroll.getEmployee().getFirstName(), approvedPayroll.getEmployee().getLastName(),
+                            approvedPayroll.getMonth(), approvedPayroll.getYear(), approvedPayroll.getNetSalary()
+                    );
+                    emailUtil.sendHtmlEmail(approvedPayroll.getEmployee().getEmail(), subject, htmlBody);
+                    log.info("Approval email sent to employee: {}", approvedPayroll.getEmployee().getEmail());
+                } catch (Exception e) {
+                    log.warn("Failed to send approval email to employee {}: {}", approvedPayroll.getEmployee().getEmail(), e.getMessage());
+                }
+            });
         }
 
         log.info("Payroll {} approved successfully", payrollId);
